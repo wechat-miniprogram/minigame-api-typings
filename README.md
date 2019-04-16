@@ -1,1 +1,33 @@
-# minigame-api-typings
+# 微信小游戏定义文件
+
+> [English version](./README-en.md)
+
+[![](https://img.shields.io/npm/v/minigame-api-typings.svg?style=flat)](https://www.npmjs.com/package/minigame-api-typings)
+[![](https://img.shields.io/github/license/wechat-miniprogram/minigame-api-typings.svg)](https://github.com/wechat-miniprogram/minigame-api-typings)
+
+微信小游戏 API 的 TypeScript 类型定义文件
+
+## 安装
+
+通过 npm 安装：
+```bash
+# 安装对应最新基础库的定义文件
+npm install minigame-api-typings
+```
+
+或者通过版本号指定一个基础库版本：
+```bash
+# 安装对应基础库版本 2.4.1 的定义文件
+npm install minigame-api-typings@2.6.5
+```
+
+## 版本
+
+基础库版本|npm 版本|命令
+-|-|-
+[v2.6.5](https://developers.weixin.qq.com/miniprogram/dev/framework/release.html#v265-20190402) | [2.6.5](https://www.npmjs.com/package/minigame-api-typings/v/2.6.5) | `npm install minigame-api-typings@2.6.5`
+
+
+## 贡献
+
+定义文件是随 [文档](https://developers.weixin.qq.com/miniprogram/dev/index.html) 一起自动生成的，所以所有的 PR 都将 __不会__ 被接受。如果您有 bug 反馈或建议，请提一个 issue 给我们。非常感谢！
