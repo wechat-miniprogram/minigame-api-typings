@@ -1,0 +1,1 @@
+# minigame-api-typings
