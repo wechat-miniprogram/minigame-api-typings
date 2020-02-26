@@ -28,7 +28,7 @@ npm install minigame-api-typings@2.6.5
 
 ## 更新日志
 
-参考 [CHANGELOG.md](https://github.com/wechat-miniprogram/mingame-api-typings/blob/master/CHANGELOG.md)
+参考 [CHANGELOG.md](https://github.com/wechat-miniprogram/minigame-api-typings/blob/master/CHANGELOG.md)
 
 ## 贡献
 
