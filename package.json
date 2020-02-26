@@ -1,20 +1,40 @@
 {
   "name": "minigame-api-typings",
-  "version": "2.6.5",
+  "version": "2.10.2",
   "description": "Type definitions for APIs of Wechat MiniGame in TypeScript",
   "main": "./index.d.ts",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run tsd && npm run tslint",
+    "tsd": "tsd",
+    "tslint": "tslint --project ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wechat-miniprogram/minigame-api-typings.git"
   },
-  "author": "wechat-miniprogram",
+  "author": "Wechat Miniprogram <wx-miniprogram@qq.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wechat-miniprogram/minigame-api-typings/issues"
   },
-  "homepage": "https://github.com/wechat-miniprogram/minigame-api-typings#readme"
+  "homepage": "https://github.com/wechat-miniprogram/minigame-api-typings#readme",
+  "tsd": {
+    "directory": "test"
+  },
+  "devDependencies": {
+    "tsd": "^0.11.0",
+    "tslint": "^6.0.0",
+    "typescript": "^3.8.2"
+  },
+  "files": [
+    "LICENSE",
+    "CHANGELOG.md",
+    "VERSIONS.md",
+    "README.md",
+    "README-en.md",
+    "index.d.ts",
+    "typings.json",
+    "types/"
+  ]
 }
