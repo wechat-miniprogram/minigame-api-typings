@@ -1006,22 +1006,30 @@ declare namespace WechatMinigame {
         /** 宽度 */
         width: number
     }
-    /** 对局回放的标题的配置。对局回放标题不能随意设置，只能选择预设的文案模版和对应的参数。 */
+    /** 对局回放的分享参数。 */
     interface GameRecorderShareButton {
-        /** 对局回放的标题的模版参数。 */
-        data?: IAnyObject
-        /** 对局回放的标题的模版。不传则为：${用户昵称} 在 ${游戏名称} 的游戏时刻
+        /** 分享的对局回放打开后跳转小游戏的 query。 */
+        query: string
+        /** 对局回放的剪辑区间，是一个二维数组，单位 ms（毫秒）。[[1000, 3000], [4000, 5000]] 表示剪辑已录制对局回放的 1-3 秒和 4-5 秒最终合成为一个 3 秒的对局回放。对局回放剪辑后的总时长最多 60 秒，即 1 分钟。 */
+        timeRange: number[]
+        /** 对局回放的播放速率，只能设置以下几个值：0.3，0.5，1，1.5，2，2.5，3。其中1表示原速播放，小于1表示减速播放，大于1表示加速播放。
          *
-         * 可选值：
-         * - 'defautl.score': 模版格式为，《小游戏名称》，本局得分：${score}，对应的 data 应该如 { score: 4500 };
-         * - 'default.level': 模版格式为，《小游戏名称》，当前关卡：第42关，对应的 data 应该如 { level: 23 };
-         * - 'default.opponent': 模版格式为，《小游戏名称》，本局对手：${opponent}，对应的 data 应该如 { opponent_openid: 'oC6J75Sh1_4K8Mf5b1mlgDkMPhoI' };
-         * - 'default.cost': 模版格式为，《小游戏名称》，本局耗时：${cost}秒，对应的 data 应该如 { cost_seconds: 123 }; */
-        template?:
-            | 'defautl.score'
-            | 'default.level'
-            | 'default.opponent'
-            | 'default.cost'
+         * 最低基础库： `2.9.2` */
+        atempo?: number
+        /** 如果原始视频文件中有音频，是否与新传入的bgm混音，默认为false，表示不混音，只保留一个音轨，值为true时表示原始音频与传入的bgm混音。
+         *
+         * 最低基础库： `2.10.0` */
+        audioMix?: boolean
+        /** 对局回放背景音乐的地址。必须是一个代码包文件路径或者 wxfile:// 文件路径，不支持 http/https 开头的 url。 */
+        bgm?: string
+        /** 对局回放的按钮的配置。对局回放按钮的文案不能随意设置，只能选择预设的文案模版。 */
+        button?: undefined
+        /** 对局回放的标题的配置。对局回放标题不能随意设置，只能选择预设的文案模版和对应的参数。 */
+        title?: undefined
+        /** 对局回放的音量大小，最小 0，最大 1。
+         *
+         * 最低基础库： `2.9.2` */
+        volume?: number
     }
     /** 按钮的样式 */
     interface GameRecorderShareButtonStyle {
@@ -1055,6 +1063,9 @@ declare namespace WechatMinigame {
          *
          * 最低基础库： `2.10.0` */
         hookBgm?: boolean
+    }
+    interface GameServerManagerOnRoomInfoChangeCallbackResult {
+        res: OnRoomInfoChangeCallbackResult
     }
     interface GetAvailableAudioSourcesOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -4152,7 +4163,7 @@ innerAudioContext.onError((res) => {
     }
     /** 订阅消息设置 */
     interface SubscriptionsSetting {
-        /** 每一项订阅消息的订阅状态。itemSettings对象的键为**一次性订阅消息的模板id**或**系统订阅消息的类型**，值为'accept'、'reject'、'ban'中的其中一种。'accept'表示用户同意订阅这条消息，'reject'表示用户拒绝订阅这条消息，'ban'表示已被后台封禁。一次性订阅消息使用方法详见 [wx.requestSubscribeMessage](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)，永久订阅消息（仅小游戏可用）使用方法详见[wx.requestSubscribeSystemMessage](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeSystemMessage.html) */
+        /** 每一项订阅消息的订阅状态。itemSettings对象的键为**一次性订阅消息的模板id**或**系统订阅消息的类型**，值为'accept'、'reject'、'ban'中的其中一种。'accept'表示用户同意订阅这条消息，'reject'表示用户拒绝订阅这条消息，'ban'表示已被后台封禁。一次性订阅消息使用方法详见 [wx.requestSubscribeMessage](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)，永久订阅消息（仅小游戏可用）使用方法详见[wx.requestSubscribeSystemMessage](/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeSystemMessage.html) */
         itemSettings: IAnyObject
         /** 订阅消息总开关，true为开启，false为关闭 */
         mainSwitch: boolean
@@ -4164,12 +4175,12 @@ innerAudioContext.onError((res) => {
         /** 对局回放的标题的模版。不传则为：${用户昵称} 在 ${游戏名称} 的游戏时刻
          *
          * 可选值：
-         * - 'defautl.score': 模版格式为，${游戏名称}，本局得分：${score}，对应的 data 应该如 { score: 4500 };
+         * - 'default.score': 模版格式为，${游戏名称}，本局得分：${score}，对应的 data 应该如 { score: 4500 };
          * - 'default.level': 模版格式为，${游戏名称}，当前关卡：第42关，对应的 data 应该如 { level: 23 };
          * - 'default.opponent': 模版格式为，${游戏名称}，本局对手：${opponent}，对应的 data 应该如 { opponent_openid: 'oC6J75Sh1_4K8Mf5b1mlgDkMPhoI' };
          * - 'default.cost': 模版格式为，${游戏名称}，本局耗时：${cost}秒，对应的 data 应该如 { cost_seconds: 123 }; */
         template?:
-            | 'defautl.score'
+            | 'default.score'
             | 'default.level'
             | 'default.opponent'
             | 'default.cost'
@@ -4379,7 +4390,7 @@ innerAudioContext.onError((res) => {
         muteMicrophone?: boolean
     }
     interface UploadFileOption {
-        /** 要上传文件资源的路径 (网络路径) */
+        /** 要上传文件资源的路径 (本地路径) */
         filePath: string
         /** 文件对应的 key，开发者在服务端可以通过这个 key 获取文件的二进制内容 */
         name: string
@@ -7369,7 +7380,9 @@ wx.addCard({
 ```
 *
 * 最低基础库： `2.5.0` */
-        addCard(option: AddCardOption): void
+        addCard<TOption extends AddCardOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, AddCardOption>
         /** [wx.authorize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/authorize/wx.authorize.html)
 *
 * 提前向用户发起授权请求。调用后会立刻弹窗询问用户是否同意授权小程序使用某项功能或获取用户的某些数据，但不会实际调用对应接口。如果用户之前已经同意授权，则不会出现弹窗，直接返回成功。更多用法详见 [用户授权](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)。
@@ -7395,13 +7408,19 @@ wx.getSetting({
 ```
 *
 * 最低基础库： `1.2.0` */
-        authorize(option: AuthorizeOption): void
+        authorize<TOption extends AuthorizeOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, AuthorizeOption>
         /** [wx.checkIsUserAdvisedToRest(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/anti-addiction/wx.checkIsUserAdvisedToRest.html)
          *
          * 根据用户当天游戏时间判断用户是否需要休息
          *
          * 最低基础库： `1.9.97` */
-        checkIsUserAdvisedToRest(option: CheckIsUserAdvisedToRestOption): void
+        checkIsUserAdvisedToRest<
+            TOption extends CheckIsUserAdvisedToRestOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, CheckIsUserAdvisedToRestOption>
         /** [wx.checkSession(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.checkSession.html)
 *
 * 检查登录态是否过期。
@@ -7424,7 +7443,9 @@ wx.checkSession({
   }
 })
 ``` */
-        checkSession(option?: CheckSessionOption): void
+        checkSession<TOption extends CheckSessionOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, CheckSessionOption>
         /** [wx.chooseImage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.chooseImage.html)
 *
 * 从本地相册选择图片或使用相机拍照。
@@ -7442,7 +7463,9 @@ wx.chooseImage({
   }
 })
 ``` */
-        chooseImage(option: ChooseImageOption): void
+        chooseImage<TOption extends ChooseImageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ChooseImageOption>
         /** [wx.clearStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.clearStorage.html)
 *
 * 清理本地数据缓存
@@ -7461,7 +7484,9 @@ try {
   // Do something when catch error
 }
 ``` */
-        clearStorage(option?: ClearStorageOption): void
+        clearStorage<TOption extends ClearStorageOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, ClearStorageOption>
         /** [wx.clearStorageSync()](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.clearStorageSync.html)
 *
 * [wx.clearStorage](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.clearStorage.html) 的同步版本
@@ -7499,7 +7524,9 @@ wx.closeBLEConnection({
 ```
 *
 * 最低基础库： `2.9.2` */
-        closeBLEConnection(option: CloseBLEConnectionOption): void
+        closeBLEConnection<TOption extends CloseBLEConnectionOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, CloseBLEConnectionOption>
         /** [wx.closeBluetoothAdapter(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.closeBluetoothAdapter.html)
 *
 * 关闭蓝牙模块。调用该方法将断开所有已建立的连接并释放系统资源。建议在使用蓝牙流程后，与 [wx.openBluetoothAdapter](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.openBluetoothAdapter.html) 成对调用。
@@ -7517,7 +7544,9 @@ wx.closeBluetoothAdapter({
 ```
 *
 * 最低基础库： `2.9.2` */
-        closeBluetoothAdapter(option?: CloseBluetoothAdapterOption): void
+        closeBluetoothAdapter<TOption extends CloseBluetoothAdapterOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, CloseBluetoothAdapterOption>
         /** [wx.closeSocket(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.closeSocket.html)
 *
 * 关闭 WebSocket 连接
@@ -7541,7 +7570,9 @@ wx.onSocketClose(function(res) {
   console.log('WebSocket 已关闭！')
 })
 ``` */
-        closeSocket(option?: CloseSocketOption): void
+        closeSocket<TOption extends CloseSocketOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, CloseSocketOption>
         /** [wx.createBLEConnection(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.createBLEConnection.html)
 *
 * 连接低功耗蓝牙设备。
@@ -7570,23 +7601,33 @@ wx.createBLEConnection({
 ```
 *
 * 最低基础库： `2.9.2` */
-        createBLEConnection(option: CreateBLEConnectionOption): void
+        createBLEConnection<TOption extends CreateBLEConnectionOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, CreateBLEConnectionOption>
         /** [wx.exitMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.exitMiniProgram.html)
          *
          * 退出当前小游戏 */
-        exitMiniProgram(option?: ExitMiniProgramOption): void
+        exitMiniProgram<TOption extends ExitMiniProgramOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, ExitMiniProgramOption>
         /** [wx.exitVoIPChat(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.exitVoIPChat.html)
          *
          * 退出（销毁）实时语音通话
          *
          * 最低基础库： `2.7.0` */
-        exitVoIPChat(option?: ExitVoIPChatOption): void
+        exitVoIPChat<TOption extends ExitVoIPChatOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, ExitVoIPChatOption>
         /** [wx.getAvailableAudioSources(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/wx.getAvailableAudioSources.html)
          *
          * 获取当前支持的音频输入源
          *
          * 最低基础库： `2.1.0` */
-        getAvailableAudioSources(option?: GetAvailableAudioSourcesOption): void
+        getAvailableAudioSources<
+            TOption extends GetAvailableAudioSourcesOption
+        >(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetAvailableAudioSourcesOption>
         /** [wx.getBLEDeviceCharacteristics(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.getBLEDeviceCharacteristics.html)
 *
 * 获取蓝牙设备某个服务中所有特征值(characteristic)。
@@ -7608,9 +7649,11 @@ wx.getBLEDeviceCharacteristics({
 ```
 *
 * 最低基础库： `2.9.2` */
-        getBLEDeviceCharacteristics(
-            option: GetBLEDeviceCharacteristicsOption,
-        ): void
+        getBLEDeviceCharacteristics<
+            TOption extends GetBLEDeviceCharacteristicsOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetBLEDeviceCharacteristicsOption>
         /** [wx.getBLEDeviceServices(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.getBLEDeviceServices.html)
 *
 * 获取蓝牙设备所有服务(service)。
@@ -7630,17 +7673,23 @@ wx.getBLEDeviceServices({
 ```
 *
 * 最低基础库： `2.9.2` */
-        getBLEDeviceServices(option: GetBLEDeviceServicesOption): void
+        getBLEDeviceServices<TOption extends GetBLEDeviceServicesOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetBLEDeviceServicesOption>
         /** [wx.getBatteryInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfo.html)
          *
          * 获取设备电量。同步 API [wx.getBatteryInfoSync](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfoSync.html) 在 iOS 上不可用。 */
-        getBatteryInfo(option?: GetBatteryInfoOption): void
+        getBatteryInfo<TOption extends GetBatteryInfoOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetBatteryInfoOption>
         /** [wx.getBeacons(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.getBeacons.html)
          *
          * 获取所有已搜索到的 iBeacon 设备
          *
          * 最低基础库： `2.9.2` */
-        getBeacons(option?: GetBeaconsOption): void
+        getBeacons<TOption extends GetBeaconsOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetBeaconsOption>
         /** [wx.getBluetoothAdapterState(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.getBluetoothAdapterState.html)
 *
 * 获取本机蓝牙适配器状态。
@@ -7658,7 +7707,11 @@ wx.getBluetoothAdapterState({
 ```
 *
 * 最低基础库： `2.9.2` */
-        getBluetoothAdapterState(option?: GetBluetoothAdapterStateOption): void
+        getBluetoothAdapterState<
+            TOption extends GetBluetoothAdapterStateOption
+        >(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetBluetoothAdapterStateOption>
         /** [wx.getBluetoothDevices(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.getBluetoothDevices.html)
 *
 * 获取在蓝牙模块生效期间所有已发现的蓝牙设备。包括已经和本机处于连接状态的设备。
@@ -7696,7 +7749,9 @@ wx.getBluetoothDevices({
 * - 蓝牙设备在被搜索到时，系统返回的 name 字段一般为广播包中的 LocalName 字段中的设备名称，而如果与蓝牙设备建立连接，系统返回的 name 字段会改为从蓝牙设备上获取到的 `GattName`。若需要动态改变设备名称并展示，建议使用 `localName` 字段。
 *
 * 最低基础库： `2.9.2` */
-        getBluetoothDevices(option?: GetBluetoothDevicesOption): void
+        getBluetoothDevices<TOption extends GetBluetoothDevicesOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetBluetoothDevicesOption>
         /** [wx.getClipboardData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/clipboard/wx.getClipboardData.html)
 *
 * 获取系统剪贴板的内容
@@ -7713,7 +7768,9 @@ wx.getClipboardData({
 ```
 *
 * 最低基础库： `1.1.0` */
-        getClipboardData(option?: GetClipboardDataOption): void
+        getClipboardData<TOption extends GetClipboardDataOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetClipboardDataOption>
         /** [wx.getConnectedBluetoothDevices(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.getConnectedBluetoothDevices.html)
 *
 * 根据 uuid 获取处于已连接状态的设备。
@@ -7731,9 +7788,11 @@ wx.getConnectedBluetoothDevices({
 ```
 *
 * 最低基础库： `2.9.2` */
-        getConnectedBluetoothDevices(
-            option: GetConnectedBluetoothDevicesOption,
-        ): void
+        getConnectedBluetoothDevices<
+            TOption extends GetConnectedBluetoothDevicesOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetConnectedBluetoothDevicesOption>
         /** [wx.getExtConfig(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ext/wx.getExtConfig.html)
 *
 * 获取[第三方平台](#)自定义的数据字段。
@@ -7756,25 +7815,33 @@ if (wx.getExtConfig) {
 ```
 *
 * 最低基础库： `2.8.3` */
-        getExtConfig(option?: GetExtConfigOption): void
+        getExtConfig<TOption extends GetExtConfigOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetExtConfigOption>
         /** [wx.getFriendCloudStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getFriendCloudStorage.html)
          *
          * 拉取当前用户所有同玩好友的托管数据。该接口只可在开放数据域下使用
          *
          * 最低基础库： `1.9.92` */
-        getFriendCloudStorage(option: GetFriendCloudStorageOption): void
+        getFriendCloudStorage<TOption extends GetFriendCloudStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetFriendCloudStorageOption>
         /** [wx.getGroupCloudStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getGroupCloudStorage.html)
          *
          * 获取群同玩成员的游戏数据。小游戏通过群分享卡片打开的情况下才可以调用。**该接口只可在开放数据域下使用**。
          *
          * 最低基础库： `1.9.92` */
-        getGroupCloudStorage(option: GetGroupCloudStorageOption): void
+        getGroupCloudStorage<TOption extends GetGroupCloudStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetGroupCloudStorageOption>
         /** [wx.getGroupInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getGroupInfo.html)
          *
          * 获取群信息。小游戏通过群分享卡片打开的情况下才可以调用。**该接口只可在开放数据域下使用**。
          *
          * 最低基础库： `2.10.1` */
-        getGroupInfo(option: GetGroupInfoOption): void
+        getGroupInfo<TOption extends GetGroupInfoOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetGroupInfoOption>
         /** [wx.getLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html)
 *
 * 获取当前的地理位置、速度。当用户离开小程序后，此接口无法调用。开启高精度定位，接口耗时会增加，可指定 highAccuracyExpireTime 作为超时时间。
@@ -7799,7 +7866,9 @@ if (wx.getExtConfig) {
 *
 * - 工具中定位模拟使用IP定位，可能会有一定误差。且工具目前仅支持 gcj02 坐标。
 * - 使用第三方服务进行逆地址解析时，请确认第三方服务默认的坐标系，正确进行坐标转换。 */
-        getLocation(option: GetLocationOption): void
+        getLocation<TOption extends GetLocationOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetLocationOption>
         /** [wx.getNetworkType(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/network/wx.getNetworkType.html)
 *
 * 获取网络类型
@@ -7814,13 +7883,17 @@ wx.getNetworkType({
   }
 })
 ``` */
-        getNetworkType(option?: GetNetworkTypeOption): void
+        getNetworkType<TOption extends GetNetworkTypeOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetNetworkTypeOption>
         /** [wx.getPotentialFriendList(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getPotentialFriendList.html)
          *
          * 获取可能对游戏感兴趣的未注册的好友名单。每次调用最多可获得 5 个好友，此接口只能在开放数据域中使用
          *
          * 最低基础库： `2.9.0` */
-        getPotentialFriendList(option?: GetPotentialFriendListOption): void
+        getPotentialFriendList<TOption extends GetPotentialFriendListOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetPotentialFriendListOption>
         /** [wx.getScreenBrightness(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.getScreenBrightness.html)
          *
          * 获取屏幕亮度
@@ -7831,7 +7904,9 @@ wx.getNetworkType({
          * - 若安卓系统设置中开启了自动调节亮度功能，则屏幕亮度会根据光线自动调整，该接口仅能获取自动调节亮度之前的值，而非实时的亮度值。
          *
          * 最低基础库： `1.2.0` */
-        getScreenBrightness(option?: GetScreenBrightnessOption): void
+        getScreenBrightness<TOption extends GetScreenBrightnessOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetScreenBrightnessOption>
         /** [wx.getSetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.getSetting.html)
 *
 * 获取用户的当前设置。**返回值中只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)**。
@@ -7875,7 +7950,9 @@ wx.getSetting({
 ```
 *
 * 最低基础库： `1.2.0` */
-        getSetting(option: GetSettingOption): void
+        getSetting<TOption extends GetSettingOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetSettingOption>
         /** [wx.getShareInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.getShareInfo.html)
 *
 * 获取转发详细信息
@@ -7926,7 +8003,9 @@ try {
   // Do something when catch error
 }
 ``` */
-        getStorage(option: GetStorageOption): void
+        getStorage<TOption extends GetStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetStorageOption>
         /** [wx.getStorageInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorageInfo.html)
 *
 * 异步获取当前storage的相关信息
@@ -7954,7 +8033,9 @@ try {
   // Do something when catch error
 }
 ``` */
-        getStorageInfo(option?: GetStorageInfoOption): void
+        getStorageInfo<TOption extends GetStorageInfoOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetStorageInfoOption>
         /** [wx.getSystemInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/system/system-info/wx.getSystemInfo.html)
 *
 * 获取系统信息
@@ -7990,13 +8071,17 @@ try {
   // Do something when catch error
 }
 ``` */
-        getSystemInfo(option?: GetSystemInfoOption): void
+        getSystemInfo<TOption extends GetSystemInfoOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetSystemInfoOption>
         /** [wx.getUserCloudStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getUserCloudStorage.html)
          *
          * 获取当前用户托管数据当中对应 key 的数据。该接口只可在开放数据域下使用
          *
          * 最低基础库： `1.9.92` */
-        getUserCloudStorage(option: GetUserCloudStorageOption): void
+        getUserCloudStorage<TOption extends GetUserCloudStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetUserCloudStorageOption>
         /** [wx.getUserGameLabel(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.getUserGameLabel.html)
          *
          * 提供根据用户行为画像推测的特征信息，帮助开发者实现更精细化的游戏运营
@@ -8013,7 +8098,9 @@ try {
          * | 5    | 灵活度不足，活跃度较低 |
          *
          * 最低基础库： `2.9.3` */
-        getUserGameLabel(option?: GetUserGameLabelOption): void
+        getUserGameLabel<TOption extends GetUserGameLabelOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, GetUserGameLabelOption>
         /** [wx.getUserInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.getUserInfo.html)
 *
 * 获取用户信息。
@@ -8105,7 +8192,11 @@ Page({
          * 获取当前用户互动型托管数据对应 key 的数据
          *
          * 最低基础库： `2.7.7` */
-        getUserInteractiveStorage(option: GetUserInteractiveStorageOption): void
+        getUserInteractiveStorage<
+            TOption extends GetUserInteractiveStorageOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, GetUserInteractiveStorageOption>
         /** [wx.getWeRunData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/werun/wx.getWeRunData.html)
 *
 * 获取用户过去三十天微信运动步数。需要先调用 [wx.login](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html) 接口。步数信息会在用户主动进入小程序时更新。
@@ -8158,13 +8249,17 @@ wx.getWeRunData({
         /** [wx.hideKeyboard(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/keyboard/wx.hideKeyboard.html)
          *
          * 隐藏键盘 */
-        hideKeyboard(option?: HideKeyboardOption): void
+        hideKeyboard<TOption extends HideKeyboardOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, HideKeyboardOption>
         /** [wx.hideLoading(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.hideLoading.html)
          *
          * 隐藏 loading 提示框
          *
          * 最低基础库： `1.1.0` */
-        hideLoading(option?: HideLoadingOption): void
+        hideLoading<TOption extends HideLoadingOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, HideLoadingOption>
         /** [wx.hideShareMenu(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.hideShareMenu.html)
 *
 * 隐藏转发按钮
@@ -8177,17 +8272,23 @@ wx.hideShareMenu()
 ```
 *
 * 最低基础库： `1.1.0` */
-        hideShareMenu(option?: HideShareMenuOption): void
+        hideShareMenu<TOption extends HideShareMenuOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, HideShareMenuOption>
         /** [wx.hideToast(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.hideToast.html)
          *
          * 隐藏消息提示框 */
-        hideToast(option?: HideToastOption): void
+        hideToast<TOption extends HideToastOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, HideToastOption>
         /** [wx.joinVoIPChat(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.joinVoIPChat.html)
          *
          * 加入 (创建) 实时语音通话，更多信息可见 [实时语音指南](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/voip-chat.html)
          *
          * 最低基础库： `2.7.0` */
-        joinVoIPChat(option: JoinVoIPChatOption): void
+        joinVoIPChat<TOption extends JoinVoIPChatOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, JoinVoIPChatOption>
         /** [wx.login(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)
 *
 * 调用接口获取登录凭证（code）。通过凭证进而换取用户登录态信息，包括用户的唯一标识（openid）及本次登录的会话密钥（session_key）等。用户数据的加解密通讯需要依赖会话密钥完成。更多使用方法详见 [小程序登录](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/login.html)。
@@ -8261,9 +8362,11 @@ wx.login({
 * 2.9.0 之后，在 `modifyFriendInteractiveStorageTemplates` 和 `modifyFriendInteractiveStorageConfirmWording` 都存在的情况下，会优先使用前者。
 *
 * 最低基础库： `2.7.7` */
-        modifyFriendInteractiveStorage(
-            option: ModifyFriendInteractiveStorageOption,
-        ): void
+        modifyFriendInteractiveStorage<
+            TOption extends ModifyFriendInteractiveStorageOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ModifyFriendInteractiveStorageOption>
         /** [wx.navigateToMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/miniprogram-navigate/wx.navigateToMiniProgram.html)
 *
 * 打开另一个小程序
@@ -8302,7 +8405,9 @@ wx.navigateToMiniProgram({
 ```
 *
 * 最低基础库： `2.2.0` */
-        navigateToMiniProgram(option: NavigateToMiniProgramOption): void
+        navigateToMiniProgram<TOption extends NavigateToMiniProgramOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, NavigateToMiniProgramOption>
         /** [wx.notifyBLECharacteristicValueChange(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.notifyBLECharacteristicValueChange.html)
 *
 * 启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值。注意：必须设备的特征值支持 notify 或者 indicate 才可以成功调用。
@@ -8335,9 +8440,14 @@ wx.notifyBLECharacteristicValueChange({
 ```
 *
 * 最低基础库： `2.9.2` */
-        notifyBLECharacteristicValueChange(
-            option: NotifyBLECharacteristicValueChangeOption,
-        ): void
+        notifyBLECharacteristicValueChange<
+            TOption extends NotifyBLECharacteristicValueChangeOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<
+            TOption,
+            NotifyBLECharacteristicValueChangeOption
+        >
         /** [wx.offAccelerometerChange(function callback)](https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.offAccelerometerChange.html)
          *
          * 取消监听加速度数据事件，参数为空，则取消所有的事件监听。
@@ -9132,7 +9242,9 @@ wx.openBluetoothAdapter({
 ```
 *
 * 最低基础库： `2.9.2` */
-        openBluetoothAdapter(option?: OpenBluetoothAdapterOption): void
+        openBluetoothAdapter<TOption extends OpenBluetoothAdapterOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, OpenBluetoothAdapterOption>
         /** [wx.openCard(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/card/wx.openCard.html)
 *
 * 查看微信卡包中的卡券。只有通过 [认证](https://developers.weixin.qq.com/miniprogram/product/renzheng.html) 的小程序或文化互动类目的小游戏才能使用。更多文档请参考 [微信卡券接口文档](https://mp.weixin.qq.com/cgi-bin/announce?action=getannouncement&key=1490190158&version=1&lang=zh_CN&platform=2)。
@@ -9154,15 +9266,22 @@ wx.openCard({
 ```
 *
 * 最低基础库： `2.5.0` */
-        openCard(option: OpenCardOption): void
+        openCard<TOption extends OpenCardOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, OpenCardOption>
         /** [wx.openCustomerServiceConversation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/customer-message/wx.openCustomerServiceConversation.html)
          *
          * 进入客服会话。要求在用户发生过至少一次 touch 事件后才能调用。后台接入方式与小程序一致，详见 [客服消息接入](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/customer-message/customer-message.html)
          *
          * 最低基础库： `2.0.3` */
-        openCustomerServiceConversation(
-            option: OpenCustomerServiceConversationOption,
-        ): void
+        openCustomerServiceConversation<
+            TOption extends OpenCustomerServiceConversationOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<
+            TOption,
+            OpenCustomerServiceConversationOption
+        >
         /** [wx.openSetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.openSetting.html)
 *
 * 调起客户端小程序设置界面，返回用户设置的操作结果。**设置界面只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)**。
@@ -9186,7 +9305,9 @@ wx.openSetting({
 ```
 *
 * 最低基础库： `1.1.0` */
-        openSetting(option?: OpenSettingOption): void
+        openSetting<TOption extends OpenSettingOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, OpenSettingOption>
         /** [wx.previewImage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.previewImage.html)
 *
 * 在新页面中全屏预览图片。预览的过程中用户可以进行保存图片、发送给朋友等操作。
@@ -9200,7 +9321,9 @@ wx.previewImage({
   urls: [] // 需要预览的图片http链接列表
 })
 ``` */
-        previewImage(option: PreviewImageOption): void
+        previewImage<TOption extends PreviewImageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, PreviewImageOption>
         /** [wx.readBLECharacteristicValue(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.readBLECharacteristicValue.html)
 *
 * 读取低功耗蓝牙设备的特征值的二进制数据值。注意：必须设备的特征值支持 read 才可以成功调用。
@@ -9235,9 +9358,11 @@ wx.readBLECharacteristicValue({
 ```
 *
 * 最低基础库： `2.9.2` */
-        readBLECharacteristicValue(
-            option: ReadBLECharacteristicValueOption,
-        ): void
+        readBLECharacteristicValue<
+            TOption extends ReadBLECharacteristicValueOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ReadBLECharacteristicValueOption>
         /** [wx.removeStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.removeStorage.html)
 *
 * 从本地缓存中移除指定 key
@@ -9261,7 +9386,9 @@ try {
   // Do something when catch error
 }
 ``` */
-        removeStorage(option: RemoveStorageOption): void
+        removeStorage<TOption extends RemoveStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, RemoveStorageOption>
         /** [wx.removeStorageSync(string key)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.removeStorageSync.html)
 *
 * [wx.removeStorage](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.removeStorage.html) 的同步版本
@@ -9294,7 +9421,9 @@ try {
          * 删除用户托管数据当中对应 key 的数据。
          *
          * 最低基础库： `1.9.92` */
-        removeUserCloudStorage(option: RemoveUserCloudStorageOption): void
+        removeUserCloudStorage<TOption extends RemoveUserCloudStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, RemoveUserCloudStorageOption>
         /** [wx.reportMonitor(string name, number value)](https://developers.weixin.qq.com/minigame/dev/api/open-api/report/wx.reportMonitor.html)
 *
 * 自定义业务数据监控上报接口。
@@ -9320,7 +9449,7 @@ wx.reportMonitor('1', 1)
         ): void
         /** [wx.reportPerformance(Number id, Number value)](https://developers.weixin.qq.com/minigame/dev/api/base/performance/wx.reportPerformance.html)
 *
-* 自定义性能监控上报。使用前，需要在小程序管理后台配置。 详情参见[测速系统](/miniprogram/dev/framework/performanceReport/)指南。
+* 小程序测速上报。使用前，需要在小程序管理后台配置。 详情参见[小程序测速](/miniprogram/dev/framework/performanceReport/)指南。
 *
 * **示例代码**
 *
@@ -9376,7 +9505,9 @@ wx.reportPerformance(1101, 680)
          * | 198 |
          * | 328 |
          * | 648 | */
-        requestMidasPayment(option: RequestMidasPaymentOption): void
+        requestMidasPayment<TOption extends RequestMidasPaymentOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, RequestMidasPaymentOption>
         /** [wx.requestSubscribeMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)
 *
 * 调起客户端小游戏订阅消息界面，返回用户订阅消息的操作结果。当用户勾选了订阅面板中的“总是保持以上选择，不再询问”时，模板消息会被添加到用户的小游戏设置页，通过 [wx.getSetting](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.getSetting.html) 接口可获取用户对相关模板消息的订阅状态。
@@ -9421,8 +9552,10 @@ wx.requestSubscribeMessage({
 })
 ```
 *
-* 最低基础库： `2.8.2` */
-        requestSubscribeMessage(option: RequestSubscribeMessageOption): void
+* 最低基础库： `2.4.4` */
+        requestSubscribeMessage<TOption extends RequestSubscribeMessageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, RequestSubscribeMessageOption>
         /** [wx.requestSubscribeSystemMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeSystemMessage.html)
 *
 * 调起小游戏系统订阅消息界面，返回用户订阅消息的操作结果。当用户勾选了订阅面板中的“总是保持以上选择，不再询问”时，模板消息会被添加到用户的小游戏设置页，通过 [wx.getSetting](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.getSetting.html) 接口可获取用户对相关模板消息的订阅状态。
@@ -9464,9 +9597,11 @@ wx.requestSubscribeSystemMessage({
 ```
 *
 * 最低基础库： `2.9.4` */
-        requestSubscribeSystemMessage(
-            option: RequestSubscribeSystemMessageOption,
-        ): void
+        requestSubscribeSystemMessage<
+            TOption extends RequestSubscribeSystemMessageOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, RequestSubscribeSystemMessageOption>
         /** [wx.saveImageToPhotosAlbum(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.saveImageToPhotosAlbum.html)
 *
 * 保存图片到系统相册。
@@ -9481,7 +9616,9 @@ wx.saveImageToPhotosAlbum({
 ```
 *
 * 最低基础库： `1.2.0` */
-        saveImageToPhotosAlbum(option: SaveImageToPhotosAlbumOption): void
+        saveImageToPhotosAlbum<TOption extends SaveImageToPhotosAlbumOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SaveImageToPhotosAlbumOption>
         /** [wx.sendSocketMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.sendSocketMessage.html)
 *
 * 通过 WebSocket 连接发送数据。需要先 wx.connectSocket，并在 wx.onSocketOpen 回调之后才能发送。
@@ -9514,7 +9651,9 @@ function sendSocketMessage(msg) {
   }
 }
 ``` */
-        sendSocketMessage(option: SendSocketMessageOption): void
+        sendSocketMessage<TOption extends SendSocketMessageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SendSocketMessageOption>
         /** [wx.setClipboardData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/clipboard/wx.setClipboardData.html)
 *
 * 设置系统剪贴板的内容。调用成功后，会弹出 toast 提示"内容已复制"，持续 1.5s
@@ -9536,7 +9675,9 @@ wx.setClipboardData({
 ```
 *
 * 最低基础库： `1.1.0` */
-        setClipboardData(option: SetClipboardDataOption): void
+        setClipboardData<TOption extends SetClipboardDataOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetClipboardDataOption>
         /** [wx.setEnableDebug(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/debug/wx.setEnableDebug.html)
 *
 * 设置是否打开调试开关。此开关对正式版也能生效。
@@ -9562,13 +9703,17 @@ wx.setEnableDebug({
 * - 在正式版打开调试还有一种方法，就是先在开发版或体验版打开调试，再切到正式版就能看到vConsole。
 *
 * 最低基础库： `1.4.0` */
-        setEnableDebug(option: SetEnableDebugOption): void
+        setEnableDebug<TOption extends SetEnableDebugOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetEnableDebugOption>
         /** [wx.setInnerAudioOption(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/wx.setInnerAudioOption.html)
          *
          * 设置 [InnerAudioContext](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.html) 的播放选项。设置之后对当前小程序全局生效。
          *
          * 最低基础库： `2.3.0` */
-        setInnerAudioOption(option: SetInnerAudioOption): void
+        setInnerAudioOption<TOption extends SetInnerAudioOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetInnerAudioOption>
         /** [wx.setKeepScreenOn(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.setKeepScreenOn.html)
 *
 * 设置是否保持常亮状态。仅在当前小程序生效，离开小程序后设置失效。
@@ -9583,11 +9728,15 @@ wx.setKeepScreenOn({
 ```
 *
 * 最低基础库： `1.4.0` */
-        setKeepScreenOn(option: SetKeepScreenOnOption): void
+        setKeepScreenOn<TOption extends SetKeepScreenOnOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetKeepScreenOnOption>
         /** [wx.setMenuStyle(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/menu/wx.setMenuStyle.html)
          *
          * 动态设置通过右上角按钮拉起的菜单的样式。 */
-        setMenuStyle(option: SetMenuStyleOption): void
+        setMenuStyle<TOption extends SetMenuStyleOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetMenuStyleOption>
         /** [wx.setPreferredFramesPerSecond(number fps)](https://developers.weixin.qq.com/minigame/dev/api/render/frame/wx.setPreferredFramesPerSecond.html)
          *
          * 可以修改渲染帧率。默认渲染帧率为 60 帧每秒。修改后，requestAnimationFrame 的回调频率会发生改变。 */
@@ -9600,11 +9749,15 @@ wx.setKeepScreenOn({
          * 设置屏幕亮度
          *
          * 最低基础库： `1.2.0` */
-        setScreenBrightness(option: SetScreenBrightnessOption): void
+        setScreenBrightness<TOption extends SetScreenBrightnessOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetScreenBrightnessOption>
         /** [wx.setStatusBarStyle(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/statusbar/wx.setStatusBarStyle.html)
          *
          * 当在配置中设置 showStatusBarStyle 时，屏幕顶部会显示状态栏。此接口可以修改状态栏的样式。 */
-        setStatusBarStyle(option: SetStatusBarStyleOption): void
+        setStatusBarStyle<TOption extends SetStatusBarStyleOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetStatusBarStyleOption>
         /** [wx.setStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorage.html)
 *
 * 将数据存储在本地缓存中指定的 key 中。会覆盖掉原来该 key 对应的内容。除非用户主动删除或因存储空间原因被系统清理，否则数据都一直可用。单个 key 允许存储的最大数据长度为 1MB，所有数据存储上限为 10MB。
@@ -9623,7 +9776,9 @@ try {
   wx.setStorageSync('key', 'value')
 } catch (e) { }
 ``` */
-        setStorage(option: SetStorageOption): void
+        setStorage<TOption extends SetStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetStorageOption>
         /** [wx.setStorageSync(string key, any data)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorageSync.html)
 *
 * [wx.setStorage](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorage.html) 的同步版本
@@ -9660,7 +9815,9 @@ try {
          * 3. 上报的key-value列表当中每一个key长度都不能超过128字节。
          *
          * 最低基础库： `1.9.92` */
-        setUserCloudStorage(option: SetUserCloudStorageOption): void
+        setUserCloudStorage<TOption extends SetUserCloudStorageOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, SetUserCloudStorageOption>
         /** [wx.setWindowSize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/window/wx.setWindowSize.html)
          *
          * 设置窗口大小，该接口仅适用于 PC 平台，使用细则请参见指南
@@ -9706,11 +9863,15 @@ wx.showActionSheet({
 *
 * - Android 6.7.2 以下版本，点击取消或蒙层时，回调 fail, errMsg 为 "fail cancel"；
 * - Android 6.7.2 及以上版本 和 iOS 点击蒙层不会关闭模态弹窗，所以尽量避免使用「取消」分支中实现业务逻辑 */
-        showActionSheet(option: ShowActionSheetOption): void
+        showActionSheet<TOption extends ShowActionSheetOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowActionSheetOption>
         /** [wx.showKeyboard(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/keyboard/wx.showKeyboard.html)
          *
          * 显示键盘 */
-        showKeyboard(option: ShowKeyboardOption): void
+        showKeyboard<TOption extends ShowKeyboardOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowKeyboardOption>
         /** [wx.showLoading(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showLoading.html)
 *
 * 显示 loading 提示框。需主动调用 wx.hideLoading 才能关闭提示框
@@ -9735,7 +9896,9 @@ setTimeout(function () {
 * - [wx.showLoading](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showLoading.html) 应与 [wx.hideLoading](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.hideLoading.html) 配对使用
 *
 * 最低基础库： `1.1.0` */
-        showLoading(option: ShowLoadingOption): void
+        showLoading<TOption extends ShowLoadingOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowLoadingOption>
         /** [wx.showModal(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showModal.html)
 *
 * 显示模态对话框
@@ -9762,7 +9925,9 @@ wx.showModal({
 *
 * - Android 6.7.2 以下版本，点击取消或蒙层时，回调 fail, errMsg 为 "fail cancel"；
 * - Android 6.7.2 及以上版本 和 iOS 点击蒙层不会关闭模态弹窗，所以尽量避免使用「取消」分支中实现业务逻辑 */
-        showModal(option: ShowModalOption): void
+        showModal<TOption extends ShowModalOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowModalOption>
         /** [wx.showShareMenu(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.showShareMenu.html)
 *
 * 显示当前页面的转发按钮
@@ -9777,7 +9942,9 @@ wx.showShareMenu({
 ```
 *
 * 最低基础库： `1.1.0` */
-        showShareMenu(option: ShowShareMenuOption): void
+        showShareMenu<TOption extends ShowShareMenuOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowShareMenuOption>
         /** [wx.showToast(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showToast.html)
 *
 * 显示消息提示框
@@ -9798,7 +9965,9 @@ wx.showToast({
 *
 * - [wx.showLoading](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showLoading.html) 和 [wx.showToast](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showToast.html) 同时只能显示一个
 * - [wx.showToast](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showToast.html) 应与 [wx.hideToast](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.hideToast.html) 配对使用 */
-        showToast(option: ShowToastOption): void
+        showToast<TOption extends ShowToastOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, ShowToastOption>
         /** [wx.startAccelerometer(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.startAccelerometer.html)
 *
 * 开始监听加速度数据。
@@ -9818,7 +9987,9 @@ wx.startAccelerometer({
 * - 根据机型性能、当前 CPU 与内存的占用情况，`interval` 的设置与实际 `wx.onAccelerometerChange()` 回调函数的执行频率会有一些出入。
 *
 * 最低基础库： `1.1.0` */
-        startAccelerometer(option: StartAccelerometerOption): void
+        startAccelerometer<TOption extends StartAccelerometerOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, StartAccelerometerOption>
         /** [wx.startBeaconDiscovery(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.startBeaconDiscovery.html)
 *
 * 开始搜索附近的 iBeacon 设备
@@ -9833,7 +10004,9 @@ wx.startBeaconDiscovery({
 ```
 *
 * 最低基础库： `2.9.2` */
-        startBeaconDiscovery(option: StartBeaconDiscoveryOption): void
+        startBeaconDiscovery<TOption extends StartBeaconDiscoveryOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, StartBeaconDiscoveryOption>
         /** [wx.startBluetoothDevicesDiscovery(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.startBluetoothDevicesDiscovery.html)
 *
 * 开始搜寻附近的蓝牙外围设备。**此操作比较耗费系统资源，请在搜索并连接到设备后调用 [wx.stopBluetoothDevicesDiscovery](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.stopBluetoothDevicesDiscovery.html) 方法停止搜索。**
@@ -9854,9 +10027,11 @@ wx.startBluetoothDevicesDiscovery({
 ```
 *
 * 最低基础库： `2.9.2` */
-        startBluetoothDevicesDiscovery(
-            option: StartBluetoothDevicesDiscoveryOption,
-        ): void
+        startBluetoothDevicesDiscovery<
+            TOption extends StartBluetoothDevicesDiscoveryOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, StartBluetoothDevicesDiscoveryOption>
         /** [wx.startCompass(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/compass/wx.startCompass.html)
 *
 * 开始监听罗盘数据
@@ -9869,21 +10044,27 @@ wx.startCompass()
 ```
 *
 * 最低基础库： `1.1.0` */
-        startCompass(option?: StartCompassOption): void
+        startCompass<TOption extends StartCompassOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StartCompassOption>
         /** [wx.startDeviceMotionListening(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/motion/wx.startDeviceMotionListening.html)
          *
          * 开始监听设备方向的变化。
          *
          * 最低基础库： `2.3.0` */
-        startDeviceMotionListening(
-            option: StartDeviceMotionListeningOption,
-        ): void
+        startDeviceMotionListening<
+            TOption extends StartDeviceMotionListeningOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, StartDeviceMotionListeningOption>
         /** [wx.startGyroscope(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/gyroscope/wx.startGyroscope.html)
          *
          * 开始监听陀螺仪数据。
          *
          * 最低基础库： `2.3.0` */
-        startGyroscope(option: StartGyroscopeOption): void
+        startGyroscope<TOption extends StartGyroscopeOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, StartGyroscopeOption>
         /** [wx.stopAccelerometer(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.stopAccelerometer.html)
 *
 * 停止监听加速度数据。
@@ -9896,13 +10077,17 @@ wx.stopAccelerometer()
 ```
 *
 * 最低基础库： `1.1.0` */
-        stopAccelerometer(option?: StopAccelerometerOption): void
+        stopAccelerometer<TOption extends StopAccelerometerOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopAccelerometerOption>
         /** [wx.stopBeaconDiscovery(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.stopBeaconDiscovery.html)
          *
          * 停止搜索附近的 iBeacon 设备
          *
          * 最低基础库： `2.9.2` */
-        stopBeaconDiscovery(option?: StopBeaconDiscoveryOption): void
+        stopBeaconDiscovery<TOption extends StopBeaconDiscoveryOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopBeaconDiscoveryOption>
         /** [wx.stopBluetoothDevicesDiscovery(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.stopBluetoothDevicesDiscovery.html)
 *
 * 停止搜寻附近的蓝牙外围设备。若已经找到需要的蓝牙设备并不需要继续搜索时，建议调用该接口停止蓝牙搜索。
@@ -9920,9 +10105,11 @@ wx.stopBluetoothDevicesDiscovery({
 ```
 *
 * 最低基础库： `2.9.2` */
-        stopBluetoothDevicesDiscovery(
-            option?: StopBluetoothDevicesDiscoveryOption,
-        ): void
+        stopBluetoothDevicesDiscovery<
+            TOption extends StopBluetoothDevicesDiscoveryOption
+        >(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopBluetoothDevicesDiscoveryOption>
         /** [wx.stopCompass(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/compass/wx.stopCompass.html)
 *
 * 停止监听罗盘数据
@@ -9935,21 +10122,27 @@ wx.stopCompass()
 ```
 *
 * 最低基础库： `1.1.0` */
-        stopCompass(option?: StopCompassOption): void
+        stopCompass<TOption extends StopCompassOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopCompassOption>
         /** [wx.stopDeviceMotionListening(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/motion/wx.stopDeviceMotionListening.html)
          *
          * 停止监听设备方向的变化。
          *
          * 最低基础库： `2.3.0` */
-        stopDeviceMotionListening(
-            option?: StopDeviceMotionListeningOption,
-        ): void
+        stopDeviceMotionListening<
+            TOption extends StopDeviceMotionListeningOption
+        >(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopDeviceMotionListeningOption>
         /** [wx.stopGyroscope(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/gyroscope/wx.stopGyroscope.html)
          *
          * 停止监听陀螺仪数据。
          *
          * 最低基础库： `2.3.0` */
-        stopGyroscope(option?: StopGyroscopeOption): void
+        stopGyroscope<TOption extends StopGyroscopeOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, StopGyroscopeOption>
         /** [wx.triggerGC()](https://developers.weixin.qq.com/minigame/dev/api/base/performance/wx.triggerGC.html)
          *
          * 加快触发 JavaScriptCore 垃圾回收（Garbage Collection）。GC 时机是由 JavaScriptCore 来控制的，并不能保证调用后马上触发 GC。 */
@@ -9959,7 +10152,9 @@ wx.stopCompass()
          * 更新键盘输入框内容。只有当键盘处于拉起状态时才会产生效果
          *
          * 最低基础库： `2.1.0` */
-        updateKeyboard(option: UpdateKeyboardOption): void
+        updateKeyboard<TOption extends UpdateKeyboardOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, UpdateKeyboardOption>
         /** [wx.updateShareMenu(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.updateShareMenu.html)
 *
 * 更新转发属性
@@ -9975,25 +10170,35 @@ wx.updateShareMenu({
 ```
 *
 * 最低基础库： `1.2.0` */
-        updateShareMenu(option: UpdateShareMenuOption): void
+        updateShareMenu<TOption extends UpdateShareMenuOption>(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, UpdateShareMenuOption>
         /** [wx.updateVoIPChatMuteConfig(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.updateVoIPChatMuteConfig.html)
          *
          * 更新实时语音静音设置
          *
          * 最低基础库： `2.7.0` */
-        updateVoIPChatMuteConfig(option: UpdateVoIPChatMuteConfigOption): void
+        updateVoIPChatMuteConfig<
+            TOption extends UpdateVoIPChatMuteConfigOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<TOption, UpdateVoIPChatMuteConfigOption>
         /** [wx.vibrateLong(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/vibrate/wx.vibrateLong.html)
          *
          * 使手机发生较长时间的振动（400 ms)
          *
          * 最低基础库： `1.2.0` */
-        vibrateLong(option?: VibrateLongOption): void
+        vibrateLong<TOption extends VibrateLongOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, VibrateLongOption>
         /** [wx.vibrateShort(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/vibrate/wx.vibrateShort.html)
          *
          * 使手机发生较短时间的振动（15 ms）。仅在 iPhone `7 / 7 Plus` 以上及 Android 机型生效
          *
          * 最低基础库： `1.2.0` */
-        vibrateShort(option?: VibrateShortOption): void
+        vibrateShort<TOption extends VibrateShortOption>(
+            option?: TOption,
+        ): PromisifySuccessResult<TOption, VibrateShortOption>
         /** [wx.writeBLECharacteristicValue(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.writeBLECharacteristicValue.html)
 *
 * 向低功耗蓝牙设备特征值中写入二进制数据。注意：必须设备的特征值支持 write 才可以成功调用。
@@ -10032,9 +10237,14 @@ wx.writeBLECharacteristicValue({
 ```
 *
 * 最低基础库： `2.9.2` */
-        writeBLECharacteristicValue(
-            option: WriteBLECharacteristicValueOption,
-        ): void /**
+        writeBLECharacteristicValue<
+            TOption extends WriteBLECharacteristicValueOption
+        >(
+            option: TOption,
+        ): PromisifySuccessResult<
+            TOption,
+            WriteBLECharacteristicValueOption
+        > /**
 小程序云开发
 */
         cloud: WxCloud /**
@@ -10912,7 +11122,9 @@ wx.writeBLECharacteristicValue({
     /** 录音继续事件的回调函数 */
     type OnResumeCallback = (res: GeneralCallbackResult) => void
     /** 的回调函数 */
-    type OnRoomInfoChangeCallback = (result: undefined) => void
+    type OnRoomInfoChangeCallback = (
+        result: GameServerManagerOnRoomInfoChangeCallbackResult,
+    ) => void
     /** 音频完成跳转操作的事件的回调函数 */
     type OnSeekedCallback = (res: GeneralCallbackResult) => void
     /** 音频进行跳转操作的事件的回调函数 */
