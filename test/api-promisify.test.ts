@@ -64,7 +64,5 @@ async () => {
   expectType<WechatMinigame.GeneralCallbackResult>(
     await wx.stopAccelerometer(),
   )
-  expectType<WechatMinigame.GeneralCallbackResult>(
-    await wx.stopCompass(),
-  )
+  expectType<WechatMinigame.GeneralCallbackResult>(await wx.stopCompass())
 }
