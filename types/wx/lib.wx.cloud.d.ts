@@ -103,14 +103,14 @@ interface WxCloud {
         param: RQ<ICloud.CallFunctionParam>
     ): Promise<ICloud.CallFunctionResult>
 
-    uploadFile(param: OQ<ICloud.UploadFileParam>): WechatMiniprogram.UploadTask
+    uploadFile(param: OQ<ICloud.UploadFileParam>): WechatMinigame.UploadTask
     uploadFile(
         param: RQ<ICloud.UploadFileParam>
     ): Promise<ICloud.UploadFileResult>
 
     downloadFile(
         param: OQ<ICloud.DownloadFileParam>
-    ): WechatMiniprogram.DownloadTask
+    ): WechatMinigame.DownloadTask
     downloadFile(
         param: RQ<ICloud.DownloadFileParam>
     ): Promise<ICloud.DownloadFileResult>
