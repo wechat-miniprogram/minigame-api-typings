@@ -5,9 +5,9 @@
   "main": "./index.d.ts",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "npm run tsd && npm run tslint",
+    "test": "npm run tsd && npm run eslint",
     "tsd": "tsd",
-    "tslint": "tslint --project ."
+    "eslint": "eslint --config .eslintrc.js types/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,11 @@
     "directory": "test"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.2.0",
+    "@typescript-eslint/parser": "^4.2.0",
+    "eslint": "^7.9.0",
     "tsd": "^0.11.0",
-    "tslint": "^6.0.0",
-    "typescript": "^3.8.2"
+    "typescript": "^3.9.7"
   },
   "files": [
     "LICENSE",
