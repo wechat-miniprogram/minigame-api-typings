@@ -10,21 +10,17 @@
 
 ## 安装
 
-通过 npm 安装：
 ```bash
-# 安装对应最新基础库的定义文件
 npm install minigame-api-typings
 ```
+安装后手动导入：
+- `import 'minigame-api-typings';`
 
-或者通过版本号指定一个基础库版本：
-```bash
-# 安装对应基础库版本 2.4.1 的定义文件
-npm install minigame-api-typings@2.6.5
-```
+或者在 ts 配置中指定：
+- 在 `tsconfig.json` 中指定 `types: ["minigame-api-typings"]`
 
-## 版本
-
-所有可用的版本和对应的基础库版本，参考 [VERSIONS.md](https://github.com/wechat-miniprogram/minigame-api-typings/blob/master/VERSIONS.md)
+或者通过 [三斜杠指令](https://www.tslang.cn/docs/handbook/triple-slash-directives.html) 引用：
+- `/// <reference path="node_modules/minigame-api-typings/index.d.ts" />`
 
 ## 更新日志
 

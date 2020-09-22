@@ -11,21 +11,18 @@ Type definitions for APIs of Wechat Mini Game in TypeScript
 ## Install
 
 Install by NPM:
+
 ```bash
-# install definitions for latest base library
 npm install minigame-api-typings
 ```
+Manually import it after installed:
+- `import 'minigame-api-typings';`
 
-or specify a base library version:
+Or specify types in typescript config:
+- Specify `types: ["minigame-api-typings"]` in `tsconfig.json`
 
-```bash
-# install definitions for base library version 2.4.1
-npm install minigame-api-typings@2.6.5
-```
-
-## Versions
-
-Check out all available versions corresponding to base library version in [VERSIONS.md](https://github.com/wechat-miniprogram/minigame-api-typings/blob/master/VERSIONS.md)
+Or reference by [Triple-Slash Directives](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html):
+- `/// <reference path="node_modules/minigame-api-typings/index.d.ts" />`
 
 ## Changelog
 
