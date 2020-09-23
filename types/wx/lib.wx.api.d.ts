@@ -1163,6 +1163,9 @@ declare namespace WechatMinigame {
     interface GameServerManagerOnRoomInfoChangeCallbackResult {
         res: OnRoomInfoChangeCallbackResult
     }
+    interface GameServerManagerOnStateUpdateCallbackResult {
+        res: OnStateUpdateCallbackResult
+    }
     interface GetAvailableAudioSourcesOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetAvailableAudioSourcesCompleteCallback
@@ -10377,6 +10380,19 @@ wx.reportPerformance(1101, 680, 'custom')
             /** 自定义维度 (选填) */
             dimensions?: string | any[]
         ): void
+        /** [wx.reportUserBehaviorBranchAnalytics(string branchId, string branchDim, number eventType)](https://developers.weixin.qq.com/minigame/dev/api/open-api/report/wx.reportUserBehaviorBranchAnalytics.html)
+         *
+         * 用于分支相关的UI组件（一般是按钮）相关事件的上报，事件目前有曝光、点击两种
+         *
+         * 最低基础库： `2.12.0` */
+        reportUserBehaviorBranchAnalytics(
+            /** 分支ID，在「小程序管理后台」获取 */
+            branchId: string,
+            /** 自定义维度 */
+            branchDim: string,
+            /** 事件类型，1：曝光； 2：点击 */
+            eventType: number
+        ): void
         /** [wx.requestMidasFriendPayment(Object object)](https://developers.weixin.qq.com/minigame/dev/api/midas-payment/wx.requestMidasFriendPayment.html)
          *
          * 发起米大师朋友礼物索要
@@ -12037,7 +12053,9 @@ wx.writeBLECharacteristicValue({
     /** 小游戏回到前台的事件的回调函数 */
     type OffShowCallback = (result: OnShowCallbackResult) => void
     /** 的回调函数 */
-    type OffStateUpdateCallback = (result: undefined) => void
+    type OffStateUpdateCallback = (
+        result: GameServerManagerOnStateUpdateCallbackResult
+    ) => void
     /** 音频停止事件的回调函数 */
     type OffStopCallback = (res: GeneralCallbackResult) => void
     /** 的回调函数 */
@@ -12253,7 +12271,9 @@ wx.writeBLECharacteristicValue({
     /** 录音开始事件的回调函数 */
     type OnStartCallback = (res: GeneralCallbackResult) => void
     /** 的回调函数 */
-    type OnStateUpdateCallback = (result: undefined) => void
+    type OnStateUpdateCallback = (
+        result: GameServerManagerOnStateUpdateCallbackResult
+    ) => void
     /** 的回调函数 */
     type OnSyncFrameCallback = (result: OnSyncFrameCallbackResult) => void
     /** 触点失效事件的回调函数 */
