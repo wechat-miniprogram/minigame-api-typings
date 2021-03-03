@@ -1,3 +1,8 @@
+## 2021-03-03 v3.3.0
+- 同步 API 定义到基础库 2.15.0
+- 支持泛型（[api-typings#177](https://github.com/wechat-miniprogram/api-typings/issues/177)）
+- 支持索引签名，以支持 `wx.requestSubscribeMessage`（[api-typings#175](https://github.com/wechat-miniprogram/api-typings/issues/175)）
+
 ## 2021-01-12 v3.2.0
 - 同步 API 定义到基础库 2.14.1
 

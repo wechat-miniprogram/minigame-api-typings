@@ -458,7 +458,7 @@ declare namespace DB {
         AND = 'and',
         OR = 'or',
         NOT = 'not',
-        NOR = 'nor',
+        NOR = 'nor'
     }
 
     class DatabaseLogicCommand {
@@ -489,7 +489,7 @@ declare namespace DB {
         // array
         ALL = 'all',
         ELEM_MATCH = 'elemMatch',
-        SIZE = 'size',
+        SIZE = 'size'
     }
 
     class DatabaseQueryCommand extends DatabaseLogicCommand {
@@ -518,7 +518,7 @@ declare namespace DB {
     }
 
     enum PROJECTION_COMMANDS_LITERAL {
-        SLICE = 'slice',
+        SLICE = 'slice'
     }
 
     class DatabaseProjectionCommand {}
@@ -541,7 +541,7 @@ declare namespace DB {
         UNSHIFT = 'unshift',
         ADD_TO_SET = 'addToSet',
         PULL = 'pull',
-        PULL_ALL = 'pullAll',
+        PULL_ALL = 'pullAll'
     }
 
     class DatabaseUpdateCommand {}

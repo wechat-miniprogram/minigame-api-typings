@@ -138,6 +138,20 @@ import { expectType } from 'tsd'
   })
 }
 
+// Test case from `wx.createWorker`
+{
+  // 创建普通worker
+  wx.createWorker('workers/index.js')
+}
+
+// Test case from `wx.createWorker`
+{
+  // 创建实验worker
+  wx.createWorker('workers/index.js', {
+    useExperimentalWorker: true,
+  })
+}
+
 // Test case from `Worker`
 {
   const worker = wx.createWorker('workers/request/index.js') // 文件名指定 worker 的入口文件路径，绝对路径
@@ -353,14 +367,29 @@ import { expectType } from 'tsd'
 {
   wx.getSystemInfo({
     success(res) {
-      console.log(res.model)
-      console.log(res.pixelRatio)
-      console.log(res.windowWidth)
-      console.log(res.windowHeight)
-      console.log(res.language)
-      console.log(res.version)
-      console.log(res.platform)
+      expectType<string>(res.model)
+      expectType<number>(res.pixelRatio)
+      expectType<number>(res.windowWidth)
+      expectType<number>(res.windowHeight)
+      expectType<string>(res.language)
+      expectType<string>(res.version)
+      expectType<string>(res.platform)
     },
+  })
+}
+
+// Test case from `wx.getSystemInfoAsync`
+{
+  wx.getSystemInfoAsync({
+    success (res) {
+      expectType<string>(res.model)
+      expectType<number>(res.pixelRatio)
+      expectType<number>(res.windowWidth)
+      expectType<number>(res.windowHeight)
+      expectType<string>(res.language)
+      expectType<string>(res.version)
+      expectType<string>(res.platform)
+    }
   })
 }
 
@@ -395,6 +424,13 @@ import { expectType } from 'tsd'
 // Test case from `wx.hideShareMenu`
 {
   wx.hideShareMenu()
+}
+
+// Test case from `wx.hideShareMenu`
+{
+  wx.hideShareMenu({
+    menus: ['shareAppMessage', 'shareTimeline'],
+  })
 }
 
 // Test case from `wx.login`
@@ -647,6 +683,14 @@ import { expectType } from 'tsd'
 {
   wx.showShareMenu({
     withShareTicket: true,
+  })
+}
+
+// Test case from `wx.showShareMenu`
+{
+  wx.showShareMenu({
+    withShareTicket: true,
+    menus: ['shareAppMessage', 'shareTimeline'],
   })
 }
 
@@ -1061,6 +1105,17 @@ import { expectType } from 'tsd'
   })
 }
 
+// Test case from `wx.getFileInfo`
+{
+  wx.getFileInfo({
+    filePath: '',
+    success(res) {
+      expectType<number>(res.size)
+      expectType<string>(res.digest)
+    },
+  })
+}
+
 // Test case from `wx.notifyBLECharacteristicValueChange`
 {
   wx.notifyBLECharacteristicValueChange({
@@ -1210,7 +1265,22 @@ import { expectType } from 'tsd'
     success(res) {
       expectType<boolean | undefined>(res.authSetting['scope.userInfo'])
       expectType<boolean>(res.subscriptionsSetting.mainSwitch)
-      expectType<Record<string, any>>(res.subscriptionsSetting.itemSettings)
+      expectType<Record<string, any> | undefined>(res.subscriptionsSetting.itemSettings)
+    },
+  })
+}
+
+// Test case from `SubscriptionsSetting`
+{
+  wx.getSetting({
+    withSubscriptions: true,
+    success(res) {
+      expectType<undefined | boolean>(res.authSetting['scope.userInfo'])
+      expectType<undefined | boolean>(res.authSetting['scope.userLocation'])
+      expectType<boolean>(res.subscriptionsSetting.mainSwitch)
+      if (res.subscriptionsSetting.itemSettings !== undefined) {
+        expectType<any>(res.subscriptionsSetting.itemSettings.SYS_MSG_TYPE_INTERACTIVE)
+      }
     },
   })
 }
@@ -1218,4 +1288,99 @@ import { expectType } from 'tsd'
 // Test case from `wx.reportPerformance`
 {
   wx.reportPerformance(1101, 680)
+}
+
+// Test case from `wx.getAccountInfoSync`
+{
+  const accountInfo = wx.getAccountInfoSync()
+  // 小程序 appId
+  expectType<string>(accountInfo.miniProgram.appId)
+  // 插件 appId
+  expectType<string>(accountInfo.plugin.appId)
+  // 插件版本号， 'a.b.c' 这样的形式
+  expectType<string>(accountInfo.plugin.version)
+}
+
+// Test case from `wx.reportPerformance`
+{
+  wx.reportPerformance(1101, 680)
+  wx.reportPerformance(1101, 680, 'custom')
+}
+
+// Test case from `wx.hideShareMenu`
+{
+  wx.hideShareMenu({
+    menus: ['shareAppMessage', 'shareTimeline'],
+  })
+}
+
+// Test case from `wx.showShareMenu`
+{
+  wx.showShareMenu({
+    withShareTicket: true,
+    menus: ['shareAppMessage', 'shareTimeline'],
+  })
+}
+
+// Test case from `wx.getRealtimeLogManager`
+{
+  const logger = wx.getRealtimeLogManager()
+  logger.info({ str: 'hello world' }, 'info log', 100, [1, 2, 3])
+  logger.error({ str: 'hello world' }, 'error log', 100, [1, 2, 3])
+  logger.warn({ str: 'hello world' }, 'warn log', 100, [1, 2, 3])
+}
+
+// Test case from `wx.getGroupEnterInfo`
+{
+  wx.getGroupEnterInfo({
+    success(res) {
+      expectType<string>(res.errMsg)
+      expectType<string>(res.encryptedData)
+      expectType<string>(res.iv)
+    }
+  })
+}
+
+// Test case from `wx.authPrivateMessage`
+{
+  wx.authPrivateMessage({
+    shareTicket: 'xxxxxx',
+    success(res) {
+      expectType<boolean>(res.valid)
+      expectType<string>(res.iv)
+      expectType<string>(res.encryptedData)
+    },
+    fail(res) {
+      expectType<string>(res.errMsg)
+    },
+  })
+}
+
+// Test case from `wx.createMediaAudioPlayer`
+{
+  // 创建视频解码器，具体参数见 createVideoDecoder 文档
+  const videoDecoder = wx.createVideoDecoder()
+  // 创建媒体音频播放器
+  const mediaAudioPlayer = wx.createMediaAudioPlayer()
+  // 启动视频解码器
+  videoDecoder.start({
+    source: ''
+  })
+  // 启动播放器
+  mediaAudioPlayer.start().then(() => {
+    // 添加播放器音频来源
+    mediaAudioPlayer.addAudioSource(videoDecoder).then(res => {
+      videoDecoder.getFrameData() // 建议在 requestAnimationFrame 里获取每一帧视频数据
+      console.log(res)
+    })
+
+    // 移除播放器音频来源
+    mediaAudioPlayer.removeAudioSource(videoDecoder).then()
+    // 停止播放器
+    mediaAudioPlayer.stop().then()
+    // 销毁播放器
+    mediaAudioPlayer.destroy().then()
+    // 设置播放器音量
+    mediaAudioPlayer.volume = 0.5
+  })
 }
