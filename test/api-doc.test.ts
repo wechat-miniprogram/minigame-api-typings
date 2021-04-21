@@ -147,8 +147,16 @@ import { expectType } from 'tsd'
 // Test case from `wx.createWorker`
 {
   // 创建实验worker
-  wx.createWorker('workers/index.js', {
+  const worker = wx.createWorker('workers/index.js', {
     useExperimentalWorker: true,
+  })
+
+  // 监听worker被系统回收事件
+  worker.onProcessKilled(() => {
+    // 重新创建一个worker
+    wx.createWorker('workers/index.js', {
+      useExperimentalWorker: true,
+    })
   })
 }
 
@@ -158,6 +166,13 @@ import { expectType } from 'tsd'
 
   worker.onMessage(function(res) {
     console.log(res)
+  })
+
+  // 监听worker被系统回收事件
+  worker.onProcessKilled(function () {
+    console.log('worker has been killed')
+    // 重新创建一个worker
+    // wx.createWorker()
   })
 
   worker.postMessage({
@@ -1383,4 +1398,229 @@ import { expectType } from 'tsd'
     // 设置播放器音量
     mediaAudioPlayer.volume = 0.5
   })
+}
+
+// Test case from `FileSystemManager.close`
+{
+  const fs = wx.getFileSystemManager()
+  // 打开文件
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      // 关闭文件
+      fs.close({
+        fd: res.fd,
+      })
+    },
+  })
+}
+
+// Test case from `FileSystemManager.closeSync`
+{
+  const fs = wx.getFileSystemManager()
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+
+  // 关闭文件
+  fs.closeSync({ fd: fd })
+}
+
+// Test case from `FileSystemManager.fstat`
+{
+  const fs = wx.getFileSystemManager()
+  // 打开文件
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      // 获取文件的状态信息
+      fs.fstat({
+        fd: res.fd,
+        success(res) {
+          expectType<WechatMinigame.Stats>(res.stats)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `FileSystemManager.fstatSync`
+{
+  const fs = wx.getFileSystemManager()
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+  const stats = fs.fstatSync({ fd: fd })
+  expectType<WechatMinigame.Stats>(stats)
+}
+
+// Test case from `FileSystemManager.ftruncate`
+{
+  const fs = wx.getFileSystemManager()
+  // 打开文件
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      // 对文件内容进行截断操作
+      fs.ftruncate({
+        fd: res.fd,
+        length: 10, // 从第10个字节开始截断文件
+        success(res) {
+          console.log(res)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `FileSystemManager.ftruncateSync`
+{
+  const fs = wx.getFileSystemManager()
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+  fs.ftruncateSync({
+    fd: fd,
+    length: 10, // 从第10个字节开始截断文件
+  })
+}
+
+// Test case from `FileSystemManager.open`
+{
+  const fs = wx.getFileSystemManager()
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      expectType<string>(res.fd)
+    },
+  })
+}
+
+// Test case from `FileSystemManager.openSync`
+{
+  const fs = wx.getFileSystemManager()
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+  expectType<string>(fd)
+}
+
+// Test case from `FileSystemManager.read`
+{
+  const fs = wx.getFileSystemManager()
+  const ab = new ArrayBuffer(1024)
+  // 打开文件
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      // 读取文件到 ArrayBuffer 中
+      fs.read({
+        fd: res.fd,
+        arrayBuffer: ab,
+        length: 10,
+        success(res) {
+          console.log(res)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `FileSystemManager.readSync`
+{
+  const fs = wx.getFileSystemManager()
+  const ab = new ArrayBuffer(1024)
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+  const res = fs.readSync({
+    fd: fd,
+    arrayBuffer: ab,
+    length: 10,
+  })
+  console.log(res)
+}
+
+// Test case from `FileSystemManager.truncate`
+{
+  const fs = wx.getFileSystemManager()
+  fs.truncate({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    length: 10, // 从第10个字节开始截断
+    success(res) {
+      console.log(res)
+    },
+  })
+}
+
+// Test case from `FileSystemManager.truncateSync`
+{
+  const fs = wx.getFileSystemManager()
+  fs.truncateSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    length: 10, // 从第10个字节开始截断
+  })
+}
+
+// Test case from `FileSystemManager.write`
+{
+  const fs = wx.getFileSystemManager()
+  // 打开文件
+  fs.open({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+    success(res) {
+      // 写入文件
+      fs.write({
+        fd: res.fd,
+        data: 'some text',
+        success(res) {
+          expectType<number>(res.bytesWritten)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `FileSystemManager.writeSync`
+{
+  const fs = wx.getFileSystemManager()
+  const fd = fs.openSync({
+    filePath: `${wx.env.USER_DATA_PATH}/hello.txt`,
+    flag: 'a+',
+  })
+  const res = fs.writeSync({
+    fd: fd,
+    data: 'some text',
+  })
+  expectType<number>(res.bytesWritten)
+}
+
+// Test case from `Worker.getCameraFrameData`
+{
+  const worker = wx.createWorker('workers/index.js')
+
+  const camera = wx.createCamera({
+    success() {
+      camera.listenFrameChange(worker)
+    },
+  })
+}
+
+// Test case from `Worker.getCameraFrameData`
+{
+  const worker = wx.createWorker('workers/index.js')
+
+  const data = worker.getCameraFrameData()
+  console.log(data)
 }
