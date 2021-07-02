@@ -4,7 +4,7 @@
 
 [![已在 NPM 发布](https://img.shields.io/npm/v/minigame-api-typings.svg?style=flat)](https://www.npmjs.com/package/minigame-api-typings)
 [![MIT 协议](https://img.shields.io/github/license/wechat-miniprogram/minigame-api-typings.svg)](https://github.com/wechat-miniprogram/minigame-api-typings)
-[![Travis CI 测试状况](https://travis-ci.org/wechat-miniprogram/minigame-api-typings.svg?branch=master)](https://travis-ci.org/wechat-miniprogram/minigame-api-typings)
+[![GitHub Actions 测试状况](https://github.com/wechat-miniprogram/minigame-api-typings/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/wechat-miniprogram/minigame-api-typings/actions/workflows/test.yml)
 
 微信小游戏 API 的 TypeScript 类型定义文件
 

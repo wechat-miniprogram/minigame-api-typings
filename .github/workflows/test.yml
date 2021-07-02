@@ -1,0 +1,30 @@
+# From: https://github.com/wechat-miniprogram/api-typings/blob/2222854ee4d122206d722ccb8672d5cc11a73239/.github/workflows/test.yml
+# Author: Mr.Hope <zhangbowang1998@gmail.com>
+name: Test
+
+on:
+    - push
+    - pull_request
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+              with:
+                  persist-credentials: false
+
+            - name: restore node modules
+              uses: actions/cache@v2
+              id: node-modules-cache
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
+            - name: Install Deps
+              if: steps.node-modules-cache.outputs.cache-hit != 'true'
+              run: npm install
+
+            - name: Run test
+              run: npm run test

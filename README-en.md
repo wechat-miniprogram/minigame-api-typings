@@ -4,7 +4,7 @@
 
 [![Published on NPM](https://img.shields.io/npm/v/minigame-api-typings.svg?style=flat)](https://www.npmjs.com/package/minigame-api-typings)
 [![MIT License](https://img.shields.io/github/license/wechat-miniprogram/minigame-api-typings.svg)](https://github.com/wechat-miniprogram/minigame-api-typings)
-[![Travis CI Test Status](https://travis-ci.org/wechat-miniprogram/minigame-api-typings.svg?branch=master)](https://travis-ci.org/wechat-miniprogram/minigame-api-typings)
+[![GitHub Actions Test Status](https://github.com/wechat-miniprogram/minigame-api-typings/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/wechat-miniprogram/minigame-api-typings/actions/workflows/test.yml)
 
 Type definitions for APIs of Wechat Mini Game in TypeScript
 
