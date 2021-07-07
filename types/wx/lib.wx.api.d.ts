@@ -5033,10 +5033,10 @@ innerAudioContext.onError((res) => {
         success?: StatSuccessCallback
     }
     interface StatSuccessCallbackResult {
-        /** [Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Object
+        /** [Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)&gt;
          *
-         * 当 recursive 为 false 时，res.stats 是一个 Stats 对象。当 recursive 为 true 且 path 是一个目录的路径时，res.stats 是一个 Object，key 以 path 为根路径的相对路径，value 是该路径对应的 Stats 对象。 */
-        stats: Stats | IAnyObject
+         * 当 recursive 为 false 时，res.stats 是一个 Stats 对象。当 recursive 为 true 且 path 是一个目录的路径时，res.stats 是一个 Array，数组的每一项是一个对象，每个对象包含 path 和 stats。 */
+        stats: Stats | Stats[]
         errMsg: string
     }
     /** 好友状态信息列表 */
@@ -7495,7 +7495,7 @@ console.log(stats)
 *
 * 最低基础库： `2.16.1` */
         fstatSync(option: FstatSyncOption): Stats
-        /** [[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Object FileSystemManager.statSync(string path, boolean recursive)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.statSync.html)
+        /** [[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)&gt; FileSystemManager.statSync(string path, boolean recursive)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.statSync.html)
          *
          * [FileSystemManager.stat](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.stat.html) 的同步版本 */
         statSync(
@@ -7505,7 +7505,7 @@ console.log(stats)
              *
              * 最低基础库： `2.3.0` */
             recursive?: boolean
-        ): Stats | IAnyObject
+        ): Stats | Stats[]
         /** [[WriteResult](https://developers.weixin.qq.com/minigame/dev/api/file/WriteResult.html) FileSystemManager.writeSync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.writeSync.html)
 *
 * 同步写入文件
