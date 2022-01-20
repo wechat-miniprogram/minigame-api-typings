@@ -12,7 +12,7 @@ wx.requestMidasPayment({
   mode: 'game',
   offerId: '',
   success(res) {
-    expectType<WechatMinigame.MidasPaymentError>(res)
+    expectType<WechatMinigame.GeneralCallbackResult>(res)
   },
 })
 wx.stopAccelerometer({
@@ -38,7 +38,7 @@ wx.requestMidasPayment({
   mode: 'game',
   offerId: '',
 }).then(res => {
-  expectType<WechatMinigame.MidasPaymentError>(res)
+  expectType<WechatMinigame.GeneralCallbackResult>(res)
 })
 wx.stopAccelerometer().then(res => {
   expectType<WechatMinigame.GeneralCallbackResult>(res)
@@ -54,7 +54,7 @@ async () => {
       keyList: [],
     }),
   )
-  expectType<WechatMinigame.MidasPaymentError>(
+  expectType<WechatMinigame.GeneralCallbackResult>(
     await wx.requestMidasPayment({
       currencyType: 'CNY',
       mode: 'game',

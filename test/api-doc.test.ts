@@ -2212,3 +2212,286 @@ import { expectType } from 'tsd'
     }
   })
 }
+
+// Test case from `FileSystemManager.readCompressedFile`
+{
+  const fs = wx.getFileSystemManager()
+
+  // 异步接口
+  fs.readCompressedFile({
+    filePath: '${wx.env.USER_DATA_PATH}/hello.br',
+    compressionAlgorithm: 'br',
+    success(res) {
+      expectType<ArrayBuffer>(res.data)
+    },
+    fail(res) {
+      console.log('readCompressedFile fail', res)
+    },
+  })
+
+  // 同步接口
+  const data = fs.readCompressedFileSync({
+    filePath: '${wx.env.USER_DATA_PATH}/hello.br',
+    compressionAlgorithm: 'br',
+  })
+  expectType<ArrayBuffer>(data)
+}
+
+// Test case from `FileSystemManager.readCompressedFileSync`
+{
+  const fs = wx.getFileSystemManager()
+
+  // 异步接口
+  fs.readCompressedFile({
+    filePath: '${wx.env.USER_DATA_PATH}/hello.br',
+    compressionAlgorithm: 'br',
+    success(res) {
+      expectType<ArrayBuffer>(res.data)
+    },
+    fail(res) {
+      console.log('readCompressedFile fail', res)
+    },
+  })
+
+  // 同步接口
+  try {
+    const data = fs.readCompressedFileSync({
+      filePath: '${wx.env.USER_DATA_PATH}/hello.br',
+      compressionAlgorithm: 'br',
+    })
+    expectType<ArrayBuffer>(data)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+// Test case from `wx.getStorage`
+{
+  // 开启加密存储
+  wx.setStorage({
+    key: 'key',
+    data: 'value',
+    encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+    success() {
+      wx.getStorage({
+        key: 'key',
+        encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+        success(res) {
+          console.log(res.data)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `wx.getStorageSync`
+{
+  // 开启加密存储
+  wx.setStorage({
+    key: 'key',
+    data: 'value',
+    encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+    success() {
+      wx.getStorage({
+        key: 'key',
+        encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+        success(res) {
+          console.log(res.data)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `wx.setStorage`
+{
+  // 开启加密存储
+  wx.setStorage({
+    key: 'key',
+    data: 'value',
+    encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+    success() {
+      wx.getStorage({
+        key: 'key',
+        encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+        success(res) {
+          console.log(res.data)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `wx.setStorageSync`
+{
+  // 开启加密存储
+  wx.setStorage({
+    key: 'key',
+    data: 'value',
+    encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+    success() {
+      wx.getStorage({
+        key: 'key',
+        encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
+        success(res) {
+          console.log(res.data)
+        },
+      })
+    },
+  })
+}
+
+// Test case from `wx.getLocalIPAddress`
+{
+  wx.getLocalIPAddress({
+    success(res) {
+      const localip = res.localip
+      expectType<string>(localip)
+    },
+  })
+}
+
+// Test case from `wx.onNetworkWeakChange`
+{
+  wx.onNetworkWeakChange(function (res) {
+    console.log(res.weakNet)
+    console.log(res.networkType)
+  })
+  // 取消监听
+  wx.offNetworkWeakChange()
+}
+
+// Test case from `VideoDecoder`
+(async function () {
+  const decoder = wx.createVideoDecoder()
+  // 启动 videoDecoder
+  await new Promise(resolve => {
+    decoder.on('start', resolve)
+    decoder.start({
+      source: 'http://...',
+      abortAudio: true, // 不需要音频
+    })
+  })
+})
+
+// Test case from `wx.getMenuButtonBoundingClientRect`
+{
+  const res = wx.getMenuButtonBoundingClientRect()
+
+  console.log(res.width)
+  console.log(res.height)
+  console.log(res.top)
+  console.log(res.right)
+  console.log(res.bottom)
+  console.log(res.left)
+}
+
+// Test case from `wx.onKeyboardHeightChange`
+{
+  wx.onKeyboardHeightChange(res => {
+    console.log(res.height)
+  })
+}
+
+// Test case from `wx.createWorker`
+{
+  const createNewWorker = function () {
+    const worker = wx.createWorker('workers/index.js', {
+      useExperimentalWorker: true,
+    })
+    // 监听worker被系统回收事件
+    worker.onProcessKilled(() => {
+      // 重新创建一个worker
+      createNewWorker()
+    })
+  }
+  // 创建实验worker
+  createNewWorker()
+}
+
+// Test case from `wx.createBLEConnection`
+{
+  wx.createBLEConnection({
+    deviceId: '',
+    success(res) {
+      console.log(res)
+    },
+  })
+}
+
+// Test case from `wx.getBLEMTU`
+{
+  wx.getBLEMTU({
+    deviceId: '',
+    writeType: 'write',
+    success(res) {
+      console.log(res)
+    },
+  })
+}
+
+// Test case from `wx.onBLEMTUChange`
+{
+  wx.onBLEMTUChange(function (res) {
+    console.log('bluetooth mtu is', res.mtu)
+  })
+}
+
+// Test case from `wx.requestMidasFriendPayment`
+{
+  wx.requestMidasFriendPayment({
+    mode: 'game',
+    buyQuantity: 1,
+    currencyType: 'CNY',
+    env: 0,
+    nonceStr: '',
+    offerId: '',
+    outTradeNo: '',
+    platform: 'android',
+    signature: '',
+    timeStamp: 0,
+    zoneId: '',
+    success(res) {
+      expectType<string>(res.encryptedData)
+      expectType<string>(res.errMsg)
+      expectType<string>(res.iv)
+    },
+    fail() {
+    }
+  })
+}
+
+// Test case from `WebAudioContext`
+{
+  // 监听状态
+  const audioCtx = wx.createWebAudioContext()
+  audioCtx.onstatechange = () => {
+    expectType<string>(audioCtx.state)
+  }
+  setTimeout(audioCtx.suspend, 1000)
+  setTimeout(audioCtx.resume, 2000)
+}
+
+// Test case from `WebAudioContext.close`
+{
+  const audioCtx = wx.createWebAudioContext()
+  audioCtx.close().then(() => {
+    console.log(audioCtx.state) // bad case：不应该在close后再访问state
+  })
+}
+
+// Test case from `WebAudioContext.createPeriodicWave`
+{
+  const audioCtx = wx.createWebAudioContext()
+
+  const real = new Float32Array(2)
+  const imag = new Float32Array(2)
+  real[0] = 0
+  imag[0] = 0
+  real[1] = 1
+  imag[1] = 0
+
+  audioCtx.createPeriodicWave(real, imag, {
+    disableNormalization: true,
+  })
+}
