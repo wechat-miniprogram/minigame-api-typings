@@ -388,7 +388,7 @@ import { expectType } from 'tsd'
       expectType<number>(res.windowHeight)
       expectType<string>(res.language)
       expectType<string>(res.version)
-      expectType<string>(res.platform)
+      expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
     },
   })
 }
@@ -403,7 +403,7 @@ import { expectType } from 'tsd'
       expectType<number>(res.windowHeight)
       expectType<string>(res.language)
       expectType<string>(res.version)
-      expectType<string>(res.platform)
+      expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
     }
   })
 }
@@ -496,7 +496,7 @@ import { expectType } from 'tsd'
   wx.onNetworkStatusChange(function(res) {
     expectType<boolean>(res.isConnected)
     expectType<
-      'wifi' | '2g' | '3g' | '4g' | 'unknown' | 'none'
+      'wifi' | '2g' | '3g' | '4g' | '5g' | 'unknown' | 'none'
     >(res.networkType)
   })
 }
@@ -853,7 +853,7 @@ import { expectType } from 'tsd'
     expectType<number>(res.windowHeight)
     expectType<string>(res.language)
     expectType<string>(res.version)
-    expectType<string>(res.platform)
+    expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
   } catch (e) {
     // Do something when catch error
   }
@@ -869,7 +869,7 @@ import { expectType } from 'tsd'
     expectType<number>(res.windowHeight)
     expectType<string>(res.language)
     expectType<string>(res.version)
-    expectType<string>(res.platform)
+    expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
   } catch (e) {
     // Do something when catch error
   }
@@ -2493,5 +2493,33 @@ import { expectType } from 'tsd'
 
   audioCtx.createPeriodicWave(real, imag, {
     disableNormalization: true,
+  })
+}
+
+// Test case from `wx.chooseMedia`
+{
+  wx.chooseMedia({
+    count: 9,
+    mediaType: ['image','video'],
+    sourceType: ['album', 'camera'],
+    maxDuration: 30,
+    camera: 'back',
+    success(res) {
+      expectType<string>(res.tempFiles[0].tempFilePath)
+      expectType<number>(res.tempFiles[0].size)
+    }
+  })
+}
+
+// Test case from `wx.chooseMessageFile`
+{
+  wx.chooseMessageFile({
+    count: 10,
+    type: 'image',
+    success (res) {
+      // tempFilePath可以作为img标签的src属性显示图片
+      const tempFilePaths = res.tempFiles
+      expectType<WechatMinigame.ChooseFile[]>(tempFilePaths)
+    }
   })
 }

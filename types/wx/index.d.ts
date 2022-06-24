@@ -59,6 +59,8 @@ declare namespace WechatMinigame {
     type ScriptProcessorNode = any
     type PannerNode = any
     type AudioListener = any
+    type ImageData = any
+    type Path2D = any
 }
 
 declare const console: WechatMinigame.Console

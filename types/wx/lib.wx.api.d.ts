@@ -225,6 +225,10 @@ declare namespace WechatMinigame {
         read: boolean
         /** 该特征是否支持 write 操作 */
         write: boolean
+        /** 该特征是否支持有回复写操作 */
+        writeDefault: boolean
+        /** 该特征是否支持无回复写操作 */
+        writeNoResponse: boolean
     }
     /** 描述service的Object */
     interface BLEPeripheralService {
@@ -320,6 +324,8 @@ declare namespace WechatMinigame {
         advertisData: ArrayBuffer
         /** 当前蓝牙设备的广播数据段中的 ServiceUUIDs 数据段 */
         advertisServiceUUIDs: string[]
+        /** 当前蓝牙设备是否可连接（ Android 8.0 以下不支持返回该值 ） */
+        connectable: boolean
         /** 蓝牙设备 id */
         deviceId: string
         /** 当前蓝牙设备的广播数据段中的 LocalName 数据段 */
@@ -487,6 +493,24 @@ declare namespace WechatMinigame {
         /** 接口调用成功的回调函数 */
         success?: CheckSessionSuccessCallback
     }
+    /** 返回选择的文件的本地临时文件对象数组 */
+    interface ChooseFile {
+        /** 选择的文件名称 */
+        name: string
+        /** 本地临时文件路径 (本地路径) */
+        path: string
+        /** 本地临时文件大小，单位 B */
+        size: number
+        /** 选择的文件的会话发送时间，Unix时间戳，工具暂不支持此属性 */
+        time: number
+        /** 选择的文件类型
+         *
+         * 可选值：
+         * - 'video': 选择了视频文件;
+         * - 'image': 选择了图片文件;
+         * - 'file': 选择了除图片和视频的文件; */
+        type: 'video' | 'image' | 'file'
+    }
     interface ChooseImageOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: ChooseImageCompleteCallback
@@ -516,6 +540,73 @@ declare namespace WechatMinigame {
          *
          * 图片的本地临时文件列表 */
         tempFiles: ImageFile[]
+        errMsg: string
+    }
+    interface ChooseMediaOption {
+        /** 仅在 sourceType 为 camera 时生效，使用前置或后置摄像头
+         *
+         * 可选值：
+         * - 'back': 使用后置摄像头;
+         * - 'front': 使用前置摄像头; */
+        camera?: 'back' | 'front'
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: ChooseMediaCompleteCallback
+        /** 最多可以选择的文件个数 */
+        count?: number
+        /** 接口调用失败的回调函数 */
+        fail?: ChooseMediaFailCallback
+        /** 拍摄视频最长拍摄时间，单位秒。时间范围为 3s 至 60s 之间。不限制相册。 */
+        maxDuration?: number
+        /** 文件类型
+         *
+         * 可选值：
+         * - 'image': 只能拍摄图片或从相册选择图片;
+         * - 'video': 只能拍摄视频或从相册选择视频;
+         * - 'mix': 可同时选择图片和视频; */
+        mediaType?: Array<'image' | 'video' | 'mix'>
+        /** 仅对 mediaType 为 image 时有效，是否压缩所选文件 */
+        sizeType?: string[]
+        /** 图片和视频选择的来源
+         *
+         * 可选值：
+         * - 'album': 从相册选择;
+         * - 'camera': 使用相机拍摄; */
+        sourceType?: Array<'album' | 'camera'>
+        /** 接口调用成功的回调函数 */
+        success?: ChooseMediaSuccessCallback
+    }
+    interface ChooseMediaSuccessCallbackResult {
+        /** 本地临时文件列表 */
+        tempFiles: MediaFile[]
+        /** 文件类型，有效值有 image 、video、mix */
+        type: string
+        errMsg: string
+    }
+    interface ChooseMessageFileOption {
+        /** 最多可以选择的文件个数，可以 0～100 */
+        count: number
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: ChooseMessageFileCompleteCallback
+        /** 需要基础库： `2.6.0`
+         *
+         * 根据文件拓展名过滤，仅 type==file 时有效。每一项都不能是空字符串。默认不过滤。 */
+        extension?: string[]
+        /** 接口调用失败的回调函数 */
+        fail?: ChooseMessageFileFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: ChooseMessageFileSuccessCallback
+        /** 所选的文件的类型
+         *
+         * 可选值：
+         * - 'all': 从所有文件选择;
+         * - 'video': 只能选择视频文件;
+         * - 'image': 只能选择图片文件;
+         * - 'file': 可以选择除了图片和视频之外的其它的文件; */
+        type?: 'all' | 'video' | 'image' | 'file'
+    }
+    interface ChooseMessageFileSuccessCallbackResult {
+        /** 返回选择的文件的本地临时文件对象数组 */
+        tempFiles: ChooseFile[]
         errMsg: string
     }
     interface ClearStorageOption {
@@ -1144,6 +1235,20 @@ declare namespace WechatMinigame {
     }
     /** 启动参数 */
     interface EnterOptionsGame {
+        /** 需要基础库： `2.20.0`
+         *
+         * API 类别
+         *
+         * 可选值：
+         * - 'default': 默认类别;
+         * - 'nativeFunctionalized': 原生功能化，视频号直播商品、商品橱窗等场景打开的小程序;
+         * - 'browseOnly': 仅浏览，朋友圈快照页等场景打开的小程序;
+         * - 'embedded': 内嵌，通过打开半屏小程序能力打开的小程序; */
+        apiCategory:
+            | 'default'
+            | 'nativeFunctionalized'
+            | 'browseOnly'
+            | 'embedded'
         /** 启动小游戏的 query 参数 */
         query: IAnyObject
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
@@ -1207,6 +1312,14 @@ declare namespace WechatMinigame {
         length?: number
         /** 从文件指定位置开始读，如果不指定，则从文件头开始读。读取的范围应该是左闭右开区间 [position, position+length)。有效范围：[0, fileLength - 1]。单位：byte */
         position?: number
+    }
+    interface Err {
+        /** 错误信息 */
+        errMsg: string
+        /** 需要基础库： `2.24.0`
+         *
+         * errno 错误码，错误码的详细说明参考 [Errno错误码](#) */
+        errno: number
     }
     interface ExitMiniProgramOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -1273,7 +1386,7 @@ declare namespace WechatMinigame {
         angleArray: FaceAngel
         /** 人脸置信度，取值范围 [0, 1]，数值越大置信度越高（遮挡越少） */
         confArray: FaceConf
-        /** 脸部正方框数值，对象包含 height, weight, originX, originY 四个属性 */
+        /** 脸部方框数值，对象包含 height, weight, originX, originY 四个属性 (origin 为方框左上角坐标) */
         detectRect: IAnyObject
         /** 多人模式（enableMultiFace）下的人脸信息，每个对象包含上述其它属性 */
         faceInfo: IAnyObject[]
@@ -1944,6 +2057,8 @@ declare namespace WechatMinigame {
         errMsg: string
         /** 本机局域网IP地址 */
         localip: string
+        /** 本机局域网子网掩码，基础库 2.24.0 开始支持 */
+        netmask: string
     }
     interface GetLocationOption {
         /** 需要基础库： `1.6.0`
@@ -2025,6 +2140,10 @@ declare namespace WechatMinigame {
         success?: GetNetworkTypeSuccessCallback
     }
     interface GetNetworkTypeSuccessCallbackResult {
+        /** 需要基础库： `2.22.1`
+         *
+         * 设备是否使用了网络代理 */
+        hasSystemProxy: boolean
         /** 网络类型
          *
          * 可选值：
@@ -2311,7 +2430,7 @@ declare namespace WechatMinigame {
     }
     interface GetUserInteractiveStorageOption {
         /** 要获取的 key 列表 */
-        keyList: string
+        keyList: string[]
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetUserInteractiveStorageCompleteCallback
         /** 接口调用失败的回调函数 */
@@ -2324,6 +2443,8 @@ declare namespace WechatMinigame {
         cloudID: string
         /** 加密数据，包含互动型托管数据的值。解密后的结果为一个 `KVDataList`，每一项为一个 `KVData`。 [用户数据的签名验证和加解密](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#加密数据解密算法) */
         encryptedData: string
+        /** 加密算法的初始向量，详见 [用户数据的签名验证和加解密](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#加密数据解密算法) */
+        iv: string
         errMsg: string
     }
     interface GetWeRunDataOption {
@@ -2382,6 +2503,10 @@ declare namespace WechatMinigame {
         complete?: HideLoadingCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: HideLoadingFailCallback
+        /** 需要基础库： `2.22.1`
+         *
+         * 目前 toast 和 loading 相关接口可以相互混用，此参数可用于取消混用特性 */
+        noConflict?: boolean
         /** 接口调用成功的回调函数 */
         success?: HideLoadingSuccessCallback
     }
@@ -2402,6 +2527,10 @@ declare namespace WechatMinigame {
         complete?: HideToastCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: HideToastFailCallback
+        /** 需要基础库： `2.22.1`
+         *
+         * 目前 toast 和 loading 相关接口可以相互混用，此参数可用于取消混用特性 */
+        noConflict?: number
         /** 接口调用成功的回调函数 */
         success?: HideToastSuccessCallback
     }
@@ -2778,6 +2907,27 @@ innerAudioContext.onError((res) => {
         /** 音量。范围 0~1。默认为 1 */
         volume: number
     }
+    /** 本地临时文件列表 */
+    interface MediaFile {
+        /** 视频的时间长度 */
+        duration: number
+        /** 文件类型
+         *
+         * 可选值：
+         * - 'image': 图片;
+         * - 'video': 视频; */
+        fileType: 'image' | 'video'
+        /** 视频的高度 */
+        height: number
+        /** 本地临时文件大小，单位 B */
+        size: number
+        /** 本地临时文件路径 (本地路径) */
+        tempFilePath: string
+        /** 视频缩略图临时文件路径 */
+        thumbTempFilePath: string
+        /** 视频的宽度 */
+        width: number
+    }
     /** 需要预览的资源列表 */
     interface MediaSource {
         /** 图片或视频的地址 */
@@ -3081,13 +3231,12 @@ innerAudioContext.onError((res) => {
         gamma: number
     }
     interface OnDeviceOrientationChangeCallbackResult {
-        /** 表示切换后的屏幕是横屏还是竖屏
+        /** 变化后的屏幕方向。只监听左横屏和右横屏之间切换的事件。仅在 game.json 中配置 deviceOrientation 的值为 landscape 时生效。
          *
          * 可选值：
-         * - 'portrait': 竖屏;
          * - 'landscape': 横屏正方向，以 HOME 键在屏幕右侧为正方向;
          * - 'landscapeReverse': 横屏反方向，以 HOME 键在屏幕左侧为反方向; */
-        value: 'portrait' | 'landscape' | 'landscapeReverse'
+        value: 'landscape' | 'landscapeReverse'
     }
     interface OnDisconnectCallbackResult {
         /** 可选值：
@@ -3203,9 +3352,10 @@ innerAudioContext.onError((res) => {
          * - '2g': 2g 网络;
          * - '3g': 3g 网络;
          * - '4g': 4g 网络;
+         * - '5g': 5g 网络;
          * - 'unknown': Android 下不常见的网络类型;
          * - 'none': 无网络; */
-        networkType: 'wifi' | '2g' | '3g' | '4g' | 'unknown' | 'none'
+        networkType: 'wifi' | '2g' | '3g' | '4g' | '5g' | 'unknown' | 'none'
     }
     interface OnNetworkWeakChangeCallbackResult {
         /** 当前网络类型 */
@@ -3545,6 +3695,13 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: OpenCustomerServiceConversationSuccessCallback
     }
+    interface OpenCustomerServiceConversationSuccessCallbackResult {
+        /** 在客服会话内点击小程序消息卡片进入小程序时，所带的小程序打开路径 */
+        path: string
+        /** 在客服会话内点击小程序消息卡片进入小程序时，所带的小程序打开参数 */
+        query: IAnyObject
+        errMsg: string
+    }
     /** 开放数据域对象 */
     interface OpenDataContext {
         /** [Canvas](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.html)
@@ -3742,11 +3899,7 @@ innerAudioContext.onError((res) => {
         referrerPolicy?: string
         /** 需要基础库： `2.13.0`
          *
-         * 是否显示长按菜单。
-         *
-         * 支持识别的码：小程序码
-         *
-         * 仅小程序支持识别的码：微信个人码、微信群码、企业微信个人码、 企业微信群码与企业微信互通群码； */
+         * 是否显示长按菜单。 */
         showmenu?: boolean
         /** 接口调用成功的回调函数 */
         success?: PreviewImageSuccessCallback
@@ -3766,11 +3919,7 @@ innerAudioContext.onError((res) => {
         referrerPolicy?: string
         /** 需要基础库： `2.13.0`
          *
-         * 是否显示长按菜单。
-         *
-         * 支持识别的码：小程序码
-         *
-         * 仅小程序支持识别的码：微信个人码、微信群码、企业微信个人码、 企业微信群码与企业微信互通群码； */
+         * 是否显示长按菜单。 */
         showmenu?: boolean
         /** 接口调用成功的回调函数 */
         success?: PreviewMediaSuccessCallback
@@ -4011,7 +4160,7 @@ innerAudioContext.onError((res) => {
     }
     interface ReconnectOption {
         /** 需要重连的对局房间唯一标识 */
-        accessInfo: number
+        accessInfo: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: ReconnectCompleteCallback
         /** 接口调用失败的回调函数 */
@@ -4323,6 +4472,10 @@ innerAudioContext.onError((res) => {
         enableQuic?: boolean
         /** 接口调用失败的回调函数 */
         fail?: RequestFailCallback
+        /** 需要基础库： `2.21.0`
+         *
+         * wifi下使用移动网络发送请求 */
+        forceCellularNetwork?: boolean
         /** 设置请求的 header，header 中不能设置 Referer。
          *
          * `content-type` 默认为 `application/json` */
@@ -4330,7 +4483,7 @@ innerAudioContext.onError((res) => {
         /** 需要基础库： `2.19.1`
          *
          * HttpDNS 服务商 Id。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/HTTPDNS.html) */
-        httpDNSServiceId?: boolean
+        httpDNSServiceId?: string
         /** HTTP 请求方法
          *
          * 可选值：
@@ -4363,7 +4516,7 @@ innerAudioContext.onError((res) => {
         success?: RequestSuccessCallback<T>
         /** 需要基础库： `2.10.0`
          *
-         * 超时时间，单位为毫秒 */
+         * 超时时间，单位为毫秒。默认值为 60000 */
         timeout?: number
     }
     /** 需要基础库： `2.10.4`
@@ -4832,7 +4985,7 @@ innerAudioContext.onError((res) => {
         shareMessageToFriendScene: number
     }
     interface SetScreenBrightnessOption {
-        /** 屏幕亮度值，范围 0 ~ 1。0 最暗，1 最亮 */
+        /** 屏幕亮度值，范围 0 ~ 1，0 最暗，1 最亮。在安卓端支持传入特殊值 -1，表示屏幕亮度跟随系统变化 */
         value: number
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: SetScreenBrightnessCompleteCallback
@@ -5596,8 +5749,14 @@ wx.getSetting({
         phoneCalendarAuthorized: boolean
         /** 设备像素比 */
         pixelRatio: number
-        /** 客户端平台 */
-        platform: string
+        /** 客户端平台
+         *
+         * 可选值：
+         * - 'ios': iOS微信（包含 iPhone、iPad）;
+         * - 'android': Android微信;
+         * - 'windows': Windows微信;
+         * - 'mac': macOS微信; */
+        platform: 'ios' | 'android' | 'windows' | 'mac'
         /** 需要基础库： `2.7.0`
          *
          * 在竖屏正方向下的安全区域 */
@@ -5771,7 +5930,7 @@ wx.getSetting({
     interface UDPSocketOnMessageCallbackResult {
         /** 接收端地址信息，2.18.0 起支持 */
         localInfo: LocalInfo
-        /** 收到的消息 */
+        /** 收到的消息。消息长度需要小于4096。 */
         message: ArrayBuffer
         /** 发送端地址信息 */
         remoteInfo: RemoteInfo
@@ -5787,6 +5946,8 @@ wx.getSetting({
         length?: number
         /** 发送数据的偏移量，仅当 message 为 ArrayBuffer 类型时有效 */
         offset?: number
+        /** 向指定地址发消息时，是否要开启广播，基础库 2.24.0 开始支持 */
+        setBroadcast?: boolean
     }
     interface UnlinkFailCallbackResult {
         /** 错误信息
@@ -6020,6 +6181,13 @@ wx.getSetting({
         /** 接口调用成功的回调函数 */
         success?: VibrateLongSuccessCallback
     }
+    interface VibrateShortFailCallbackResult {
+        /** 错误信息
+         *
+         * 可选值：
+         * - 'style is not support': 当前设备不支持设置震动等级; */
+        errMsg: string
+    }
     interface VibrateShortOption {
         /** 需要基础库： `2.13.0`
          *
@@ -6251,6 +6419,12 @@ worker.terminate()
         fail?: WriteBLECharacteristicValueFailCallback
         /** 接口调用成功的回调函数 */
         success?: WriteBLECharacteristicValueSuccessCallback
+        /** 蓝牙特征值的写模式设置，有两种模式，iOS 优先 write，安卓优先 writeNoResponse 。
+         *
+         * 可选值：
+         * - 'write': 强制回复写，不支持时报错;
+         * - 'writeNoResponse': 强制无回复写，不支持时报错; */
+        writeType?: 'write' | 'writeNoResponse'
     }
     interface WriteCharacteristicValueObject {
         /** 蓝牙特征的 UUID */
@@ -6753,7 +6927,7 @@ worker.terminate()
         listenFrameChange(
             /** [Worker](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.html)
              *
-             * 在 iOS ExperimentalWorker 内监听摄像头帧数据。详情 [Worker.getCameraFrameData](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html) */
+             * 如果需要在 iOS ExperimentalWorker 内监听摄像头帧数据，则需要传入对应 Wroekr 对象，否则不需要传入任何参数。详情 [Worker.getCameraFrameData](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html) */
             worker?: Worker
         ): void
         /** [Camera.onAuthCancel(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onAuthCancel.html)
@@ -10211,7 +10385,7 @@ recorder.on('stop', res => {
         applyUpdate(): void
         /** [UpdateManager.onCheckForUpdate(function callback)](https://developers.weixin.qq.com/minigame/dev/api/base/update/UpdateManager.onCheckForUpdate.html)
          *
-         * 监听向微信后台请求检查更新结果事件。微信在小程序冷启动时自动检查更新，不需由开发者主动触发。
+         * 监听向微信后台请求检查更新结果事件。微信在小程序每次启动（包括热启动）时自动检查更新，不需由开发者主动触发。
          *
          * **示例代码**
          *
@@ -10873,6 +11047,19 @@ console.log(accountInfo.plugin.version) // 插件版本号， 'a.b.c' 这样的�
          * | 1038   | 从另一个小程序返回              | 来源小程序 |
          * | 1043   | 公众号模板消息                  | 来源公众号 |
          *
+         * **不同 apiCategory 场景下的 API 限制**
+         *
+         * `X` 表示 API 被限制无法使用；不在表格中的 API 不限制。
+         *
+         * |                                       | default | nativeFunctionalized | browseOnly | embedded |
+         * |-|-|-|-|-|
+         * |navigateToMiniProgram                  |         | `X`                  | `X`        |          |
+         * |openSetting                            |         |                      | `X`        |          |
+         * |&lt;button open-type="share"&gt;       |         | `X`                  | `X`        | `X`      |
+         * |&lt;button open-type="feedback"&gt;    |         |                      | `X`        |          |
+         * |&lt;button open-type="open-setting"&gt;|         |                      | `X`        |          |
+         * |openEmbeddedMiniProgram                |         | `X`                  | `X`        | `X`      |
+         *
          * **注意**
          *
          * 部分版本在无`referrerInfo`的时候会返回 `undefined`，建议使用 `options.referrerInfo && options.referrerInfo.appId` 进行判断。 */
@@ -11032,6 +11219,12 @@ try {
          *
          * 获取主域和开放数据域共享的 sharedCanvas。**只有开放数据域能调用。** */
         getSharedCanvas(): Canvas
+        /** [[CustomAd](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.html) wx.createCustomAd(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createCustomAd.html)
+         *
+         * 需要基础库： `2.11.1`
+         *
+         * 创建原生模板广告组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.11.1 后再使用该 API。每次调用该方法创建原生模板广告都会返回一个全新的实例。 */
+        createCustomAd(option: CreateCustomAdOption): CustomAd
         /** [[DownloadTask](https://developers.weixin.qq.com/minigame/dev/api/network/download/DownloadTask.html) wx.downloadFile(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/download/wx.downloadFile.html)
 *
 * 下载文件资源到本地。客户端直接发起一个 HTTPS GET 请求，返回文件的本地临时路径 (本地路径)，单次下载允许的最大文件为 200MB。使用前请注意阅读[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)。
@@ -11123,6 +11316,10 @@ wx.downloadFile({
          *
          * 创建 grid(格子) 广告组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.9.2 后再使用该 API。每次调用该方法创建 grid(格子) 广告都会返回一个全新的实例。 */
         createGridAd(option: CreateGridAdOption): GridAd
+        /** [[ImageData](#) wx.createImageData()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImageData.html)
+         *
+         * 创建一个图片对象 */
+        createImageData(): ImageData
         /** [[Image](https://developers.weixin.qq.com/minigame/dev/api/render/image/Image.html) wx.createImage()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImage.html)
          *
          * 创建一个图片对象 */
@@ -11215,6 +11412,10 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
         createOpenSettingButton(
             option: CreateOpenSettingButtonOption
         ): OpenSettingButton
+        /** [[Path2D](#) wx.createPath2D()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createPath2D.html)
+         *
+         * 创建一个图片对象 */
+        createPath2D(): Path2D
         /** [[Performance](https://developers.weixin.qq.com/minigame/dev/api/base/performance/Performance.html) wx.getPerformance()](https://developers.weixin.qq.com/minigame/dev/api/base/performance/wx.getPerformance.html)
          *
          * 获取性能管理器 */
@@ -11294,7 +11495,9 @@ wx.request({
         ): RewardedVideoAd
         /** [[SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) wx.connectSocket(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.connectSocket.html)
 *
-* 创建一个 WebSocket 连接。使用前请注意阅读[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+* @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+*
+* 创建一个 WebSocket 连接。使用前请注意阅读[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)。
 *
 * **并发数**
 *
@@ -11415,20 +11618,11 @@ createNewWorker()
             /** 可选参数 */
             options?: CreateWorkerOption
         ): Worker
-        /** [any wx.getStorageSync(string key, Boolean encrypt)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorageSync.html)
+        /** [any wx.getStorageSync(string key)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorageSync.html)
 *
-* [wx.getStorage](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorage.html) 的同步版本
+* 从本地缓存中同步获取指定 key 的内容。
 *
 * **示例代码**
-*
-* ```js
-wx.getStorage({
-  key: 'key',
-  success (res) {
-    console.log(res.data)
-  }
-})
-```
 *
 * ```js
 try {
@@ -11439,32 +11633,10 @@ try {
 } catch (e) {
   // Do something when catch error
 }
-```
-*
-* ```js
-// 开启加密存储
-wx.setStorage({
-  key: "key",
-  data: "value",
-  encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
-  success() {
-    wx.getStorage({
-      key: "key",
-      encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
-      success(res) {
-        console.log(res.data)
-      }
-    })
-  }
-})
 ``` */
         getStorageSync<T = any>(
             /** 本地缓存中指定的 key */
-            key: string,
-            /** 需要基础库： `2.21.3`
-             *
-             * 是否开启加密存储。只有异步的 getStorage 接口支持开启加密存储。开启后，将会对 data 使用 AES128 解密，接口回调耗时将会增加。若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true */
-            encrypt?: boolean
+            key: string
         ): T
         /** [boolean wx.setCursor(string path, number x, number y)](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.setCursor.html)
          *
@@ -11570,7 +11742,11 @@ wx.authPrivateMessage({
 * 需要基础库： `1.2.0`
 *
 * 提前向用户发起授权请求。调用后会立刻弹窗询问用户是否同意授权小程序使用某项功能或获取用户的某些数据，但不会实际调用对应接口。如果用户之前已经同意授权，则不会出现弹窗，直接返回成功。更多用法详见 [用户授权](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)。
-* > 小程序插件可以使用 [wx.authorizeForMiniProgram](#)
+*
+* **注意事项**
+*
+* - 小游戏内使用 `wx.authorize({scope: "scope.userInfo"})`，不会弹出授权窗口，请使用 [wx.createUserInfoButton](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.createUserInfoButton.html)
+* - 需要授权 `scope.userLocation` 时必须[配置地理位置用途说明](https://developers.weixin.qq.com/minigame/dev/reference/configuration/app.html#permission)。
 *
 * **示例代码**
 *
@@ -11614,7 +11790,7 @@ wx.getSetting({
 * 检查登录态是否过期。
 * 通过 wx.login 接口获得的用户登录态拥有一定的时效性。用户越久未使用小程序，用户登录态越有可能失效。反之如果用户一直在使用小程序，则用户登录态一直保持有效。具体时效逻辑由微信维护，对开发者透明。开发者只需要调用 wx.checkSession 接口检测当前用户登录态是否有效。
 *
-* 登录态过期后开发者可以再调用 wx.login 获取新的用户登录态。调用成功说明当前 session_key 未过期，调用失败说明 session_key 已过期。更多使用方法详见 [小程序登录](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/login.html)。
+* 登录态过期后开发者可以再调用 wx.login 获取新的用户登录态。调用成功说明当前 session_key 未过期，调用失败说明 session_key 已过期。
 *
 * **示例代码**
 *
@@ -11634,7 +11810,9 @@ wx.checkSession({
         ): PromisifySuccessResult<T, CheckSessionOption>
         /** [wx.chooseImage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.chooseImage.html)
 *
-* 从本地相册选择图片或使用相机拍照。此接口不再更新，建议使用 `wx.chooseMedia`。
+* @deprecated 基础库版本 [2.21.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.chooseMedia](https://developers.weixin.qq.com/minigame/dev/api/media/video/wx.chooseMedia.html) 替换
+*
+* 从本地相册选择图片或使用相机拍照。
 *
 * ****
 *
@@ -11652,9 +11830,56 @@ wx.chooseImage({
         chooseImage<T extends ChooseImageOption = ChooseImageOption>(
             option?: T
         ): PromisifySuccessResult<T, ChooseImageOption>
+        /** [wx.chooseMedia(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/video/wx.chooseMedia.html)
+*
+* 需要基础库： `2.23.0`
+*
+* 拍摄或从手机相册中选择图片或视频。
+*
+* **示例代码**
+*
+* ```js
+wx.chooseMedia({
+  count: 9,
+  mediaType: ['image','video'],
+  sourceType: ['album', 'camera'],
+  maxDuration: 30,
+  camera: 'back',
+  success(res) {
+    console.log(res.tempFiles.tempFilePath)
+    console.log(res.tempFiles.size)
+  }
+})
+``` */
+        chooseMedia<T extends ChooseMediaOption = ChooseMediaOption>(
+            option: T
+        ): PromisifySuccessResult<T, ChooseMediaOption>
+        /** [wx.chooseMessageFile(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.chooseMessageFile.html)
+*
+* 需要基础库： `2.23.0`
+*
+* 从客户端会话选择文件。
+*
+* ****
+*
+* ```js
+wx.chooseMessageFile({
+  count: 10,
+  type: 'image',
+  success (res) {
+    // tempFilePath可以作为img标签的src属性显示图片
+    const tempFilePaths = res.tempFiles
+  }
+})
+``` */
+        chooseMessageFile<
+            T extends ChooseMessageFileOption = ChooseMessageFileOption
+        >(
+            option: T
+        ): PromisifySuccessResult<T, ChooseMessageFileOption>
         /** [wx.clearStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.clearStorage.html)
 *
-* 清理本地数据缓存。缓存相关策略请查看 [存储](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/storage.html)。
+* 清理本地数据缓存。
 *
 * **示例代码**
 *
@@ -11735,7 +11960,9 @@ wx.closeBluetoothAdapter({
         ): PromisifySuccessResult<T, CloseBluetoothAdapterOption>
         /** [wx.closeSocket(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.closeSocket.html)
 *
-* 关闭 WebSocket 连接。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+* @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+*
+* 关闭 WebSocket 连接。
 *
 * **示例代码**
 *
@@ -11817,12 +12044,6 @@ wx.createBLEConnection({
                 | Float32Array
                 | Float64Array
         ): void
-        /** [wx.createCustomAd(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createCustomAd.html)
-         *
-         * 需要基础库： `2.11.1`
-         *
-         * 创建原生模板广告组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.11.1 后再使用该 API。每次调用该方法创建原生模板广告都会返回一个全新的实例。 */
-        createCustomAd(option: CreateCustomAdOption): void
         /** [wx.exitMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.exitMiniProgram.html)
          *
          * 需要基础库： `2.17.3`
@@ -12097,7 +12318,9 @@ if (wx.getExtConfig) {
 *
 * 需要基础库： `1.4.0`
 *
-* 获取文件信息
+* @warning **该接口已停止维护，推荐使用 [FileSystemManager.getFileInfo](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.getFileInfo.html)**
+*
+* 获取文件信息。
 *
 * **示例代码**
 *
@@ -12199,7 +12422,9 @@ wx.getLocalIPAddress({
         getLocalIPAddress(option: GetLocalIPAddressOption): void
         /** [wx.getLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html)
 *
-* 获取当前的地理位置、速度。当用户离开小程序后，此接口无法调用。开启高精度定位，接口耗时会增加，可指定 highAccuracyExpireTime 作为超时时间。地图相关使用的坐标格式应为 gcj02。高频率调用会导致耗电，如有需要可使用持续定位接口 `wx.onLocationChange`。基础库 `2.17.0` 版本起 `wx.getLocation` 增加调用频率限制，[相关公告](https://developers.weixin.qq.com/community/develop/doc/000aee91a98d206bc6dbe722b51801)。
+* 获取当前的地理位置、速度。当用户离开小程序后，此接口无法调用。开启高精度定位，接口耗时会增加，可指定 highAccuracyExpireTime 作为超时时间。地图相关使用的坐标格式应为 gcj02。
+*  高频率调用会导致耗电，如有需要可使用持续定位接口 `wx.onLocationChange`。
+*  基础库 `2.17.0` 版本起 `wx.getLocation` 增加调用频率限制，[相关公告](https://developers.weixin.qq.com/community/develop/doc/000aee91a98d206bc6dbe722b51801)。
 *
 * **示例代码**
 *
@@ -12334,7 +12559,7 @@ wx.getSetting({
         ): PromisifySuccessResult<T, GetShareInfoOption>
         /** [wx.getStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorage.html)
 *
-* 从本地缓存中异步获取指定 key 的内容。缓存相关策略请查看 [存储](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/storage.html)。
+* 从本地缓存中异步获取指定 key 的内容。
 *
 * **示例代码**
 *
@@ -12345,17 +12570,6 @@ wx.getStorage({
     console.log(res.data)
   }
 })
-```
-*
-* ```js
-try {
-  var value = wx.getStorageSync('key')
-  if (value) {
-    // Do something with return value
-  }
-} catch (e) {
-  // Do something when catch error
-}
 ```
 *
 * ```js
@@ -12383,7 +12597,7 @@ wx.setStorage({
         ): PromisifySuccessResult<U, GetStorageOption<T>>
         /** [wx.getStorageInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorageInfo.html)
 *
-* 异步获取当前storage的相关信息。缓存相关策略请查看 [存储](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/storage.html)。
+* 异步获取当前storage的相关信息。
 *
 * **示例代码**
 *
@@ -12491,11 +12705,9 @@ wx.getSystemInfoAsync({
         getUserCloudStorageKeys(option?: GetUserCloudStorageKeysOption): void
         /** [wx.getUserInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.getUserInfo.html)
 *
+* @warning **用户头像昵称获取规则已调整，参考 [用户信息接口调整说明](https://developers.weixin.qq.com/community/develop/doc/000cacfa20ce88df04cb468bc52801)、[小程序用户头像昵称获取规则调整公告](https://developers.weixin.qq.com/community/develop/doc/00022c683e8a80b29bed2142b56c01)**
+*
 * 获取用户信息。
-*
-* **接口调整说明**
-*
-* 为优化用户登录体验，该接口将进行调整，详见 [用户信息接口调整说明](https://developers.weixin.qq.com/community/develop/doc/000cacfa20ce88df04cb468bc52801)
 *
 * **示例代码**
 *
@@ -12701,7 +12913,7 @@ wx.hideShareMenu({
         ): PromisifySuccessResult<T, JoinVoIPChatOption>
         /** [wx.login(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)
 *
-* 调用接口获取登录凭证（code）。通过凭证进而换取用户登录态信息，包括用户在当前小程序的唯一标识（openid）、微信开放平台帐号下的唯一标识（unionid，若当前小程序已绑定到微信开放平台帐号）及本次登录的会话密钥（session_key）等。用户数据的加解密通讯需要依赖会话密钥完成。更多使用方法详见 [小程序登录](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/login.html)。
+* 调用接口获取登录凭证（code）。通过凭证进而换取用户登录态信息，包括用户在当前小程序的唯一标识（openid）、微信开放平台帐号下的唯一标识（unionid，若当前小程序已绑定到微信开放平台帐号）及本次登录的会话密钥（session_key）等。用户数据的加解密通讯需要依赖会话密钥完成。
 *
 * **示例代码**
 *
@@ -12999,9 +13211,9 @@ wx.notifyBLECharacteristicValueChange({
          *
          * 需要基础库： `2.1.0`
          *
-         * 取消监听横竖屏切换事件 */
+         * 取消监听屏幕方向变化事件 */
         offDeviceOrientationChange(
-            /** 横竖屏切换事件的回调函数 */
+            /** 屏幕方向变化事件的回调函数 */
             callback?: OffDeviceOrientationChangeCallback
         ): void
         /** [wx.offError(function callback)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.offError.html)
@@ -13489,9 +13701,9 @@ wx.onBluetoothDeviceFound(function(res) {
          *
          * 需要基础库： `2.1.0`
          *
-         * 监听横竖屏切换事件 */
+         * 监听屏幕方向变化事件 */
         onDeviceOrientationChange(
-            /** 横竖屏切换事件的回调函数 */
+            /** 屏幕方向变化事件的回调函数 */
             callback: OnDeviceOrientationChangeCallback
         ): void
         /** [wx.onError(function callback)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.onError.html)
@@ -13707,28 +13919,36 @@ wx.offNetworkWeakChange()
         ): void
         /** [wx.onSocketClose(function callback)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.onSocketClose.html)
          *
-         * 监听 WebSocket 连接关闭事件。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。** */
+         * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+         *
+         * 监听 WebSocket 连接关闭事件。 */
         onSocketClose(
             /** WebSocket 连接关闭事件的回调函数 */
             callback: OnSocketCloseCallback
         ): void
         /** [wx.onSocketError(function callback)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.onSocketError.html)
          *
-         * 监听 WebSocket 错误事件。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。** */
+         * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+         *
+         * 监听 WebSocket 错误事件。 */
         onSocketError(
             /** WebSocket 错误事件的回调函数 */
             callback: OnSocketErrorCallback
         ): void
         /** [wx.onSocketMessage(function callback)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.onSocketMessage.html)
          *
-         * 监听 WebSocket 接受到服务器的消息事件。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。** */
+         * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+         *
+         * 监听 WebSocket 接受到服务器的消息事件。 */
         onSocketMessage(
             /** WebSocket 接受到服务器的消息事件的回调函数 */
             callback: OnSocketMessageCallback
         ): void
         /** [wx.onSocketOpen(function callback)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.onSocketOpen.html)
          *
-         * 监听 WebSocket 连接打开事件。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。** */
+         * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+         *
+         * 监听 WebSocket 连接打开事件。 */
         onSocketOpen(
             /** WebSocket 连接打开事件的回调函数 */
             callback: OnSocketOpenCallback
@@ -13928,7 +14148,11 @@ wx.openCard({
          *
          * 需要基础库： `2.0.3`
          *
-         * 进入客服会话。要求在用户发生过至少一次 touch 事件后才能调用。后台接入方式与小程序一致，详见 [客服消息接入](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/customer-message/customer-message.html) */
+         * 进入客服会话。要求在用户发生过至少一次 touch 事件后才能调用。后台接入方式与小程序一致，详见 [客服消息接入](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/customer-message/customer-message.html)
+         *
+         * **注意事项**
+         *
+         * - 在客服会话内点击小程序消息卡片进入小程序时，不能通过 wx.onShow 或 wx.getEnterOptionsSync 等接口获取启动路径和参数，而是应该通过 wx.openCustomerServiceConversation 接口的 success 回调获取启动路径和参数 */
         openCustomerServiceConversation<
             T extends OpenCustomerServiceConversationOption = OpenCustomerServiceConversationOption
         >(
@@ -13964,6 +14188,17 @@ wx.openSetting({
 *
 * 在新页面中全屏预览图片。预览的过程中用户可以进行保存图片、发送给朋友等操作。
 *
+* **支持长按识别的码**
+*
+* | 类型 | 说明 | 最低版本 |
+* |------|------| -------|
+* | 小程序码 |    |
+* | 微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 企业微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 普通群码 | 指仅包含微信用户的群，不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 互通群码 |  指既有微信用户也有企业微信用户的群，不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 公众号二维码 | 不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+*
 * **示例代码**
 *
 * ```js
@@ -13979,7 +14214,18 @@ wx.previewImage({
          *
          * 需要基础库： `2.12.0`
          *
-         * 预览图片和视频。 */
+         * 预览图片和视频。
+         *
+         * **支持长按识别的码**
+         *
+         * | 类型 | 说明 | 最低版本 |
+         * |------|------| -------|
+         * | 小程序码 |    |
+         * | 微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+         * | 企业微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+         * | 普通群码 | 指仅包含微信用户的群，不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+         * | 互通群码 |  指既有微信用户也有企业微信用户的群，不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+         * | 公众号二维码 | 不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) | */
         previewMedia<T extends PreviewMediaOption = PreviewMediaOption>(
             option: T
         ): PromisifySuccessResult<T, PreviewMediaOption>
@@ -14022,7 +14268,7 @@ wx.readBLECharacteristicValue({
         ): PromisifySuccessResult<T, ReadBLECharacteristicValueOption>
         /** [wx.removeStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.removeStorage.html)
 *
-* 从本地缓存中移除指定 key。缓存相关策略请查看 [存储](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/storage.html)。
+* 从本地缓存中移除指定 key。
 *
 * **示例代码**
 *
@@ -14359,6 +14605,12 @@ wx.requestSubscribeSystemMessage({
          *
          * 预约视频号直播 */
         reserveChannelsLive(option: ReserveChannelsLiveOption): void
+        /** [wx.restartMiniProgram()](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.restartMiniProgram.html)
+         *
+         * 需要基础库： `2.22.1`
+         *
+         * 重启当前小程序 */
+        restartMiniProgram(): void
         /** [wx.revokeBufferURL(string url)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.revokeBufferURL.html)
          *
          * 需要基础库： `2.14.0`
@@ -14435,7 +14687,9 @@ wx.scanCode({
         ): PromisifySuccessResult<T, ScanCodeOption>
         /** [wx.sendSocketMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.sendSocketMessage.html)
 *
-* 通过 WebSocket 连接发送数据。需要先 wx.connectSocket，并在 wx.onSocketOpen 回调之后才能发送。**推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控。同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+* @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
+*
+* 通过 WebSocket 连接发送数据。需要先 wx.connectSocket，并在 wx.onSocketOpen 回调之后才能发送。
 *
 * **示例代码**
 *
@@ -14606,11 +14860,7 @@ wx.setStorage({
   data:"value"
 })
 ```
-* ```js
-try {
-  wx.setStorageSync('key', 'value')
-} catch (e) { }
-```
+*
 * ```js
 // 开启加密存储
 wx.setStorage({
@@ -14634,49 +14884,22 @@ wx.setStorage({
         >(
             option: U
         ): PromisifySuccessResult<U, SetStorageOption<T>>
-        /** [wx.setStorageSync(string key, any data, Boolean encrypt)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorageSync.html)
+        /** [wx.setStorageSync(string key, any data)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorageSync.html)
 *
-* [wx.setStorage](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.setStorage.html) 的同步版本
+* 将数据存储在本地缓存中指定的 key 中。会覆盖掉原来该 key 对应的内容。除非用户主动删除或因存储空间原因被系统清理，否则数据都一直可用。单个 key 允许存储的最大数据长度为 1MB，所有数据存储上限为 10MB。
 *
 * **示例代码**
 *
 * ```js
-wx.setStorage({
-  key:"key",
-  data:"value"
-})
-```
-* ```js
 try {
   wx.setStorageSync('key', 'value')
 } catch (e) { }
-```
-* ```js
-// 开启加密存储
-wx.setStorage({
-  key: "key",
-  data: "value",
-  encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
-  success() {
-    wx.getStorage({
-      key: "key",
-      encrypt: true, // 若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true
-      success(res) {
-        console.log(res.data)
-      }
-    })
-  }
-})
 ``` */
         setStorageSync<T = any>(
             /** 本地缓存中指定的 key */
             key: string,
             /** 需要存储的内容。只支持原生类型、Date、及能够通过`JSON.stringify`序列化的对象。 */
-            data: T,
-            /** 需要基础库： `2.21.3`
-             *
-             * 是否开启加密存储。只有异步的 setStorage 接口支持开启加密存储。开启后，将会对 data 使用 AES128 加密，接口回调耗时将会增加。若开启加密存储，setStorage 和 getStorage 需要同时声明 encrypt 的值为 true。此外，由于加密后的数据会比原始数据膨胀1.4倍，因此开启 encrypt 的情况下，单个 key 允许存储的最大数据长度为 0.7MB，所有数据存储上限为 7.1MB */
-            encrypt?: boolean
+            data: T
         ): void
         /** [wx.setUserCloudStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.setUserCloudStorage.html)
          *
@@ -15276,6 +15499,24 @@ wx.writeBLECharacteristicValue({
         result: ChooseImageSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type ChooseMediaCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type ChooseMediaFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type ChooseMediaSuccessCallback = (
+        result: ChooseMediaSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type ChooseMessageFileCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type ChooseMessageFileFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type ChooseMessageFileSuccessCallback = (
+        result: ChooseMessageFileSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type ClearStorageCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type ClearStorageFailCallback = (res: GeneralCallbackResult) => void
@@ -15815,9 +16056,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用成功的回调函数 */
     type GetUserInteractiveStorageSuccessCallback = (
-        result: GetUserInteractiveStorageSuccessCallbackResult,
-        /** 加密算法的初始向量，详见 [用户数据的签名验证和加解密](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#加密数据解密算法) */
-        iv: string
+        result: GetUserInteractiveStorageSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetWeRunDataCompleteCallback = (res: GeneralCallbackResult) => void
@@ -16039,7 +16278,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 用户点击右上角菜单的「复制链接」按钮时触发的事件的回调函数 */
     type OffCopyUrlCallback = (result: OnCopyUrlCallbackResult) => void
-    /** 横竖屏切换事件的回调函数 */
+    /** 屏幕方向变化事件的回调函数 */
     type OffDeviceOrientationChangeCallback = (
         result: OnDeviceOrientationChangeCallbackResult
     ) => void
@@ -16237,7 +16476,7 @@ wx.writeBLECharacteristicValue({
     type OnDeviceMotionChangeCallback = (
         result: OnDeviceMotionChangeCallbackResult
     ) => void
-    /** 横竖屏切换事件的回调函数 */
+    /** 屏幕方向变化事件的回调函数 */
     type OnDeviceOrientationChangeCallback = (
         result: OnDeviceOrientationChangeCallbackResult
     ) => void
@@ -16472,7 +16711,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用成功的回调函数 */
     type OpenCustomerServiceConversationSuccessCallback = (
-        res: GeneralCallbackResult
+        result: OpenCustomerServiceConversationSuccessCallbackResult
     ) => void
     /** 接口调用失败的回调函数 */
     type OpenFailCallback = (result: OpenFailCallbackResult) => void
@@ -16605,7 +16844,7 @@ wx.writeBLECharacteristicValue({
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
-    type RequestFailCallback = (res: GeneralCallbackResult) => void
+    type RequestFailCallback = (err: Err) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestMidasFriendPaymentCompleteCallback = (
         res: MidasFriendPaymentError
@@ -17143,7 +17382,9 @@ wx.writeBLECharacteristicValue({
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type VibrateShortCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
-    type VibrateShortFailCallback = (res: GeneralCallbackResult) => void
+    type VibrateShortFailCallback = (
+        result: VibrateShortFailCallbackResult
+    ) => void
     /** 接口调用成功的回调函数 */
     type VibrateShortSuccessCallback = (res: GeneralCallbackResult) => void
     /** 视频错误事件的回调函数 */
