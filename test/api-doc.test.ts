@@ -378,6 +378,8 @@ import { expectType } from 'tsd'
   })
 }
 
+type TPlatform = 'ios' | 'android' | 'windows' | 'mac' | 'devtools'
+
 // Test case from `wx.getSystemInfo`
 {
   wx.getSystemInfo({
@@ -388,7 +390,7 @@ import { expectType } from 'tsd'
       expectType<number>(res.windowHeight)
       expectType<string>(res.language)
       expectType<string>(res.version)
-      expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
+      expectType<TPlatform>(res.platform)
     },
   })
 }
@@ -403,7 +405,7 @@ import { expectType } from 'tsd'
       expectType<number>(res.windowHeight)
       expectType<string>(res.language)
       expectType<string>(res.version)
-      expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
+      expectType<TPlatform>(res.platform)
     }
   })
 }
@@ -853,7 +855,7 @@ import { expectType } from 'tsd'
     expectType<number>(res.windowHeight)
     expectType<string>(res.language)
     expectType<string>(res.version)
-    expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
+    expectType<TPlatform>(res.platform)
   } catch (e) {
     // Do something when catch error
   }
@@ -869,7 +871,7 @@ import { expectType } from 'tsd'
     expectType<number>(res.windowHeight)
     expectType<string>(res.language)
     expectType<string>(res.version)
-    expectType<'ios' | 'android' | 'windows' | 'mac'>(res.platform)
+    expectType<TPlatform>(res.platform)
   } catch (e) {
     // Do something when catch error
   }

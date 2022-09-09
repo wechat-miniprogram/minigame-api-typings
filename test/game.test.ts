@@ -151,7 +151,7 @@ video.onEnded(() => {
 })
 
 {
-  const callback = (res: WechatMinigame.OnTimeUpdateCallbackResult) => {
+  const callback = (res: WechatMinigame.OnTimeUpdateListenerResult) => {
     expectType<number>(res.position) // 当前进度
     expectType<number>(res.duration) // 视频总时长
 
