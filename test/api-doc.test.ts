@@ -1122,17 +1122,6 @@ type TPlatform = 'ios' | 'android' | 'windows' | 'mac' | 'devtools'
   })
 }
 
-// Test case from `wx.getFileInfo`
-{
-  wx.getFileInfo({
-    filePath: '',
-    success(res) {
-      expectType<number>(res.size)
-      expectType<string>(res.digest)
-    },
-  })
-}
-
 // Test case from `wx.notifyBLECharacteristicValueChange`
 {
   wx.notifyBLECharacteristicValueChange({
