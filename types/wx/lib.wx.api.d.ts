@@ -1,5 +1,5 @@
 /*! *****************************************************************************
-Copyright (c) 2022 Tencent, Inc. All rights reserved.
+Copyright (c) 2023 Tencent, Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -497,6 +497,19 @@ declare namespace WechatMinigame {
         isEnabled: boolean
         errMsg: string
     }
+    interface CheckIsAddedToMyMiniProgramOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: CheckIsAddedToMyMiniProgramCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: CheckIsAddedToMyMiniProgramFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: CheckIsAddedToMyMiniProgramSuccessCallback
+    }
+    interface CheckIsAddedToMyMiniProgramSuccessCallbackResult {
+        /** 是否被添加至 「我的小程序」 */
+        added: boolean
+        errMsg: string
+    }
     interface CheckSessionOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: CheckSessionCompleteCallback
@@ -698,6 +711,10 @@ declare namespace WechatMinigame {
         complete?: ConnectSocketCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: ConnectSocketFailCallback
+        /** 需要基础库： `2.29.0`
+         *
+         * wifi下使用移动网络发送请求 */
+        forceCellularNetwork?: boolean
         /** HTTP Header，Header 中不能设置 Referer */
         header?: IAnyObject
         /** 需要基础库： `2.8.0`
@@ -1208,6 +1225,10 @@ declare namespace WechatMinigame {
         write?: boolean
     }
     interface DeviceInfo {
+        /** 需要基础库： `2.29.0`
+         *
+         * 设备 CPU 型号（仅 Android 支持） */
+        CPUType: string
         /** 应用（微信APP）二进制接口类型（仅 Android 支持） */
         abi: string
         /** 设备性能等级（仅 Android 支持）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不到50） */
@@ -1898,8 +1919,16 @@ declare namespace WechatMinigame {
         finderUserName: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetChannelsLiveInfoCompleteCallback
+        /** 需要基础库： `2.29.0`
+         *
+         * 结束时间，筛选指定时段的直播 */
+        endTime?: number
         /** 接口调用失败的回调函数 */
         fail?: GetChannelsLiveInfoFailCallback
+        /** 需要基础库： `2.29.0`
+         *
+         * 起始时间，筛选指定时段的直播 */
+        startTime?: number
         /** 接口调用成功的回调函数 */
         success?: GetChannelsLiveInfoSuccessCallback
     }
@@ -1914,6 +1943,14 @@ declare namespace WechatMinigame {
         nickname: string
         /** 直播 nonceId */
         nonceId: string
+        /** 需要基础库： `2.29.0`
+         *
+         * 除最近的一条直播外，其他的直播列表（注意：每次最多返回按时间戳增序排列的15个直播信息，其中时间最近的那个直播会在接口其他的返回参数中展示，其余的直播会在该字段中展示）。 */
+        otherInfos: any[]
+        /** 需要基础库： `2.29.0`
+         *
+         * 视频号回放状态：0未生成，1已生成，3生成中，6已过期 */
+        replayStatus: string
         /** 直播状态，2直播中，3直播结束 */
         status: number
         errMsg: string
@@ -2833,6 +2870,10 @@ innerAudioContext.onError((res) => {
         complete?: JoinVoIPChatCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: JoinVoIPChatFailCallback
+        /** 需要基础库： `2.29.0`
+         *
+         * wifi下使用移动网络发送请求 */
+        forceCellularNetwork?: boolean
         /** 静音设置 */
         muteConfig?: MuteConfig
         /** 房间类型
@@ -2957,7 +2998,7 @@ innerAudioContext.onError((res) => {
         timeout?: number
     }
     interface LoginSuccessCallbackResult {
-        /** 用户登录凭证（有效期五分钟）。开发者需要在开发者服务器后台调用 [auth.code2Session](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/login/auth.code2Session.html)，使用 code 换取 openid、unionid、session_key 等信息 */
+        /** 用户登录凭证（有效期五分钟）。开发者需要在开发者服务器后台调用 [code2Session](#)，使用 code 换取 openid、unionid、session_key 等信息 */
         code: string
         errMsg: string
     }
@@ -3955,6 +3996,26 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: OpenSystemBluetoothSettingSuccessCallback
     }
+    interface OperateGameRecorderVideoOption {
+        /** 对局回放的播放速率，只能设置以下几个值: 0.3, 0.5, 1, 1.5, 2, 2.5, 3.其中1表示元素播放，小于1表示减速播放，大于1表示加速播放 */
+        atempo?: number
+        /** 如果原始视频文件中有音频，是否与新传入的bgm混音，默认为false，表示不混音，只保留一个音轨，值为true时表示原始音频与传入的bgm混音 */
+        audioMix?: boolean
+        /** 对局回放背景音乐的地址 */
+        bgm?: string
+        /** 分享的对局回放打开后的描述内容 */
+        desc?: string
+        /** 分享的对局回放打开后跳转小游戏的 path （独立分包路径） */
+        path?: string
+        /** 分享的对局回放打开后跳转小游戏的 query */
+        query?: string
+        /** 对局回放的剪辑区间，是一个二维数组，单位 ms（毫秒）。[[1000, 3000], [4000, 5000]] 表示剪辑已录制对局回放的 1-3 秒和 4-5 秒最终合成为一个 3 秒的对局回放。对局回放剪辑后的总时长最多 60 秒，即 1 分钟 */
+        timeRange?: number[]
+        /** 分享的对局回放打开后的标题内容 */
+        title?: string
+        /** 对局回放的音量大小，最小0，最大1 */
+        volume?: number
+    }
     /** 按钮的样式 */
     interface OptionStyle {
         /** 背景颜色 */
@@ -4477,6 +4538,16 @@ innerAudioContext.onError((res) => {
      * - iOS 支持 pvr 格式
      * - Android 支持 etc1 格式 */
     interface RenderingContext {}
+    interface ReportSceneOption {
+        /** 此场景耗时，单位 ms */
+        costTime?: number
+        /** 自定义维度数据，key在「小程序管理后台」获取。只支持能够通过JSON.stringify序列化的对象，且序列化后长度不超过1024个字符 */
+        dimension?: IAnyObject
+        /** 自定义指标数据，key在「小程序管理后台」获取。只支持能够通过JSON.stringify序列化的对象，且序列化后长度不超过1024个字符 */
+        metric?: IAnyObject
+        /** 场景ID，在「小程序管理后台」获取 */
+        sceneId?: number
+    }
     interface ReportUserBehaviorBranchAnalyticsOption {
         /** 分支ID，在「小程序管理后台」获取 */
         branchId: string
@@ -4788,6 +4859,16 @@ innerAudioContext.onError((res) => {
     interface ReserveChannelsLiveOption {
         /** 预告 id，通过 getChannelsLiveNoticeInfo 接口获取 */
         noticeId: string
+    }
+    interface RestartMiniProgramOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: RestartMiniProgramCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: RestartMiniProgramFailCallback
+        /** 打开的页面路径，path 中 ? 后面的部分会成为 query */
+        path?: string
+        /** 接口调用成功的回调函数 */
+        success?: RestartMiniProgramSuccessCallback
     }
     interface RestartOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -9705,7 +9786,8 @@ GameServerManager.offSyncFrame(listener) // 需传入与监听时同一个的函
          *
          * 需要基础库： `2.14.4`
          *
-         * 开始游戏匹配 */
+         * 开始游戏匹配。在调用 startMatch 之前，需要先调用后台接口 [gamematch.setMatchIdOpenState
+         * ](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/gamematch/gamematch.setMatchIdOpenState.html) 把 matchId 设置为打开状态。 */
         startMatch(option: StartMatchOption): Promise<any>
         /** [Promise GameServerManager.startStateService(object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.startStateService.html)
          *
@@ -12793,6 +12875,14 @@ wx.getSetting({
          *
          * 检查是否可以进行接力，该接口需要在开放数据域调用 */
         checkHandoffEnabled(option?: CheckHandoffEnabledOption): void
+        /** [wx.checkIsAddedToMyMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/my-miniprogram/wx.checkIsAddedToMyMiniProgram.html)
+         *
+         * 需要基础库： `2.29.1`
+         *
+         * 检查小程序是否被添加至 「我的小程序」 */
+        checkIsAddedToMyMiniProgram(
+            option: CheckIsAddedToMyMiniProgramOption
+        ): void
         /** [wx.checkSession(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.checkSession.html)
 *
 * 检查登录态是否过期。
@@ -15634,6 +15724,12 @@ wx.openSystemBluetoothSetting({
         >(
             option?: T
         ): PromisifySuccessResult<T, OpenSystemBluetoothSettingOption>
+        /** [wx.operateGameRecorderVideo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/wx.operateGameRecorderVideo.html)
+         *
+         * 需要基础库： `2.26.1`
+         *
+         * 分享游戏对局回放。安卓微信8.0.28开始支持，iOS微信8.0.30开始支持。 */
+        operateGameRecorderVideo(option: OperateGameRecorderVideoOption): void
         /** [wx.previewImage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.previewImage.html)
 *
 * 在新页面中全屏预览图片。预览的过程中用户可以进行保存图片、发送给朋友等操作。
@@ -15829,6 +15925,33 @@ wx.reportPerformance(1101, 680, 'custom')
             /** 自定义维度 (选填) */
             dimensions?: string | any[]
         ): void
+        /** [wx.reportScene(Object object)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.reportScene.html)
+*
+* 需要基础库： `2.26.2`
+*
+* 用于游戏启动阶段的自定义场景上报。使用前请注意阅读[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/performance/perf-action-start-reportScene.html)。
+*
+* **示例代码**
+*
+* ```js
+wx.reportScene({
+  sceneId: 1000,
+  costTime: 350,
+  dimension: {
+    d1: '2.1.0', // value仅支持传入String类型。若value表示Boolean，请将值处理为'0'、'1'进行上报；若value为Number，请转换为String进行上报
+  },
+  metric: {
+    m1: '546', // value仅支持传入数值且需要转换为String类型进行上报
+  },
+  success (res) {
+    console.log(res)
+  },
+  fail (res) {
+    console.log(res)
+  }
+})
+``` */
+        reportScene(option: ReportSceneOption): void
         /** [wx.reportUserBehaviorBranchAnalytics(Object object)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.reportUserBehaviorBranchAnalytics.html)
          *
          * 需要基础库： `2.12.0`
@@ -16055,12 +16178,12 @@ wx.requestSubscribeSystemMessage({
          *
          * 预约视频号直播 */
         reserveChannelsLive(option: ReserveChannelsLiveOption): void
-        /** [wx.restartMiniProgram()](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.restartMiniProgram.html)
+        /** [wx.restartMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.restartMiniProgram.html)
          *
          * 需要基础库： `2.22.1`
          *
          * 重启当前小程序 */
-        restartMiniProgram(): void
+        restartMiniProgram(option: RestartMiniProgramOption): void
         /** [wx.revokeBufferURL(string url)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.revokeBufferURL.html)
          *
          * 需要基础库： `2.14.0`
@@ -16935,6 +17058,18 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type CheckHandoffEnabledSuccessCallback = (
         result: CheckHandoffEnabledSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type CheckIsAddedToMyMiniProgramCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type CheckIsAddedToMyMiniProgramFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type CheckIsAddedToMyMiniProgramSuccessCallback = (
+        result: CheckIsAddedToMyMiniProgramSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type CheckSessionCompleteCallback = (res: GeneralCallbackResult) => void
@@ -18430,6 +18565,16 @@ wx.writeBLECharacteristicValue({
     type RestartCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type RestartFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type RestartMiniProgramCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type RestartMiniProgramFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type RestartMiniProgramSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
     /** 接口调用成功的回调函数 */
     type RestartSuccessCallback = (res: GeneralCallbackResult) => void
     /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
