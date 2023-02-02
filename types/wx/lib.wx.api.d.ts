@@ -1995,6 +1995,7 @@ declare namespace WechatMinigame {
     interface GetClipboardDataSuccessCallbackOption {
         /** 剪贴板的内容 */
         data: string
+        errMsg: string
     }
     interface GetConnectedBluetoothDevicesOption {
         /** 蓝牙设备主服务的 UUID 列表（支持 16/32/128 位 UUID） */
@@ -2068,6 +2069,11 @@ declare namespace WechatMinigame {
         fail?: GetFriendsStateDataFailCallback
         /** 接口调用成功的回调函数 */
         success?: GetFriendsStateDataSuccessCallback
+    }
+    interface GetFriendsStateDataSuccessCallbackResult {
+        /** 好友状态信息列表 */
+        list: StateData[]
+        errMsg: string
     }
     interface GetFuzzyLocationOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -2357,6 +2363,7 @@ declare namespace WechatMinigame {
     interface GetScreenBrightnessSuccessCallbackOption {
         /** 屏幕亮度值，范围 0 ~ 1，0 最暗，1 最亮 */
         value: number
+        errMsg: string
     }
     interface GetSettingOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -2416,6 +2423,7 @@ declare namespace WechatMinigame {
         keys: string[]
         /** 限制的空间大小，单位 KB */
         limitSize: number
+        errMsg: string
     }
     interface GetStorageInfoSyncOption {
         /** 当前占用的空间大小, 单位 KB */
@@ -4851,10 +4859,6 @@ innerAudioContext.onError((res) => {
     interface RequestTaskOnChunkReceivedListenerResult {
         /** 开发者服务器每次返回新chunk时的Response */
         res: OnChunkReceivedListenerResult
-    }
-    interface Res {
-        /** 好友状态信息列表 */
-        list: StateData[]
     }
     interface ReserveChannelsLiveOption {
         /** 预告 id，通过 getChannelsLiveNoticeInfo 接口获取 */
@@ -17427,7 +17431,9 @@ wx.writeBLECharacteristicValue({
     /** 接口调用失败的回调函数 */
     type GetFriendsStateDataFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
-    type GetFriendsStateDataSuccessCallback = (result: Res) => void
+    type GetFriendsStateDataSuccessCallback = (
+        result: GetFriendsStateDataSuccessCallbackResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetFuzzyLocationCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
