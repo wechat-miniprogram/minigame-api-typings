@@ -1,12 +1,6 @@
 import { expectType } from 'tsd'
 
 // call with callback
-wx.getFriendCloudStorage({
-  keyList: [],
-  success(res) {
-    expectType<WechatMinigame.GetFriendCloudStorageSuccessCallbackResult>(res)
-  },
-})
 wx.requestMidasPayment({
   currencyType: 'CNY',
   mode: 'game',
@@ -28,11 +22,6 @@ wx.stopCompass({
 })
 
 // call with Promise.prototype.then
-wx.getFriendCloudStorage({
-  keyList: [],
-}).then(res => {
-  expectType<WechatMinigame.GetFriendCloudStorageSuccessCallbackResult>(res)
-})
 wx.requestMidasPayment({
   currencyType: 'CNY',
   mode: 'game',
@@ -49,11 +38,6 @@ wx.stopCompass().then(res => {
 
 // call with await
 async () => {
-  expectType<WechatMinigame.GetFriendCloudStorageSuccessCallbackResult>(
-    await wx.getFriendCloudStorage({
-      keyList: [],
-    }),
-  )
   expectType<WechatMinigame.GeneralCallbackResult>(
     await wx.requestMidasPayment({
       currencyType: 'CNY',
