@@ -20,10 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ***************************************************************************** */
 
-/////////////////////
-///// WX Cloud Apis
-/////////////////////
-
 /**
  * Common interfaces and types
  */
@@ -126,6 +122,19 @@ interface WxCloud {
     ): Promise<ICloud.DeleteFileResult>
 
     database: (config?: ICloudConfig) => DB.Database
+
+    CloudID: ICloud.ICloudIDConstructor
+    CDN: ICloud.ICDNConstructor
+
+    callContainer(param: OQ<ICloud.CallContainerParam>): void
+    callContainer(
+        param: RQ<ICloud.CallContainerParam>
+    ): Promise<ICloud.CallContainerResult>
+
+    connectContainer(param: OQ<ICloud.ConnectContainerParam>): void
+    connectContainer(
+        param: RQ<ICloud.ConnectContainerParam>
+    ): Promise<ICloud.ConnectContainerResult>
 }
 
 declare namespace ICloud {
@@ -145,6 +154,51 @@ declare namespace ICloud {
         data?: CallFunctionData
         slow?: boolean
     }
+    // === end ===
+
+    // === API: container ===
+    type CallContainerData = AnyObject
+
+    interface CallContainerResult extends IAPISuccessParam {
+        data: any
+        statusCode: number
+        header: Record<string, any>
+        callID: string
+    }
+
+    interface CallContainerParam extends ICloudAPIParam<CallContainerResult> {
+        path: string
+        service?: string
+        method?: string
+        header?: Record<string, any>
+        data?: any // string, object, ArrayBuffer
+        dataType?: string
+        responseType?: string
+        timeout?: number
+        verbose?: boolean
+        followRedirect?: boolean
+    }
+
+    interface ConnectContainerResult extends IAPISuccessParam {
+        socketTask: WechatMinigame.SocketTask
+    }
+
+    interface ConnectSocketOptions extends IAPIParam<void> {
+        header?: Record<string, string>
+        protocols?: string[]
+        tcpNoDelay?: boolean
+        perMessageDeflate?: boolean
+        timeout?: number
+    }
+
+    type ConnectContainerParam = Omit<
+        ConnectSocketOptions,
+        'success' | 'fail' | 'complete'
+    > &
+        ICloudAPIParam<ConnectContainerResult> & {
+            service: string
+            path?: string
+        }
     // === end ===
 
     // === API: uploadFile ===
@@ -203,6 +257,34 @@ declare namespace ICloud {
 
     interface DeleteFileParam extends ICloudAPIParam<DeleteFileResult> {
         fileList: string[]
+    }
+    // === end ===
+
+    // === API: CloudID ===
+    abstract class CloudID {
+        constructor(cloudID: string)
+    }
+
+    interface ICloudIDConstructor {
+        new (cloudId: string): CloudID
+        (cloudId: string): CloudID
+    }
+    // === end ===
+
+    // === API: CDN ===
+    abstract class CDN {
+        target: string | ArrayBuffer | ICDNFilePathSpec
+        constructor(target: string | ArrayBuffer | ICDNFilePathSpec)
+    }
+
+    interface ICDNFilePathSpec {
+        type: 'filePath'
+        filePath: string
+    }
+
+    interface ICDNConstructor {
+        new (options: string | ArrayBuffer | ICDNFilePathSpec): CDN
+        (options: string | ArrayBuffer | ICDNFilePathSpec): CDN
     }
     // === end ===
 }

@@ -807,19 +807,6 @@ declare namespace WechatMinigame {
         /** 原生模板广告组件的左上角纵坐标 */
         top: number
     }
-    interface CreateGameBannerOption {
-        /** 推荐单元 id */
-        adUnitId: string
-        /** 小游戏推荐banner组件样式 */
-        style: CreateGameBannerStyleOption
-    }
-    /** 小游戏推荐banner组件样式 */
-    interface CreateGameBannerStyleOption {
-        /** 小游戏推荐banner组件左上角横坐标 */
-        left: number
-        /** 小游戏推荐banner组件左上角纵坐标 */
-        top: number
-    }
     interface CreateGameClubButtonOption {
         /** 游戏圈按钮的图标，仅当 object.type 参数为 image 时有效。
          *
@@ -849,18 +836,6 @@ declare namespace WechatMinigame {
         openlink?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
-    }
-    interface CreateGameIconOption {
-        /** 推荐单元 id */
-        adUnitId: string
-        /** 游戏icon的数量，请注意，正式版下面渲染出来的icon数量会小于等于count，请注册做好样式兼容 */
-        count: number
-        /** 数组的每一项可以针对对应的icon设置位置和样式等信息，style的每一项称为styleItem */
-        style: any[]
-    }
-    interface CreateGamePortalOption {
-        /** 推荐单元 id。 */
-        adUnitId: string
     }
     interface CreateGameRecorderShareButtonOption {
         /** 对局回放的分享参数。 */
@@ -1205,16 +1180,16 @@ declare namespace WechatMinigame {
         write?: boolean
     }
     interface DeviceInfo {
-        /** 需要基础库： `2.29.0`
-         *
-         * 设备 CPU 型号（仅 Android 支持）（Tips: GPU 型号可通过 WebGLRenderingContext.getExtension('WEBGL_debug_renderer_info') 来获取） */
-        CPUType: string
         /** 应用（微信APP）二进制接口类型（仅 Android 支持） */
         abi: string
         /** 设备性能等级（仅 Android 支持）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不到50） */
         benchmarkLevel: number
         /** 设备品牌 */
         brand: string
+        /** 需要基础库： `2.29.0`
+         *
+         * 设备 CPU 型号（仅 Android 支持）（Tips: GPU 型号可通过 WebGLRenderingContext.getExtension('WEBGL_debug_renderer_info') 来获取） */
+        cpuType: string
         /** 需要基础库： `2.25.1`
          *
          * 设备二进制接口类型（仅 Android 支持） */
@@ -1407,6 +1382,11 @@ declare namespace WechatMinigame {
         /** 接口调用成功的回调函数 */
         success?: ExitVoIPChatSuccessCallback
     }
+    /** 客服信息 */
+    interface ExtInfoOption {
+        /** 客服链接 */
+        url: string
+    }
     /** 人脸角度信息，取值范围 [-1, 1]，数值越接近 0 表示越正对摄像头 */
     interface FaceAngel {
         /** 仰俯角（点头） */
@@ -1563,35 +1543,6 @@ declare namespace WechatMinigame {
         /** 截断位置，默认0。如果 length 小于文件长度（单位：字节），则只有前面 length 个字节会保留在文件中，其余内容会被删除；如果 length 大于文件长度，则会对其进行扩展，并且扩展部分将填充空字节（'\0'） */
         length: number
     }
-    /** 小游戏推荐banner组件。小游戏推荐banner组件是一个原生组件，层级比上屏 Canvas 高，会覆盖在上屏 Canvas 上。小游戏推荐banner组件默认是隐藏的，需要调用 GameBanner.show() 将其显示。 */
-    interface GameBanner {
-        /** 是否已销毁的标记位 */
-        isDestroyed: boolean
-        /** 小游戏推荐banner组件的样式。style 上的属性的值仅为开发者设置的值，开发者设置的异常值会被忽略，最终的尺寸和位置信息通过GameBanner.onResize() 事件获得。 */
-        style: GameBannerStyle
-    }
-    interface GameBannerOnErrorListenerResult {
-        /** 错误码
-         *
-         * 可选值：
-         * - 1000: 内部错误;
-         * - 1001: 参数错误;
-         * - 1002: 无效的推荐位，请检查推荐id是否正确;
-         * - 1004: 无合适的推荐;
-         * - 1008: 推荐单元已关闭; */
-        errCode: 1000 | 1001 | 1002 | 1004 | 1008
-        /** 需要基础库： `2.7.7`
-         *
-         * 错误信息 */
-        errMsg: string
-    }
-    /** 小游戏推荐banner组件的样式。style 上的属性的值仅为开发者设置的值，开发者设置的异常值会被忽略，最终的尺寸和位置信息通过GameBanner.onResize() 事件获得。 */
-    interface GameBannerStyle {
-        /** 小游戏推荐banner组件的左上角横坐标 */
-        left: number
-        /** 小游戏推荐banner组件的左上角纵坐标 */
-        top: number
-    }
     /** 游戏圈按钮。游戏圈按钮被点击后会跳转到小游戏的游戏圈。更多关于游戏圈的信息见 [游戏圈使用指南](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/game-club.html) */
     interface GameClubButton {
         /** 游戏圈按钮的图标，仅当 type 参数为 image 时有效。
@@ -1614,35 +1565,6 @@ declare namespace WechatMinigame {
         image?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
-    }
-    /** 小游戏推荐icon组件。小游戏推荐icon组件是一个原生组件，层级比上屏 Canvas 高，会覆盖在上屏 Canvas 上。小游戏推荐icon组件默认是隐藏的，需要调用 GameIcon.show() 将其显示。 */
-    interface GameIcon {
-        /** 单个游戏icon的位置和样式等信息 */
-        iconItem: IconItem
-        /** 每个icon渲染出来之后都有位置、尺寸和样式等信息，统一由icons数组维护，数组的每一项称为iconItem */
-        icons: any[]
-        /** 是否已销毁的标记位 */
-        isDestroyed: boolean
-    }
-    /** 小游戏推荐弹窗组件。小游戏推荐弹窗组件是一个原生组件，层级比上屏 Canvas 高，会覆盖在上屏 Canvas 上。小游戏推荐弹窗组件默认是隐藏的，需要调用 GamePortal.show() 将其显示。 */
-    interface GamePortal {
-        /** 组件是否已销毁的标记位。 */
-        isDestroyed: boolean
-    }
-    interface GamePortalOnErrorListenerResult {
-        /** 错误码
-         *
-         * 可选值：
-         * - 1000: 内部错误;
-         * - 1001: 参数错误;
-         * - 1002: 无效的推荐位，请检查推荐位id是否正确;
-         * - 1004: 无合适的推荐;
-         * - 1008: 推荐位已关闭; */
-        errCode: 1000 | 1001 | 1002 | 1004 | 1008
-        /** 需要基础库： `2.7.7`
-         *
-         * 错误信息 */
-        errMsg: string
     }
     /** 需要基础库： `2.8.0`
      *
@@ -2688,23 +2610,6 @@ declare namespace WechatMinigame {
         noConflict?: boolean
         /** 接口调用成功的回调函数 */
         success?: HideToastSuccessCallback
-    }
-    /** 单个游戏icon的位置和样式等信息 */
-    interface IconItem {
-        /** 游戏名称是否隐藏 */
-        appNameHidden: boolean
-        /** 游戏icon的border颜色色值 */
-        borderColor: string
-        /** 游戏icon的border尺寸 */
-        borderWidth: number
-        /** 游戏名称的颜色色号 */
-        color: string
-        /** 游戏icon的X轴坐标 */
-        left: number
-        /** 游戏icon的宽高值 */
-        size: number
-        /** 游戏icon的Y轴坐标 */
-        top: number
     }
     /** 图片对象 */
     interface Image {
@@ -3850,6 +3755,26 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: OpenChannelsUserProfileSuccessCallback
     }
+    interface OpenCustomerServiceChatOption {
+        /** 企业ID */
+        corpId: string
+        /** 客服信息 */
+        extInfo: ExtInfoOption
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: OpenCustomerServiceChatCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: OpenCustomerServiceChatFailCallback
+        /** 气泡消息图片 */
+        sendMessageImg?: string
+        /** 气泡消息小程序路径 */
+        sendMessagePath?: string
+        /** 气泡消息标题 */
+        sendMessageTitle?: string
+        /** 是否发送小程序气泡消息 */
+        showMessageCard?: boolean
+        /** 接口调用成功的回调函数 */
+        success?: OpenCustomerServiceChatSuccessCallback
+    }
     interface OpenCustomerServiceConversationOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: OpenCustomerServiceConversationCompleteCallback
@@ -4597,6 +4522,8 @@ innerAudioContext.onError((res) => {
         mode: 'game'
         /** 在米大师侧申请的应用 id */
         offerId: string
+        /** 业务订单号，每个订单号只能使用一次，重复使用会失败。开发者需要确保该订单号在对应游戏下的唯一性，平台会尽可能校验该唯一性约束，但极端情况下可能会跳过对该约束的校验。要求32个字符内，只能是数字、大小写字母、符号_-|*组成，不能以下划线（)开头。建议每次调用wx.requestMidasPayment都换新的outTradeNo。若没有传入，则平台会自动填充一个，并以下划线开头 */
+        outTradeNo: string
         /** 购买数量。mode=game 时必填。购买数量。详见 [buyQuantity 限制说明](#buyquantity-限制说明)。 */
         buyQuantity?: number
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -5783,23 +5710,6 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: StopGyroscopeSuccessCallback
     }
-    /** 单个游戏icon的位置和样式信息 */
-    interface StyleItem {
-        /** 游戏名称是否隐藏 */
-        appNameHidden: boolean
-        /** 游戏icon的border颜色色值 */
-        borderColor: string
-        /** 游戏icon的border尺寸 */
-        borderWidth: number
-        /** 游戏名称的颜色色值 */
-        color: string
-        /** 游戏icon的X轴坐标 */
-        left: number
-        /** 游戏icon的宽高值 */
-        size: number
-        /** 游戏icon的Y轴坐标 */
-        top: number
-    }
     /** 订阅消息设置
 *
 * **示例代码**
@@ -5928,7 +5838,7 @@ wx.getSetting({
         platform: 'ios' | 'android' | 'windows' | 'mac' | 'devtools'
         /** 需要基础库： `2.7.0`
          *
-         * 在竖屏正方向下的安全区域 */
+         * 在竖屏正方向下的安全区域。部分机型没有安全区域概念，也不会返回 safeArea 字段，开发者需自行兼容。 */
         safeArea: SafeArea
         /** 需要基础库： `1.1.0`
          *
@@ -6569,7 +6479,7 @@ setTimeout(audioCtx.resume, 2000)
     interface WindowInfo {
         /** 设备像素比 */
         pixelRatio: number
-        /** 在竖屏正方向下的安全区域 */
+        /** 在竖屏正方向下的安全区域。部分机型没有安全区域概念，也不会返回 safeArea 字段，开发者需自行兼容。 */
         safeArea: SafeArea
         /** 屏幕高度，单位px */
         screenHeight: number
@@ -7030,7 +6940,7 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offResize(
             /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GridAdOffResizeCallback
+            listener?: OffResizeCallback
         ): void
         /** [BannerAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onError.html)
          *
@@ -7068,7 +6978,7 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听 banner 广告尺寸变化事件。 */
         onResize(
             /** banner 广告尺寸变化事件的监听函数 */
-            listener: GridAdOnResizeCallback
+            listener: OnResizeCallback
         ): void
         /** [Promise BannerAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.show.html)
          *
@@ -8834,98 +8744,6 @@ fs.truncateSync({
 ``` */
         truncateSync(option: TruncateSyncOption): undefined
     }
-    interface GameBanner {
-        /** [GameBanner.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.offError.html)
-*
-* 移除小游戏推荐banner组件加载错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameBanner.onError(listener)
-GameBanner.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameBannerOffErrorCallback
-        ): void
-        /** [GameBanner.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.offLoad.html)
-*
-* 移除小游戏推荐banner组件加载成功事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameBanner.onLoad(listener)
-GameBanner.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [GameBanner.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.offResize.html)
-*
-* 移除小游戏推荐banner组件位置或者尺寸改变事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameBanner.onResize(listener)
-GameBanner.offResize(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offResize(
-            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameBannerOffResizeCallback
-        ): void
-        /** [GameBanner.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.onError.html)
-         *
-         * 监听小游戏推荐banner组件加载错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1002  | 推荐位id无效    | 可能是拼写错误、或者误用了其他小游戏的推荐位id | 请重新前往mp.weixin.qq.com确认推荐位id。 |
-         * | 1004  | 无适合的推荐   | 推荐不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览推荐 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1008  | 推荐位已关闭  | 该推荐位的推荐能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应推荐位的展现。| */
-        onError(
-            /** 小游戏推荐banner组件加载错误事件的监听函数 */
-            listener: GameBannerOnErrorCallback
-        ): void
-        /** [GameBanner.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.onLoad.html)
-         *
-         * 监听小游戏推荐banner组件加载成功事件。 */
-        onLoad(
-            /** 小游戏推荐banner组件加载成功事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [GameBanner.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.onResize.html)
-         *
-         * 监听小游戏推荐banner组件位置或者尺寸改变事件。 */
-        onResize(
-            /** 小游戏推荐banner组件位置或者尺寸改变事件的监听函数 */
-            listener: GameBannerOnResizeCallback
-        ): void
-        /** [Promise GameBanner.destroy()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.destroy.html)
-         *
-         * 销毁小游戏推荐banner组件，组件销毁后所有方法和事件都将失效。 */
-        destroy(): Promise<any>
-        /** [Promise GameBanner.hide()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.hide.html)
-         *
-         * 隐藏小游戏推荐banner组件。 */
-        hide(): Promise<any>
-        /** [Promise GameBanner.show()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.show.html)
-         *
-         * 显示小游戏推荐banner组件。 */
-        show(): Promise<any>
-    }
     interface GameClubButton {
         /** [GameClubButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.destroy.html)
          *
@@ -8962,195 +8780,6 @@ GameClubButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 显示游戏圈按钮 */
         show(): void
-    }
-    interface GameIcon {
-        /** [GameIcon.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.offError.html)
-*
-* 移除小游戏推荐icon组件加载错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameIcon.onError(listener)
-GameIcon.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameBannerOffErrorCallback
-        ): void
-        /** [GameIcon.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.offLoad.html)
-*
-* 移除小游戏推荐icon组件加载成功事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameIcon.onLoad(listener)
-GameIcon.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [GameIcon.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.offResize.html)
-*
-* 移除小游戏推荐icon组件位置或者尺寸改变事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameIcon.onResize(listener)
-GameIcon.offResize(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offResize(
-            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameBannerOffResizeCallback
-        ): void
-        /** [GameIcon.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.onError.html)
-         *
-         * 监听小游戏推荐icon组件加载错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1002  | 推荐位id无效    | 可能是拼写错误、或者误用了其他小游戏的推荐位id | 请重新前往mp.weixin.qq.com确认推荐位id。 |
-         * | 1004  | 无适合的推荐   | 推荐不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览推荐 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1008  | 推荐位已关闭  | 该推荐位的推荐能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应推荐位的展现。|
-         * | 1009  | 推荐位id类型错误| 可能复制了其他类型的推荐位id | 请前往mp.weixin.qq.com 确认推荐位id | */
-        onError(
-            /** 小游戏推荐icon组件加载错误事件的监听函数 */
-            listener: GameBannerOnErrorCallback
-        ): void
-        /** [GameIcon.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.onLoad.html)
-         *
-         * 监听小游戏推荐icon组件加载成功事件。 */
-        onLoad(
-            /** 小游戏推荐icon组件加载成功事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [GameIcon.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.onResize.html)
-         *
-         * 监听小游戏推荐icon组件位置或者尺寸改变事件。回调函数回抛出一个数组，包含被渲染出来的游戏的信息，该数组为组件实例属性icons的子集。 */
-        onResize(
-            /** 小游戏推荐icon组件位置或者尺寸改变事件的监听函数 */
-            listener: GameBannerOnResizeCallback
-        ): void
-        /** [Promise GameIcon.destroy()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.destroy.html)
-         *
-         * 销毁小游戏推荐icon组件，组件销毁后所有方法和事件都将失效。 */
-        destroy(): Promise<any>
-        /** [Promise GameIcon.hide()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.hide.html)
-         *
-         * 隐藏小游戏推荐icon组件。 */
-        hide(): Promise<any>
-        /** [Promise GameIcon.load()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.load.html)
-         *
-         * 小游戏推荐icon组件加载数据接口。 */
-        load(): Promise<any>
-        /** [Promise GameIcon.show()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.show.html)
-         *
-         * 显示小游戏推荐icon组件。 */
-        show(): Promise<any>
-    }
-    interface GamePortal {
-        /** [GamePortal.offClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.offClose.html)
-*
-* 移除小游戏推荐弹窗组件的关闭事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GamePortal.onClose(listener)
-GamePortal.offClose(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offClose(
-            /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
-        ): void
-        /** [GamePortal.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.offError.html)
-*
-* 移除小游戏推荐弹窗组件加载错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GamePortal.onError(listener)
-GamePortal.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GamePortalOffErrorCallback
-        ): void
-        /** [GamePortal.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.offLoad.html)
-*
-* 移除小游戏推荐弹窗组件的数据加载成功事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GamePortal.onLoad(listener)
-GamePortal.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [GamePortal.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.onClose.html)
-         *
-         * 监听小游戏推荐弹窗组件的关闭事件。 */
-        onClose(
-            /** 小游戏推荐弹窗组件的关闭事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
-        ): void
-        /** [GamePortal.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.onError.html)
-         *
-         * 监听小游戏推荐弹窗组件加载错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1002  | 推荐位id无效    | 可能是拼写错误、或者误用了其他小游戏的推荐位id | 请重新前往mp.weixin.qq.com确认推荐位id。 |
-         * | 1004  | 无适合的推荐   | 推荐不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览推荐 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1008  | 推荐位已关闭  | 该推荐位的推荐能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应推荐位的展现。| */
-        onError(
-            /** 小游戏推荐弹窗组件加载错误事件的监听函数 */
-            listener: GamePortalOnErrorCallback
-        ): void
-        /** [GamePortal.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.onLoad.html)
-         *
-         * 监听小游戏推荐弹窗组件的数据加载成功事件。 */
-        onLoad(
-            /** 小游戏推荐弹窗组件的数据加载成功事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [Promise GamePortal.destroy()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.destroy.html)
-         *
-         * 销毁小游戏推荐弹窗组件，组件销毁后，组件的方法和事件都将失效。 */
-        destroy(): Promise<any>
-        /** [Promise GamePortal.load()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.load.html)
-         *
-         * 小游戏推荐弹窗组件加载数据接口。 */
-        load(): Promise<any>
-        /** [Promise GamePortal.show()](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.show.html)
-         *
-         * 显示小游戏推荐弹窗组件。 */
-        show(): Promise<any>
     }
     interface GameRecorder {
         /** [GameRecorder.off(string event, function callback)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorder.off.html)
@@ -9954,7 +9583,7 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offResize(
             /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GridAdOffResizeCallback
+            listener?: OffResizeCallback
         ): void
         /** [GridAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onError.html)
          *
@@ -9998,7 +9627,7 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听 grid(格子) 广告尺寸变化事件。 */
         onResize(
             /** grid(格子) 广告尺寸变化事件的监听函数 */
-            listener: GridAdOnResizeCallback
+            listener: OnResizeCallback
         ): void
         /** [Promise GridAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.show.html)
          *
@@ -12389,37 +12018,12 @@ wx.downloadFile({
          *
          * 获取全局唯一的文件管理器 */
         getFileSystemManager(): FileSystemManager
-        /** [[GameBanner](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameBanner.html) wx.createGameBanner(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/wx.createGameBanner.html)
-         *
-         * 需要基础库： `2.7.5`
-         * @deprecated 基础库版本 [2.18.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 创建小游戏推荐banner组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.7.5 后再使用该 API。每次调用该方法都会返回一个全新的实例。 */
-        createGameBanner(option: CreateGameBannerOption): GameBanner
         /** [[GameClubButton](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.html) wx.createGameClubButton(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/wx.createGameClubButton.html)
          *
          * 需要基础库： `2.0.3`
          *
          * 创建游戏圈按钮。游戏圈按钮被点击后会跳转到小游戏的游戏圈。更多关于游戏圈的信息见 [游戏圈使用指南](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/game-club.html)。从基础库2.30.3开始，新增传递openlink的特性，支持打开单帖子、话题页、活动页。 */
         createGameClubButton(option: CreateGameClubButtonOption): GameClubButton
-        /** [[GameIcon](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GameIcon.html) wx.createGameIcon(Object object, Object styleItem)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/wx.createGameIcon.html)
-         *
-         * 需要基础库： `2.8.3`
-         * @deprecated 基础库版本 [2.18.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 创建小游戏推荐icon组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.8.2 后再使用该 API。每次调用该方法都会返回一个全新的实例。 */
-        createGameIcon(
-            option: CreateGameIconOption,
-            /** 单个游戏icon的位置和样式信息 */
-            styleItem: StyleItem
-        ): GameIcon
-        /** [[GamePortal](https://developers.weixin.qq.com/minigame/dev/api/game-portal/GamePortal.html) wx.createGamePortal(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-portal/wx.createGamePortal.html)
-         *
-         * 需要基础库： `2.7.5`
-         * @deprecated 基础库版本 [2.18.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 创建小游戏推荐弹窗组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.7.5 后再使用该 API。每次调用该方法都会返回一个全新的实例。 */
-        createGamePortal(option: CreateGamePortalOption): GamePortal
         /** [[GameRecorderShareButton](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.html) wx.createGameRecorderShareButton(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/wx.createGameRecorderShareButton.html)
          *
          * 需要基础库： `2.8.0`
@@ -14667,6 +14271,24 @@ wx.offError(listener) // 需传入与监听时同一个的函数对象
             /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: WxOffErrorCallback
         ): void
+        /** [wx.offGyroscopeChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/gyroscope/wx.offGyroscopeChange.html)
+*
+* 需要基础库： `2.9.3`
+*
+* 移除陀螺仪数据变化事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+wx.onGyroscopeChange(listener)
+wx.offGyroscopeChange(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offGyroscopeChange(
+            /** onGyroscopeChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffGyroscopeChangeCallback
+        ): void
         /** [wx.offHandoff(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offHandoff.html)
 *
 * 需要基础库： `2.14.4`
@@ -15045,6 +14667,15 @@ wx.offUnhandledRejection(listener) // 需传入与监听时同一个的函数对
         offUnhandledRejection(
             /** onUnhandledRejection 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffUnhandledRejectionCallback
+        ): void
+        /** [wx.offUserCaptureScreen(function callback)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.offUserCaptureScreen.html)
+         *
+         * 需要基础库： `2.9.3`
+         *
+         * 用户主动截屏事件。取消事件监听。 */
+        offUserCaptureScreen(
+            /** 用户主动截屏事件的回调函数 */
+            callback?: (...args: any[]) => any
         ): void
         /** [wx.offVoIPChatInterrupted(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.offVoIPChatInterrupted.html)
 *
@@ -15860,6 +15491,22 @@ wx.openCard({
          *
          * 打开视频号主页 */
         openChannelsUserProfile(option: OpenChannelsUserProfileOption): void
+        /** [wx.openCustomerServiceChat(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/service-chat/wx.openCustomerServiceChat.html)
+*
+* 需要基础库： `2.30.4`
+*
+* 打开微信客服，页面产生点击事件（例如 button 上 bindtap 的回调中）后才可调用。了解更多信息，可以参考[微信客服介绍](https://work.weixin.qq.com/kf/)。
+*
+* **示例代码**
+*
+* ```js
+wx.openCustomerServiceChat({
+  extInfo: {url: ''},
+  corpId: '',
+  success(res) {}
+})
+``` */
+        openCustomerServiceChat(option: OpenCustomerServiceChatOption): void
         /** [wx.openCustomerServiceConversation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/customer-message/wx.openCustomerServiceConversation.html)
          *
          * 需要基础库： `2.0.3`
@@ -17433,27 +17080,9 @@ wx.writeBLECharacteristicValue({
     type FtruncateFailCallback = (res: FileError) => void
     /** 接口调用成功的回调函数 */
     type FtruncateSuccessCallback = (res: FileError) => void
-    /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type GameBannerOffErrorCallback = (
-        result: GameBannerOnErrorListenerResult
-    ) => void
-    /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type GameBannerOffResizeCallback = (res: GeneralCallbackResult) => void
-    type GameBannerOnErrorCallback = (
-        result: GameBannerOnErrorListenerResult
-    ) => void
-    type GameBannerOnResizeCallback = (res: GeneralCallbackResult) => void
     /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
     type GameClubButtonOffTapCallback = (res: GeneralCallbackResult) => void
     type GameClubButtonOnTapCallback = (res: GeneralCallbackResult) => void
-    /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type GamePortalOffErrorCallback = (
-        result: GamePortalOnErrorListenerResult
-    ) => void
-    /** 小游戏推荐弹窗组件加载错误事件的监听函数 */
-    type GamePortalOnErrorCallback = (
-        result: GamePortalOnErrorListenerResult
-    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetAvailableAudioSourcesCompleteCallback = (
         res: GeneralCallbackResult
@@ -17870,10 +17499,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type GridAdOffErrorCallback = (result: GridAdOnErrorListenerResult) => void
-    /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type GridAdOffResizeCallback = (result: OnResizeListenerResult) => void
     type GridAdOnErrorCallback = (result: GridAdOnErrorListenerResult) => void
-    type GridAdOnResizeCallback = (result: OnResizeListenerResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type HideKeyboardCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -18120,6 +17746,8 @@ wx.writeBLECharacteristicValue({
     type OffGameEndCallback = (result: OnGameEndListenerResult) => void
     /** onGameStart 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffGameStartCallback = (res: GeneralCallbackResult) => void
+    /** onGyroscopeChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffGyroscopeChangeCallback = (res: GeneralCallbackResult) => void
     /** onHandoff 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffHandoffCallback = (result: OnHandoffListenerResult) => void
     /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -18188,6 +17816,8 @@ wx.writeBLECharacteristicValue({
     type OffPlayCallback = (res: GeneralCallbackResult) => void
     /** onProgress 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffProgressCallback = (result: OnProgressListenerResult) => void
+    /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffResizeCallback = (result: OnResizeListenerResult) => void
     /** onRoomInfoChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffRoomInfoChangeCallback = (
         result: GameServerManagerOnRoomInfoChangeListenerResult
@@ -18425,6 +18055,7 @@ wx.writeBLECharacteristicValue({
     type OnProcessKilledCallback = (res: GeneralCallbackResult) => void
     /** 视频下载（缓冲）事件的监听函数 */
     type OnProgressCallback = (result: OnProgressListenerResult) => void
+    type OnResizeCallback = (result: OnResizeListenerResult) => void
     /** 录音继续事件的监听函数 */
     type OnResumeCallback = (res: GeneralCallbackResult) => void
     /** 的监听函数 */
@@ -18570,6 +18201,18 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type OpenCompleteCallback = (res: FileError) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type OpenCustomerServiceChatCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type OpenCustomerServiceChatFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type OpenCustomerServiceChatSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type OpenCustomerServiceConversationCompleteCallback = (
         res: GeneralCallbackResult

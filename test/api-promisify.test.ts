@@ -5,6 +5,7 @@ wx.requestMidasPayment({
   currencyType: 'CNY',
   mode: 'game',
   offerId: '',
+  outTradeNo: '',
   success(res) {
     expectType<WechatMinigame.GeneralCallbackResult>(res)
   },
@@ -26,6 +27,7 @@ wx.requestMidasPayment({
   currencyType: 'CNY',
   mode: 'game',
   offerId: '',
+  outTradeNo: '',
 }).then(res => {
   expectType<WechatMinigame.GeneralCallbackResult>(res)
 })
@@ -43,6 +45,7 @@ async () => {
       currencyType: 'CNY',
       mode: 'game',
       offerId: '',
+      outTradeNo: '',
     }),
   )
   expectType<WechatMinigame.GeneralCallbackResult>(
