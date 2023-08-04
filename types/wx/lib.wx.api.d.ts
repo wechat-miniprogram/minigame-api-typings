@@ -31,11 +31,11 @@ declare namespace WechatMinigame {
         /** 接口调用成功的回调函数 */
         success?: AccessSuccessCallback
     }
-    /** 帐号信息 */
+    /** 账号信息 */
     interface AccountInfo {
-        /** 小程序帐号信息 */
+        /** 小程序账号信息 */
         miniProgram: MiniProgram
-        /** 插件帐号信息（仅在插件中调用时包含这一项） */
+        /** 插件账号信息（仅在插件中调用时包含这一项） */
         plugin: Plugin
     }
     interface AddCardOption {
@@ -193,6 +193,32 @@ declare namespace WechatMinigame {
         numberOfChannels: number
         /** 存储在缓存区的PCM数据的采样率（单位为sample/s) */
         sampleRate: number
+        /** [AudioBuffer.copyFromChannel()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.copyFromChannel.html)
+         *
+         * 从AudioBuffer的指定频道复制到数组终端。 */
+        copyFromChannel(): void
+        /** [AudioBuffer.copyToChannel(Float32Array source, number channelNumber, number startInChannel)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.copyToChannel.html)
+         *
+         * 从指定数组复制样本到audioBuffer的特定通道
+         *
+         * **示例代码**
+         *
+         * 示例代码参考AudioBuffer.copyFromChannel */
+        copyToChannel(
+            /** 需要复制的源数组 */
+            source: Float32Array,
+            /** 需要复制到的目的通道号 */
+            channelNumber: number,
+            /** 复制偏移数据量 */
+            startInChannel: number
+        ): void
+        /** [Float32Array AudioBuffer.getChannelData(number channel)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.getChannelData.html)
+         *
+         * 返回一个 Float32Array，包含了带有频道的PCM数据，由频道参数定义（有0代表第一个频道） */
+        getChannelData(
+            /** 要获取特定通道数据的索引 */
+            channel: number
+        ): Float32Array
     }
     interface AuthPrivateMessageOption {
         /** shareTicket。可以从 wx.onShow 中获取。详情 [shareTicket](#) */
@@ -228,7 +254,7 @@ declare namespace WechatMinigame {
         'scope.writePhotosAlbum'?: boolean
     }
     interface AuthorizeOption {
-        /** 需要获取权限的 scope，详见 [scope 列表](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html#scope-列表) */
+        /** 需要获取权限的 scope，详见 [scope 列表](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/authorize.html#scope-列表) */
         scope: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: AuthorizeCompleteCallback
@@ -277,6 +303,104 @@ declare namespace WechatMinigame {
     interface BannerAd {
         /** banner 广告组件的样式。style 上的属性的值仅为开发者设置的值，banner 广告会根据开发者设置的宽度进行等比缩放，缩放后的真实尺寸需要通过 BannerAd.onResize() 事件获得。 */
         style: BannerAdStyle
+        /** [BannerAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.destroy.html)
+         *
+         * 销毁 banner 广告。 */
+        destroy(): void
+        /** [BannerAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.hide.html)
+         *
+         * 隐藏 banner 广告。 */
+        hide(): void
+        /** [BannerAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offError.html)
+*
+* 移除 banner 广告错误事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+BannerAd.onError(listener)
+BannerAd.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GridAdOffErrorCallback
+        ): void
+        /** [BannerAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offLoad.html)
+*
+* 移除 banner 广告加载事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+BannerAd.onLoad(listener)
+BannerAd.offLoad(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offLoad(
+            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffLoadCallback
+        ): void
+        /** [BannerAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offResize.html)
+*
+* 移除 banner 广告尺寸变化事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+BannerAd.onResize(listener)
+BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offResize(
+            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffResizeCallback
+        ): void
+        /** [BannerAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onError.html)
+         *
+         * 监听 banner 广告错误事件。
+         *
+         * **错误码信息与解决方案表**
+         *
+         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
+         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
+         *
+         * | 代码 | 异常情况 | 理由 | 解决方案 |
+         * | ------ | -------------- | --------------- | -------------------------- |
+         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
+         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
+         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
+         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
+         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
+         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
+         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。| */
+        onError(
+            /** banner 广告错误事件的监听函数 */
+            listener: GridAdOnErrorCallback
+        ): void
+        /** [BannerAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onLoad.html)
+         *
+         * 监听 banner 广告加载事件。 */
+        onLoad(
+            /** banner 广告加载事件的监听函数 */
+            listener: OnLoadCallback
+        ): void
+        /** [BannerAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onResize.html)
+         *
+         * 监听 banner 广告尺寸变化事件。 */
+        onResize(
+            /** banner 广告尺寸变化事件的监听函数 */
+            listener: OnResizeCallback
+        ): void
+        /** [Promise BannerAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.show.html)
+         *
+         * 显示 banner 广告。 */
+        show(): Promise<any>
     }
     /** banner 广告组件的样式。style 上的属性的值仅为开发者设置的值，banner 广告会根据开发者设置的宽度进行等比缩放，缩放后的真实尺寸需要通过 BannerAd.onResize() 事件获得。 */
     interface BannerAdStyle {
@@ -364,6 +488,68 @@ declare namespace WechatMinigame {
         /** 接口调用成功的回调函数 */
         success?: BroadcastInRoomSuccessCallback
     }
+    /** 音频源节点，通过 [WebAudioContext.createBufferSource](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBufferSource.html)方法获得。
+*
+* **示例代码**
+*
+* ```js
+const source = audioCtx.createBufferSource()
+source.buffer = AudioBuffer
+source.connect(audioCtx.destination)
+sourceCache.add(source) // Tips：缓存住 source，防止被GC掉，GC掉的话音频会中断
+source.onended = () => {
+  sourceCache.delete(source) // Tips：播放完之后，再清掉source缓存
+}
+source.start()
+``` */
+    interface BufferSourceNode {
+        /** [AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html)
+         *
+         * 是一个 AudioBuffer， 它定义了要播放的音频，当设置它的值为 0 时，它会定义一个静默的单通道。（可读可写） */
+        buffer: AudioBuffer
+        /** 定义音频是否循环播放（可读可写） */
+        loop?: boolean
+        /** 定义音频循环播放时，结束播放的位置。单位是秒，默认值是0（可读可写） */
+        loopEnd?: number
+        /** 定义音频循环播放时，开始播放的位置。单位是秒，默认值是0（可读可写） */
+        loopStart?: number
+        /** 定义音频播放结束事件回调函数（可读可写）
+         *
+         * ## 注意事项
+         * - bug：从微信8.0.34开始，BufferSource在JS中如果不一直持有的话，会被客户端GC掉，GC掉之后，BufferSource如果正在播放的话会被中断。因此，建议开发者在 BufferSource.start() 开始播放之前缓存 BufferSource 并在 BufferSource.onended 的时候释放缓存。具体可参考下面示例代码中的缓存逻辑。 */
+        onended?: (...args: any[]) => any
+        /** 定义音频的播放倍速，数值越大速度越快，默认速度1.0，有效范围为 0 < playbackRate <= 2.0（可读可写） */
+        playbackRate?: number
+        /** [BufferSourceNode.connect(AudioNode|AudioParam destination)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.connect.html)
+         *
+         * 连接到一个指定目标。这个指定的目标可能是另一个 AudioNode（从而将音频数据引导到下一个指定节点）或一个AudioParam, 以便上一个节点的输出数据随着时间流逝能自动地对下一个参数值进行改变 */
+        connect(
+            /** 要建立连接的目标节点 */
+            destination: AudioNode | AudioParam
+        ): void
+        /** [BufferSourceNode.disconnect()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.disconnect.html)
+         *
+         * 与已连接的目标节点断开连接 */
+        disconnect(): void
+        /** [BufferSourceNode.start(number when, number offset, number duration)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.start.html)
+         *
+         * 音频源开始播放 */
+        start(
+            /** 延迟播放的时间，单位是秒。与 AudioContext 使用相同的时间坐标系统。如果 when 小于 AudioContext.currentTime, 或者是 0，声音立即被播放。 默认值是 0 */
+            when?: number,
+            /** 音频开始播放的位置，单位是秒。默认值是 0 */
+            offset?: number,
+            /** 音频播放的持续时间，单位是秒。如果这个参数没有被指定，声音播放到自然结束或者使用stop() 方法结束。使用这个参数的功能与调用 start(when, offset) 和调用 stop(when+duration)效果完全相同 */
+            duration?: number
+        ): void
+        /** [BufferSourceNode.stop(number when)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.stop.html)
+         *
+         * 停止播放 */
+        stop(
+            /** 延迟停止播放的时间，单位是秒。与 AudioContext 使用相同的时间坐标系统。省略此参数、指定值 0 或传递负值会使声音立即停止播放。 */
+            when?: number
+        ): void
+    }
     /** 相机对象 */
     interface Camera {
         /** 摄像头朝向 */
@@ -380,6 +566,82 @@ declare namespace WechatMinigame {
         x: number
         /** 相机的左上角纵坐标 */
         y: number
+        /** [Camera.closeFrameChange()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.closeFrameChange.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 关闭监听帧数据 */
+        closeFrameChange(): void
+        /** [Camera.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.destroy.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 销毁相机 */
+        destroy(): void
+        /** [Camera.listenFrameChange([Worker](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.html) worker)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.listenFrameChange.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 开启监听帧数据 */
+        listenFrameChange(
+            /** [Worker](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.html)
+             *
+             * 需要基础库： `2.17.0`
+             *
+             * 可选参数。如果需要在 iOS ExperimentalWorker 内监听摄像头帧数据，则需要传入对应 Worker 对象，否则不需要传入任何参数。详情 [Worker.getCameraFrameData](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html) */
+            worker?: Worker
+        ): void
+        /** [Camera.onAuthCancel(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onAuthCancel.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 监听用户不允许授权使用摄像头的情况 */
+        onAuthCancel(
+            /** 事件发生时的回调函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [Camera.onCameraFrame(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onCameraFrame.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 监听摄像头实时帧数据 */
+        onCameraFrame(
+            /** 摄像头返回实时帧数据的回调函数 */
+            callback: OnCameraFrameCallback
+        ): void
+        /** [Camera.onStop(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onStop.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 监听摄像头非正常终止事件，如退出后台等情况 */
+        onStop(
+            /** 事件发生时的回调函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [Promise Camera.startRecord()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.startRecord.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 开始录像 */
+        startRecord(): Promise<any>
+        /** [Promise Camera.stopRecord(boolean compressed)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.stopRecord.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 结束录像，成功则返回封面与视频 */
+        stopRecord(
+            /** 是否压缩录制视频 */
+            compressed?: boolean
+        ): Promise<any>
+        /** [Promise Camera.takePhoto(string quality)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.takePhoto.html)
+         *
+         * 需要基础库： `2.9.0`
+         *
+         * 拍照，可指定质量，成功则返回图片 */
+        takePhoto(
+            /** 拍照质量，值为 high, normal, low */
+            quality?: string
+        ): Promise<any>
     }
     interface CancelMatchOption {
         /** 需要取消匹配的matchId */
@@ -397,6 +659,32 @@ declare namespace WechatMinigame {
         height: number
         /** 画布的宽度 */
         width: number
+        /** [Canvas.toTempFilePath(Object object)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePath.html)
+         *
+         * 将当前 Canvas 保存为一个临时文件。**如果使用了开放数据域，则生成后的文件仅能被用于以下接口：`wx.saveImageToPhotosAlbum`、`wx.shareAppMessage`、`wx.onShareAppMessage`、`wx.previewImage`、`wx.previewMedia`、`wx.onShareTimeline`、`wx.showShareImageMenu`** */
+        toTempFilePath(option: ToTempFilePathOption): void
+        /** [[RenderingContext](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/RenderingContext.html) Canvas.getContext(string contextType, Object contextAttributes)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.getContext.html)
+         *
+         * 获取画布对象的绘图上下文 */
+        getContext(
+            /** 上下文类型
+             *
+             * 参数 contextType 可选值：
+             * - '2d': 2d 绘图上下文;
+             * - 'webgl': webgl 绘图上下文;
+             * - 'webgl2': webgl2 绘图上下文; */
+            contextType: '2d' | 'webgl' | 'webgl2',
+            /** webgl 上下文属性，仅当 contextType 为 webgl 时有效 */
+            contextAttributes?: ContextAttributes
+        ): any
+        /** [string Canvas.toDataURL()](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toDataURL.html)
+         *
+         * 把画布上的绘制内容以一个 data URI 的格式返回 */
+        toDataURL(): string
+        /** [string Canvas.toTempFilePathSync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePathSync.html)
+         *
+         * [Canvas.toTempFilePath](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePath.html) 的同步版本 */
+        toTempFilePathSync(option: ToTempFilePathSyncOption): string
     }
     interface ChangeSeatOption {
         /** 座位号，从 0 开始 */
@@ -669,7 +957,7 @@ declare namespace WechatMinigame {
         fail?: ConnectSocketFailCallback
         /** 需要基础库： `2.29.0`
          *
-         * wifi下使用移动网络发送请求 */
+         * 强制使用蜂窝网络发送请求 */
         forceCellularNetwork?: boolean
         /** HTTP Header，Header 中不能设置 Referer */
         header?: IAnyObject
@@ -1080,6 +1368,140 @@ declare namespace WechatMinigame {
     interface CustomAd {
         /** 原生模板广告组件的样式 */
         style: CustomAdStyle
+        /** [CustomAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.destroy.html)
+         *
+         * 销毁原生模板广告。 */
+        destroy(): void
+        /** [CustomAd.offClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offClose.html)
+*
+* 移除原生模板广告关闭事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+CustomAd.onClose(listener)
+CustomAd.offClose(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offClose(
+            /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: UDPSocketOffCloseCallback
+        ): void
+        /** [CustomAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offError.html)
+*
+* 移除原生模板广告错误事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+CustomAd.onError(listener)
+CustomAd.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: CustomAdOffErrorCallback
+        ): void
+        /** [CustomAd.offHide(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offHide.html)
+*
+* 需要基础库： `2.14.4`
+*
+* 移除原生模板广告隐藏事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+CustomAd.onHide(listener)
+CustomAd.offHide(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offHide(
+            /** onHide 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffHideCallback
+        ): void
+        /** [CustomAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offLoad.html)
+*
+* 移除原生模板广告加载事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+CustomAd.onLoad(listener)
+CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offLoad(
+            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffLoadCallback
+        ): void
+        /** [CustomAd.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onClose.html)
+         *
+         * 监听原生模板广告关闭事件。 */
+        onClose(
+            /** 原生模板广告关闭事件的监听函数 */
+            listener: UDPSocketOnCloseCallback
+        ): void
+        /** [CustomAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onError.html)
+         *
+         * 监听原生模板广告错误事件。
+         *
+         * **错误码信息与解决方案表**
+         *
+         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
+         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
+         *
+         * | 代码 | 异常情况 | 理由 | 解决方案 |
+         * | ------ | -------------- | --------------- | -------------------------- |
+         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
+         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
+         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
+         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
+         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
+         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
+         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。|
+         * | 2001  | 模板渲染错误  | 渲染过程出现错误 | |
+         * | 2002  | 模板为空  | 该广告位的广告能力已经被关闭 | |
+         * | 2003  | 模板解析失败  | 该广告位的广告能力已经被关闭 | |
+         * | 2004  | 触发频率限制  | 小程序启动一定时间内不允许展示原生模板广告 | |
+         * | 2005  | 触发频率限制  | 距离小程序插屏广告或者激励视频广告上次播放时间间隔不足，不允许展示原生模板广告 | | */
+        onError(
+            /** 原生模板广告错误事件的监听函数 */
+            listener: CustomAdOnErrorCallback
+        ): void
+        /** [CustomAd.onHide(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onHide.html)
+         *
+         * 需要基础库： `2.14.4`
+         *
+         * 监听原生模板广告隐藏事件, 某些模板如矩阵格子模板用户点击关闭时也会触发该事件。 */
+        onHide(
+            /** 原生模板广告隐藏事件的监听函数 */
+            listener: OnHideCallback
+        ): void
+        /** [CustomAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onLoad.html)
+         *
+         * 监听原生模板广告加载事件。 */
+        onLoad(
+            /** 原生模板广告加载事件的监听函数 */
+            listener: OnLoadCallback
+        ): void
+        /** [Promise CustomAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.hide.html)
+         *
+         * 隐藏原生模板广告。（某些模板广告无法隐藏） */
+        hide(): Promise<any>
+        /** [Promise CustomAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.show.html)
+         *
+         * 显示原生模板广告。 */
+        show(): Promise<any>
+        /** [boolean CustomAd.isShow()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.isShow.html)
+         *
+         * 查询原生模板广告展示状态。 */
+        isShow(): boolean
     }
     interface CustomAdOnErrorListenerResult {
         /** 需要基础库： `2.2.2`
@@ -1222,7 +1644,7 @@ declare namespace WechatMinigame {
         success?: DownloadFileSuccessCallback
         /** 需要基础库： `2.10.0`
          *
-         * 超时时间，单位为毫秒 */
+         * 超时时间，单位为毫秒，默认值为 60000 即一分钟。 */
         timeout?: number
     }
     interface DownloadFileSuccessCallbackResult {
@@ -1306,7 +1728,7 @@ declare namespace WechatMinigame {
         query: IAnyObject
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/framework/scene.html) */
+        /** 启动小游戏的[场景值](#) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -1365,6 +1787,13 @@ declare namespace WechatMinigame {
         length?: number
         /** 从文件指定位置开始读，如果不指定，则从文件头开始读。读取的范围应该是左闭右开区间 [position, position+length)。有效范围：[0, fileLength - 1]。单位：byte */
         position?: number
+    }
+    /** 本次请求底层失败信息，所有失败信息均符合Errno错误码 */
+    interface ExceptionReason {
+        /** 错误原因 */
+        errMsg: string
+        /** 错误码 */
+        errno: string
     }
     interface ExitMiniProgramOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -1462,6 +1891,41 @@ declare namespace WechatMinigame {
         image?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
+        /** [FeedbackButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.destroy.html)
+         *
+         * 销毁意见反馈按钮 */
+        destroy(): void
+        /** [FeedbackButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.hide.html)
+         *
+         * 隐藏意见反馈按钮。 */
+        hide(): void
+        /** [FeedbackButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.offTap.html)
+*
+* 移除意见反馈按钮的点击事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+FeedbackButton.onTap(listener)
+FeedbackButton.offTap(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTap(
+            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GameClubButtonOffTapCallback
+        ): void
+        /** [FeedbackButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.onTap.html)
+         *
+         * 监听意见反馈按钮的点击事件 */
+        onTap(
+            /** 意见反馈按钮的点击事件的监听函数 */
+            listener: GameClubButtonOnTapCallback
+        ): void
+        /** [FeedbackButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.show.html)
+         *
+         * 显示意见反馈按钮 */
+        show(): void
     }
     /** 文件数组 */
     interface FileItem {
@@ -1471,6 +1935,15 @@ declare namespace WechatMinigame {
         filePath: string
         /** 本地文件大小，以字节为单位 */
         size: number
+    }
+    /** 每个 FileStats 对象包含 path 和 Stats */
+    interface FileStats {
+        /** 文件/目录路径 */
+        path: string
+        /** [Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)
+         *
+         * Stats 对象，即描述文件状态的对象 */
+        stats: Stats
     }
     interface FileSystemManagerCloseOption {
         /** 需要被关闭的文件描述符。fd 通过 [FileSystemManager.open](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.open.html) 或 [FileSystemManager.openSync](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.openSync.html) 接口获得 */
@@ -1565,6 +2038,41 @@ declare namespace WechatMinigame {
         image?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
+        /** [GameClubButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.destroy.html)
+         *
+         * 销毁游戏圈按钮 */
+        destroy(): void
+        /** [GameClubButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.hide.html)
+         *
+         * 隐藏游戏圈按钮 */
+        hide(): void
+        /** [GameClubButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.offTap.html)
+*
+* 移除游戏圈按钮的点击事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+GameClubButton.onTap(listener)
+GameClubButton.offTap(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTap(
+            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GameClubButtonOffTapCallback
+        ): void
+        /** [GameClubButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.onTap.html)
+         *
+         * 监听游戏圈按钮的点击事件 */
+        onTap(
+            /** 游戏圈按钮的点击事件的监听函数 */
+            listener: GameClubButtonOnTapCallback
+        ): void
+        /** [GameClubButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.show.html)
+         *
+         * 显示游戏圈按钮 */
+        show(): void
     }
     /** 需要基础库： `2.8.0`
      *
@@ -1580,6 +2088,45 @@ declare namespace WechatMinigame {
         image?: string
         /** 按钮的文本。 */
         text?: string
+        /** [GameRecorderShareButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.hide.html)
+         *
+         * 需要基础库： `2.8.0`
+         *
+         * 隐藏游戏对局回放分享按钮 */
+        hide(): void
+        /** [GameRecorderShareButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.offTap.html)
+*
+* 需要基础库： `2.8.0`
+*
+* 移除游戏对局回放分享按钮的点击事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+GameRecorderShareButton.onTap(listener)
+GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTap(
+            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GameClubButtonOffTapCallback
+        ): void
+        /** [GameRecorderShareButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.onTap.html)
+         *
+         * 需要基础库： `2.8.0`
+         *
+         * 监听游戏对局回放分享按钮的点击事件。只有当分享由于非用户取消的原因失败时，该事件的回调函数才会执行。 */
+        onTap(
+            /** 游戏对局回放分享按钮的点击事件的监听函数 */
+            listener: GameClubButtonOnTapCallback
+        ): void
+        /** [GameRecorderShareButton.show()](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.show.html)
+         *
+         * 需要基础库： `2.8.0`
+         *
+         * 显示游戏对局回放分享按钮 */
+        show(): void
     }
     /** 按钮的样式 */
     interface GameRecorderShareButtonStyle {
@@ -1958,23 +2505,6 @@ declare namespace WechatMinigame {
         list: StateData[]
         errMsg: string
     }
-    interface GetFuzzyLocationOption {
-        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
-        complete?: GetFuzzyLocationCompleteCallback
-        /** 接口调用失败的回调函数 */
-        fail?: GetFuzzyLocationFailCallback
-        /** 接口调用成功的回调函数 */
-        success?: GetFuzzyLocationSuccessCallback
-        /** wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标 */
-        type?: string
-    }
-    interface GetFuzzyLocationSuccessCallbackResult {
-        /** 纬度，范围为 -90~90，负数表示南纬 */
-        latitude: number
-        /** 经度，范围为 -180~180，负数表示西经 */
-        longitude: number
-        errMsg: string
-    }
     interface GetGameClubDataOption {
         /** 需要获取的数据指标的对象数组 */
         dataTypeList: DataType[]
@@ -2224,6 +2754,21 @@ declare namespace WechatMinigame {
     interface GetPotentialFriendListSuccessCallbackResult {
         /** 可能对游戏感兴趣的未注册好友名单 */
         list: FriendInfo[]
+        errMsg: string
+    }
+    interface GetPrivacySettingOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetPrivacySettingCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetPrivacySettingFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetPrivacySettingSuccessCallback
+    }
+    interface GetPrivacySettingSuccessCallbackResult {
+        /** 用户是否需要进行授权 */
+        needAuthorization: boolean
+        /** 隐私授权协议的名称 */
+        privacyContractName: string
         errMsg: string
     }
     interface GetRandomValuesOption {
@@ -2532,6 +3077,122 @@ declare namespace WechatMinigame {
         gridCount: number
         /** grid(格子) 广告广告组件的样式。style 上的属性的值仅为开发者设置的grid(格子) 广告) 广告会根据开发者设置的宽度进行等比缩放，缩放后的真实尺寸需要通过 GridAd.onResize() 事件获得。 */
         style: GridAdStyle
+        /** [GridAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.destroy.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 销毁 grid(格子) 广告。 */
+        destroy(): void
+        /** [GridAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.hide.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 隐藏 grid(格子) 广告。 */
+        hide(): void
+        /** [GridAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offError.html)
+*
+* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+*
+* 移除 grid(格子) 广告错误事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+GridAd.onError(listener)
+GridAd.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GridAdOffErrorCallback
+        ): void
+        /** [GridAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offLoad.html)
+*
+* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+*
+* 移除 grid(格子) 广告加载事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+GridAd.onLoad(listener)
+GridAd.offLoad(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offLoad(
+            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffLoadCallback
+        ): void
+        /** [GridAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offResize.html)
+*
+* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+*
+* 移除 grid(格子) 广告尺寸变化事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+GridAd.onResize(listener)
+GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offResize(
+            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffResizeCallback
+        ): void
+        /** [GridAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onError.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 监听 grid(格子) 广告错误事件。
+         *
+         * **错误码信息与解决方案表**
+         *
+         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
+         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
+         *
+         * | 代码 | 异常情况 | 理由 | 解决方案 |
+         * | ------ | -------------- | --------------- | -------------------------- |
+         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
+         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
+         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
+         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
+         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
+         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
+         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
+         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。| */
+        onError(
+            /** grid(格子) 广告错误事件的监听函数 */
+            listener: GridAdOnErrorCallback
+        ): void
+        /** [GridAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onLoad.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 监听 grid(格子) 广告加载事件。 */
+        onLoad(
+            /** grid(格子) 广告加载事件的监听函数 */
+            listener: OnLoadCallback
+        ): void
+        /** [GridAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onResize.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 监听 grid(格子) 广告尺寸变化事件。 */
+        onResize(
+            /** grid(格子) 广告尺寸变化事件的监听函数 */
+            listener: OnResizeCallback
+        ): void
+        /** [Promise GridAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.show.html)
+         *
+         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
+         *
+         * 显示 grid(格子) 广告。 */
+        show(): Promise<any>
     }
     interface GridAdOnErrorListenerResult {
         /** 需要基础库： `2.2.2`
@@ -2716,6 +3377,284 @@ innerAudioContext.onError((res) => {
          *
          * 音量。范围 0~1。默认为 1 */
         volume: number
+        /** [InnerAudioContext.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.destroy.html)
+         *
+         * 销毁当前实例 */
+        destroy(): void
+        /** [InnerAudioContext.offCanplay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offCanplay.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频进入可以播放状态的事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onCanplay(listener)
+InnerAudioContext.offCanplay(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offCanplay(
+            /** onCanplay 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffCanplayCallback
+        ): void
+        /** [InnerAudioContext.offEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offEnded.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频自然播放至结束的事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onEnded(listener)
+InnerAudioContext.offEnded(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offEnded(
+            /** onEnded 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffEndedCallback
+        ): void
+        /** [InnerAudioContext.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offError.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频播放错误事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onError(listener)
+InnerAudioContext.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: InnerAudioContextOffErrorCallback
+        ): void
+        /** [InnerAudioContext.offPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offPause.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频暂停事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onPause(listener)
+InnerAudioContext.offPause(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offPause(
+            /** onPause 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffPauseCallback
+        ): void
+        /** [InnerAudioContext.offPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offPlay.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频播放事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onPlay(listener)
+InnerAudioContext.offPlay(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offPlay(
+            /** onPlay 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffPlayCallback
+        ): void
+        /** [InnerAudioContext.offSeeked(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offSeeked.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频完成跳转操作的事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onSeeked(listener)
+InnerAudioContext.offSeeked(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offSeeked(
+            /** onSeeked 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffSeekedCallback
+        ): void
+        /** [InnerAudioContext.offSeeking(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offSeeking.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频进行跳转操作的事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onSeeking(listener)
+InnerAudioContext.offSeeking(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offSeeking(
+            /** onSeeking 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffSeekingCallback
+        ): void
+        /** [InnerAudioContext.offStop(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offStop.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频停止事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onStop(listener)
+InnerAudioContext.offStop(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offStop(
+            /** onStop 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffStopCallback
+        ): void
+        /** [InnerAudioContext.offTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offTimeUpdate.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频播放进度更新事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onTimeUpdate(listener)
+InnerAudioContext.offTimeUpdate(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTimeUpdate(
+            /** onTimeUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: InnerAudioContextOffTimeUpdateCallback
+        ): void
+        /** [InnerAudioContext.offWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offWaiting.html)
+*
+* 需要基础库： `1.9.0`
+*
+* 移除音频加载中事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+InnerAudioContext.onWaiting(listener)
+InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offWaiting(
+            /** onWaiting 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffWaitingCallback
+        ): void
+        /** [InnerAudioContext.onCanplay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onCanplay.html)
+         *
+         * 监听音频进入可以播放状态的事件。但不保证后面可以流畅播放 */
+        onCanplay(
+            /** 音频进入可以播放状态的事件的监听函数 */
+            listener: OnCanplayCallback
+        ): void
+        /** [InnerAudioContext.onEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onEnded.html)
+         *
+         * 监听音频自然播放至结束的事件 */
+        onEnded(
+            /** 音频自然播放至结束的事件的监听函数 */
+            listener: OnEndedCallback
+        ): void
+        /** [InnerAudioContext.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onError.html)
+         *
+         * 监听音频播放错误事件
+         *
+         * **Tips**
+         *
+         * 1. errCode=100001 时，如若 errMsg 中有 INNERCODE -11828 ，请先检查 response header 是否缺少 Content-Length
+         * 2. errCode=100001 时，如若 errMsg 中有 systemErrCode:200333420，请检查文件编码格式和 fileExtension 是否一致 */
+        onError(
+            /** 音频播放错误事件的监听函数 */
+            listener: InnerAudioContextOnErrorCallback
+        ): void
+        /** [InnerAudioContext.onPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onPause.html)
+         *
+         * 监听音频暂停事件 */
+        onPause(
+            /** 音频暂停事件的监听函数 */
+            listener: OnPauseCallback
+        ): void
+        /** [InnerAudioContext.onPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onPlay.html)
+         *
+         * 监听音频播放事件 */
+        onPlay(
+            /** 音频播放事件的监听函数 */
+            listener: OnPlayCallback
+        ): void
+        /** [InnerAudioContext.onSeeked(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onSeeked.html)
+         *
+         * 监听音频完成跳转操作的事件 */
+        onSeeked(
+            /** 音频完成跳转操作的事件的监听函数 */
+            listener: OnSeekedCallback
+        ): void
+        /** [InnerAudioContext.onSeeking(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onSeeking.html)
+         *
+         * 监听音频进行跳转操作的事件 */
+        onSeeking(
+            /** 音频进行跳转操作的事件的监听函数 */
+            listener: OnSeekingCallback
+        ): void
+        /** [InnerAudioContext.onStop(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onStop.html)
+         *
+         * 监听音频停止事件 */
+        onStop(
+            /** 音频停止事件的监听函数 */
+            listener: InnerAudioContextOnStopCallback
+        ): void
+        /** [InnerAudioContext.onTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onTimeUpdate.html)
+         *
+         * 监听音频播放进度更新事件 */
+        onTimeUpdate(
+            /** 音频播放进度更新事件的监听函数 */
+            listener: InnerAudioContextOnTimeUpdateCallback
+        ): void
+        /** [InnerAudioContext.onWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onWaiting.html)
+         *
+         * 监听音频加载中事件。当音频因为数据不足，需要停下来加载时会触发 */
+        onWaiting(
+            /** 音频加载中事件的监听函数 */
+            listener: OnWaitingCallback
+        ): void
+        /** [InnerAudioContext.pause()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.pause.html)
+         *
+         * 暂停。暂停后的音频再播放会从暂停处开始播放 */
+        pause(): void
+        /** [InnerAudioContext.play()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.play.html)
+         *
+         * 播放 */
+        play(): void
+        /** [InnerAudioContext.seek(number position)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.seek.html)
+         *
+         * 跳转到指定位置 */
+        seek(
+            /** 跳转的时间，单位 s。精确到小数点后 3 位，即支持 ms 级别精确度 */
+            position: number
+        ): void
+        /** [InnerAudioContext.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.stop.html)
+         *
+         * 停止。停止后的音频再播放会从头开始播放。 */
+        stop(): void
     }
     interface InnerAudioContextOnErrorListenerResult {
         /** 可选值：
@@ -2801,7 +3740,7 @@ innerAudioContext.onError((res) => {
         fail?: JoinVoIPChatFailCallback
         /** 需要基础库： `2.29.0`
          *
-         * wifi下使用移动网络发送请求 */
+         * 开启后，joinVoIPChat 会同时走 Wi-Fi 和蜂窝网络2种网络模式，保证实时通话体验。 */
         forceCellularNetwork?: boolean
         /** 静音设置 */
         muteConfig?: MuteConfig
@@ -2898,7 +3837,7 @@ innerAudioContext.onError((res) => {
         success: (...args: any[]) => any
     }
     interface LoadSubpackageTaskOnProgressUpdateListenerResult {
-        /** 分包下载进度百分比 */
+        /** 分包下载进度百分比（iOS端为0~1的值，安卓端为0~100的值） */
         progress: number
         /** 预期需要下载的数据总长度，单位 Bytes */
         totalBytesExpectedToWrite: number
@@ -2974,6 +3913,36 @@ innerAudioContext.onError((res) => {
     interface MediaAudioPlayer {
         /** 音量。范围 0~1。默认为 1 */
         volume: number
+        /** [Promise MediaAudioPlayer.addAudioSource([VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) source)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.addAudioSource.html)
+         *
+         * 添加音频源 */
+        addAudioSource(
+            /** [VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html)
+             *
+             * 视频解码器实例。作为音频源添加到音频播放器中 */
+            source: VideoDecoder
+        ): Promise<any>
+        /** [Promise MediaAudioPlayer.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.destroy.html)
+         *
+         * 销毁播放器 */
+        destroy(): Promise<any>
+        /** [Promise MediaAudioPlayer.removeAudioSource([VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) source)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.removeAudioSource.html)
+         *
+         * 移除音频源 */
+        removeAudioSource(
+            /** [VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html)
+             *
+             * 视频解码器实例 */
+            source: VideoDecoder
+        ): Promise<any>
+        /** [Promise MediaAudioPlayer.start()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.start.html)
+         *
+         * 启动播放器 */
+        start(): Promise<any>
+        /** [Promise MediaAudioPlayer.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.stop.html)
+         *
+         * 停止播放器 */
+        stop(): Promise<any>
     }
     /** 本地临时文件列表 */
     interface MediaFile {
@@ -3019,7 +3988,7 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: MemberLeaveRoomSuccessCallback
     }
-    /** 小程序帐号信息 */
+    /** 小程序账号信息 */
     interface MiniProgram {
         /** 小程序 appId */
         appId: string
@@ -3125,7 +4094,7 @@ innerAudioContext.onError((res) => {
         fail?: NavigateToMiniProgramFailCallback
         /** 需要基础库： `2.24.0`
          *
-         * 不reLaunch目标小程序，直接打开目标跳转的小程序退后台时的页面，需满足以下条件：1. 目标跳转的小程序生命周期未被销毁；2. 且目标当次启动的path、query、apiCategory与上次启动相同。 */
+         * 不reLaunch目标小程序，直接打开目标跳转的小程序退后台时的页面，需满足以下条件：1. 目标跳转的小程序生命周期未被销毁；2. 且目标当次启动的path、query与上次启动相同，apiCategory以wx.getApiCategory接口的返回结果为准。 */
         noRelaunchIfPathUnchanged?: boolean
         /** 打开的页面路径，如果为空则打开首页。path 中 ? 后面的部分会成为 query，在小程序的 `App.onLaunch`、`App.onShow` 和 `Page.onLoad` 的回调函数或小游戏的 [wx.onShow](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.onShow.html) 回调函数、[wx.getLaunchOptionsSync](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.getLaunchOptionsSync.html) 中可以获取到 query 数据。对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。 */
         path?: string
@@ -3267,7 +4236,6 @@ innerAudioContext.onError((res) => {
         /** 是否有新版本 */
         hasUpdate: boolean
     }
-    /** 开发者服务器每次返回新chunk时的Response */
     interface OnChunkReceivedListenerResult {
         /** 返回的chunk buffer */
         data: ArrayBuffer
@@ -3806,6 +4774,13 @@ innerAudioContext.onError((res) => {
          *
          * 开放数据域和主域共享的 sharedCanvas */
         canvas: Canvas
+        /** [OpenDataContext.postMessage(Object message)](https://developers.weixin.qq.com/minigame/dev/api/open-api/context/OpenDataContext.postMessage.html)
+         *
+         * 向开放数据域发送消息 */
+        postMessage(
+            /** 要发送的消息，message 中及嵌套对象中 key 的 value 只能是 primitive value。即 number、string、boolean、null、undefined。 */
+            message: IAnyObject
+        ): void
     }
     interface OpenOption {
         /** 文件路径 (本地路径) */
@@ -3845,6 +4820,14 @@ innerAudioContext.onError((res) => {
         /** 接口调用成功的回调函数 */
         success?: OpenSuccessCallback
     }
+    interface OpenPrivacyContractOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: OpenPrivacyContractCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: OpenPrivacyContractFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: OpenPrivacyContractSuccessCallback
+    }
     /** 用户点击后打开设置页面的按钮 */
     interface OpenSettingButton {
         /** 按钮的样式 */
@@ -3859,6 +4842,41 @@ innerAudioContext.onError((res) => {
         image?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
+        /** [OpenSettingButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.destroy.html)
+         *
+         * 销毁打开设置页面按钮 */
+        destroy(): void
+        /** [OpenSettingButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.hide.html)
+         *
+         * 隐藏打开设置页面按钮。 */
+        hide(): void
+        /** [OpenSettingButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.offTap.html)
+*
+* 移除设置页面按钮的点击事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+OpenSettingButton.onTap(listener)
+OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTap(
+            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: GameClubButtonOffTapCallback
+        ): void
+        /** [OpenSettingButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.onTap.html)
+         *
+         * 监听设置页面按钮的点击事件 */
+        onTap(
+            /** 设置页面按钮的点击事件的监听函数 */
+            listener: GameClubButtonOnTapCallback
+        ): void
+        /** [OpenSettingButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.show.html)
+         *
+         * 显示打开设置页面按钮 */
+        show(): void
     }
     interface OpenSettingOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -4000,7 +5018,7 @@ innerAudioContext.onError((res) => {
      *
      * Canvas 2D API 的接口 Path2D 用来声明路径，此路径稍后会被 CanvasRenderingContext2D 对象使用。允许你在 canvas 中根据需要创建可以保留并重用的路径。 */
     interface Path2D {}
-    /** 插件帐号信息（仅在插件中调用时包含这一项） */
+    /** 插件账号信息（仅在插件中调用时包含这一项） */
     interface Plugin {
         /** 插件 appId */
         appId: string
@@ -4016,6 +5034,14 @@ innerAudioContext.onError((res) => {
         packageType: string
         /** 分包加载成功回调事件 */
         success: (...args: any[]) => any
+    }
+    interface PreDownloadSubpackageTaskOnProgressUpdateListenerResult {
+        /** 分包下载进度百分比 */
+        progress: number
+        /** 预期需要下载的数据总长度，单位 Bytes */
+        totalBytesExpectedToWrite: number
+        /** 已经下载的数据长度，单位 Bytes */
+        totalBytesWritten: number
     }
     interface PreviewImageOption {
         /** 需要预览的图片链接列表。[2.2.3](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起支持云文件ID。 */
@@ -4448,6 +5474,15 @@ innerAudioContext.onError((res) => {
         /** 自定义维度，基础库 v2.14.0 开始支持可选 */
         branchDim?: string
     }
+    /** 需要基础库： `3.0.0`
+     *
+     * 网络请求过程中的一些异常信息，例如httpdns重试等 */
+    interface RequestException {
+        /** 本次请求底层失败信息，所有失败信息均符合Errno错误码 */
+        reasons: ExceptionReason
+        /** 本次请求底层重试次数 */
+        retryCount: number
+    }
     interface RequestFailCallbackErr {
         /** 错误信息 */
         errMsg: string
@@ -4509,6 +5544,12 @@ innerAudioContext.onError((res) => {
         /** 加密算法的初始向量，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
         iv: string
     }
+    interface RequestMidasPaymentFailCallbackErr {
+        /** 错误码 */
+        errCode: number
+        /** 错误信息 */
+        errMsg: string
+    }
     interface RequestMidasPaymentOption {
         /** 币种
          *
@@ -4545,6 +5586,10 @@ innerAudioContext.onError((res) => {
         success?: RequestMidasPaymentSuccessCallback
         /** 分区 ID */
         zoneId?: string
+    }
+    interface RequestMidasPaymentSuccessCallbackResult {
+        /** 调用成功信息 */
+        errMsg: string
     }
     interface RequestOption<
         T extends string | IAnyObject | ArrayBuffer =
@@ -4588,7 +5633,7 @@ innerAudioContext.onError((res) => {
         fail?: RequestFailCallback
         /** 需要基础库： `2.21.0`
          *
-         * wifi下使用移动网络发送请求 */
+         * 强制使用蜂窝网络发送请求 */
         forceCellularNetwork?: boolean
         /** 设置请求的 header，header 中不能设置 Referer。
          *
@@ -4646,9 +5691,9 @@ innerAudioContext.onError((res) => {
         /** HTTP（TCP） 开始建立连接的时间，如果是持久连接，则与 fetchStart 值相等。注意如果在传输层发生了错误且重新建立连接，则这里显示的是新建立的连接开始的时间 */
         connectStart: number
         /** DNS 域名查询完成的时间，如果使用了本地缓存（即无 DNS 查询）或持久连接，则与 fetchStart 值相等 */
-        domainLookupEnd: number
+        domainLookUpEnd: number
         /** DNS 域名查询开始的时间，如果使用了本地缓存（即无 DNS 查询）或持久连接，则与 fetchStart 值相等 */
-        domainLookupStart: number
+        domainLookUpStart: number
         /** 评估当前网络下载的kbps */
         downstreamThroughputKbpsEstimate: number
         /** 评估的网络状态 unknown, offline, slow 2g, 2g, 3g, 4g, last/0, 1, 2, 3, 4, 5, 6 */
@@ -4738,6 +5783,10 @@ innerAudioContext.onError((res) => {
         cookies: string[]
         /** 开发者服务器返回的数据 */
         data: T
+        /** 需要基础库： `3.0.0`
+         *
+         * 网络请求过程中的一些异常信息，例如httpdns重试等 */
+        exception: RequestException
         /** 需要基础库： `1.2.0`
          *
          * 开发者服务器返回的 HTTP Response Header */
@@ -4750,9 +5799,13 @@ innerAudioContext.onError((res) => {
         statusCode: number
         errMsg: string
     }
-    interface RequestTaskOnChunkReceivedListenerResult {
-        /** 开发者服务器每次返回新chunk时的Response */
-        res: OnChunkReceivedListenerResult
+    interface RequirePrivacyAuthorizeOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: RequirePrivacyAuthorizeCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: RequirePrivacyAuthorizeFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: RequirePrivacyAuthorizeSuccessCallback
     }
     interface ReserveChannelsLiveOption {
         /** 预告 id，通过 getChannelsLiveNoticeInfo 接口获取 */
@@ -5614,10 +6667,10 @@ innerAudioContext.onError((res) => {
         success?: StatSuccessCallback
     }
     interface StatSuccessCallbackResult {
-        /** [Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)&gt;
+        /** [Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[FileStats](https://developers.weixin.qq.com/minigame/dev/api/file/FileStats.html)&gt;
          *
          * 当 recursive 为 false 时，res.stats 是一个 Stats 对象。当 recursive 为 true 且 path 是一个目录的路径时，res.stats 是一个 Array，数组的每一项是一个对象，每个对象包含 path 和 stats。 */
-        stats: Stats | Stats[]
+        stats: Stats | FileStats[]
         errMsg: string
     }
     /** 好友状态信息列表 */
@@ -5642,9 +6695,17 @@ innerAudioContext.onError((res) => {
         /** 文件最后一次被修改的时间，UNIX 时间戳，对应 POSIX stat.st_mtime */
         lastModifiedTime: number
         /** 文件的类型和存取的权限，对应 POSIX stat.st_mode */
-        mode: string
+        mode: number
         /** 文件大小，单位：B，对应 POSIX stat.st_size */
         size: number
+        /** [boolean Stats.isDirectory()](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.isDirectory.html)
+         *
+         * 判断当前文件是否一个目录 */
+        isDirectory(): boolean
+        /** [boolean Stats.isFile()](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.isFile.html)
+         *
+         * 判断当前文件是否一个普通文件 */
+        isFile(): boolean
     }
     interface StopAccelerometerOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -6281,6 +7342,41 @@ session.run({
         image?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
+        /** [UserInfoButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.destroy.html)
+         *
+         * 销毁用户信息按钮 */
+        destroy(): void
+        /** [UserInfoButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.hide.html)
+         *
+         * 隐藏用户信息按钮。 */
+        hide(): void
+        /** [UserInfoButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.offTap.html)
+*
+* 移除用户信息按钮的点击事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+UserInfoButton.onTap(listener)
+UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTap(
+            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: UserInfoButtonOffTapCallback
+        ): void
+        /** [UserInfoButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.onTap.html)
+         *
+         * 监听用户信息按钮的点击事件 */
+        onTap(
+            /** 用户信息按钮的点击事件的监听函数 */
+            listener: UserInfoButtonOnTapCallback
+        ): void
+        /** [UserInfoButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.show.html)
+         *
+         * 显示用户信息按钮 */
+        show(): void
     }
     interface VibrateLongOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -6375,6 +7471,206 @@ session.run({
         x: number
         /** 视频的左上角纵坐标 */
         y: number
+        /** [Promise Video.exitFullScreen()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.exitFullScreen.html)
+         *
+         * 视频退出全屏 */
+        exitFullScreen(): Promise<any>
+        /** [Promise Video.pause()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.pause.html)
+         *
+         * 暂停视频 */
+        pause(): Promise<any>
+        /** [Promise Video.play()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.play.html)
+         *
+         * 播放视频 */
+        play(): Promise<any>
+        /** [Promise Video.requestFullScreen(number direction)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.requestFullScreen.html)
+         *
+         * 视频全屏 */
+        requestFullScreen(
+            /** 设置全屏时视频的方向
+             *
+             * 参数 direction 可选值：
+             * - 0: 正常竖向;
+             * - 90: 屏幕逆时针90度;
+             * - -90: 屏幕顺时针90度; */
+            direction: 0 | 90 | -90
+        ): Promise<any>
+        /** [Promise Video.seek(number time)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.seek.html)
+         *
+         * 视频跳转 */
+        seek(
+            /** 视频跳转到指定位置，单位为 s 秒 */
+            time: number
+        ): Promise<any>
+        /** [Promise Video.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.stop.html)
+         *
+         * 停止视频 */
+        stop(): Promise<any>
+        /** [Video.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.destroy.html)
+         *
+         * 销毁视频 */
+        destroy(): void
+        /** [Video.offEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offEnded.html)
+*
+* 移除视频播放到末尾事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onEnded(listener)
+Video.offEnded(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offEnded(
+            /** onEnded 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffEndedCallback
+        ): void
+        /** [Video.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offError.html)
+*
+* 移除视频错误事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onError(listener)
+Video.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: VideoOffErrorCallback
+        ): void
+        /** [Video.offPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offPause.html)
+*
+* 移除视频暂停事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onPause(listener)
+Video.offPause(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offPause(
+            /** onPause 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffPauseCallback
+        ): void
+        /** [Video.offPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offPlay.html)
+*
+* 移除视频播放事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onPlay(listener)
+Video.offPlay(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offPlay(
+            /** onPlay 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffPlayCallback
+        ): void
+        /** [Video.offProgress(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offProgress.html)
+*
+* 移除视频下载（缓冲）事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onProgress(listener)
+Video.offProgress(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offProgress(
+            /** onProgress 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffProgressCallback
+        ): void
+        /** [Video.offTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offTimeUpdate.html)
+*
+* 移除视频播放进度更新事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onTimeUpdate(listener)
+Video.offTimeUpdate(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offTimeUpdate(
+            /** onTimeUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: VideoOffTimeUpdateCallback
+        ): void
+        /** [Video.offWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offWaiting.html)
+*
+* 移除视频由于需要缓冲下一帧而停止时触发的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+Video.onWaiting(listener)
+Video.offWaiting(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offWaiting(
+            /** onWaiting 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffWaitingCallback
+        ): void
+        /** [Video.onEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onEnded.html)
+         *
+         * 监听视频播放到末尾事件 */
+        onEnded(
+            /** 视频播放到末尾事件的监听函数 */
+            listener: OnEndedCallback
+        ): void
+        /** [Video.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onError.html)
+         *
+         * 监听视频错误事件 */
+        onError(
+            /** 视频错误事件的监听函数 */
+            listener: VideoOnErrorCallback
+        ): void
+        /** [Video.onPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onPause.html)
+         *
+         * 监听视频暂停事件 */
+        onPause(
+            /** 视频暂停事件的监听函数 */
+            listener: OnPauseCallback
+        ): void
+        /** [Video.onPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onPlay.html)
+         *
+         * 监听视频播放事件 */
+        onPlay(
+            /** 视频播放事件的监听函数 */
+            listener: OnPlayCallback
+        ): void
+        /** [Video.onProgress(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onProgress.html)
+         *
+         * 监听视频下载（缓冲）事件 */
+        onProgress(
+            /** 视频下载（缓冲）事件的监听函数 */
+            listener: OnProgressCallback
+        ): void
+        /** [Video.onTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onTimeUpdate.html)
+         *
+         * 监听视频播放进度更新事件 */
+        onTimeUpdate(
+            /** 视频播放进度更新事件的监听函数 */
+            listener: VideoOnTimeUpdateCallback
+        ): void
+        /** [Video.onWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onWaiting.html)
+         *
+         * 监听视频由于需要缓冲下一帧而停止时触发 */
+        onWaiting(
+            /** 的监听函数 */
+            listener: OnWaitingCallback
+        ): void
     }
     interface VideoDecoderStartOption {
         /** 需要解码的视频源文件。基础库 2.13.0 以下的版本只支持本地路径。 2.13.0 开始支持 http:// 和 https:// 协议的远程路径。 */
@@ -6429,6 +7725,147 @@ setTimeout(audioCtx.resume, 2000)
         sampleRate: number
         /** 当前WebAudio上下文的状态。可能的值如下：suspended（暂停）、running（正在运行）、closed（已关闭）。需要注意的是，不要在 audioContext close后再访问state属性 */
         state: string
+        /** [AnalyserNode WebAudioContext.createAnalyser()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createAnalyser.html)
+         *
+         * 需要基础库： `2.22.0`
+         *
+         * 创建一个 AnalyserNode 。可以用来获取音频时间和频率数据，以及实现数据可视化。 */
+        createAnalyser(): AnalyserNode
+        /** [BiquadFilterNode WebAudioContext.createBiquadFilter()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBiquadFilter.html)
+         *
+         * 创建一个BiquadFilterNode */
+        createBiquadFilter(): BiquadFilterNode
+        /** [ChannelMergerNode WebAudioContext.createChannelMerger(number numberOfInputs)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createChannelMerger.html)
+         *
+         * 创建一个ChannelMergerNode */
+        createChannelMerger(
+            /** 输出流中需要保持的输入流的个数 */
+            numberOfInputs: number
+        ): ChannelMergerNode
+        /** [ChannelSplitterNode WebAudioContext.createChannelSplitter(number numberOfOutputs)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createChannelSplitter.html)
+         *
+         * 创建一个ChannelSplitterNode */
+        createChannelSplitter(
+            /** 要分别输出的输入音频流中的通道数 */
+            numberOfOutputs: number
+        ): ChannelSplitterNode
+        /** [ConstantSourceNode WebAudioContext.createConstantSource()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createConstantSource.html)
+         *
+         * 创建一个ConstantSourceNode */
+        createConstantSource(): ConstantSourceNode
+        /** [DelayNode WebAudioContext.createDelay(number maxDelayTime)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createDelay.html)
+         *
+         * 创建一个DelayNode */
+        createDelay(
+            /** 最大延迟时间 */
+            maxDelayTime: number
+        ): DelayNode
+        /** [DynamicsCompressorNode WebAudioContext.createDynamicsCompressor()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createDynamicsCompressor.html)
+         *
+         * 创建一个DynamicsCompressorNode */
+        createDynamicsCompressor(): DynamicsCompressorNode
+        /** [GainNode WebAudioContext.createGain()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createGain.html)
+         *
+         * 创建一个GainNode */
+        createGain(): GainNode
+        /** [IIRFilterNode WebAudioContext.createIIRFilter(Array.&lt;number&gt; feedforward, Array.&lt;number&gt; feedback)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createIIRFilter.html)
+         *
+         * 创建一个IIRFilterNode */
+        createIIRFilter(
+            /** 一个浮点值数组，指定IIR滤波器传递函数的前馈(分子)系数。 */
+            feedforward: number[],
+            /** 一个浮点值数组，指定IIR滤波器传递函数的反馈(分母)系数。 */
+            feedback: number[]
+        ): IIRFilterNode
+        /** [OscillatorNode WebAudioContext.createOscillator()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createOscillator.html)
+         *
+         * 创建一个OscillatorNode */
+        createOscillator(): OscillatorNode
+        /** [PannerNode WebAudioContext.createPanner()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createPanner.html)
+         *
+         * 创建一个PannerNode */
+        createPanner(): PannerNode
+        /** [PeriodicWaveNode WebAudioContext.createPeriodicWave(Float32Array real, Float32Array imag, object constraints)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createPeriodicWave.html)
+*
+* 创建一个PeriodicWaveNode
+*
+* **注意**
+*
+* `real`和`imag`数组必须拥有一样的长度，否则抛出错误
+* ```js
+const real = new Float32Array(2)
+const imag = new Float32Array(2)
+real[0] = 0
+imag[0] = 0
+real[1] = 1
+imag[1] = 0
+
+const waveNode = audioContext.createPeriodicWave(real, imag, {disableNormalization: true})
+``` */
+        createPeriodicWave(
+            /** 一组余弦项(传统上是A项) */
+            real: Float32Array,
+            /** 一组余弦项(传统上是A项) */
+            imag: Float32Array,
+            /** 一个字典对象，它指定是否应该禁用规范化(默认启用规范化) */
+            constraints: Constraints
+        ): PeriodicWaveNode
+        /** [Promise WebAudioContext.close()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.close.html)
+*
+* 关闭WebAudioContext
+*
+* **注意事项**
+*
+* 同步关闭对应的WebAudio上下文。close后会立即释放当前上下文的资源，<b>不要在close后再次访问state属性。</b>
+* ```js
+const audioCtx = wx.createWebAudioContext()
+audioCtx.close().then(() => {
+  console.log(audioCtx.state) // bad case：不应该在close后再访问state
+})
+``` */
+        close(): Promise<any>
+        /** [Promise WebAudioContext.resume()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.resume.html)
+         *
+         * 同步恢复已经被暂停的WebAudioContext上下文 */
+        resume(): Promise<any>
+        /** [Promise WebAudioContext.suspend()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.suspend.html)
+         *
+         * 同步暂停WebAudioContext上下文 */
+        suspend(): Promise<any>
+        /** [ScriptProcessorNode WebAudioContext.createScriptProcessor(number bufferSize, number numberOfInputChannels, number numberOfOutputChannels)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createScriptProcessor.html)
+         *
+         * 创建一个ScriptProcessorNode */
+        createScriptProcessor(
+            /** 缓冲区大小，以样本帧为单位 */
+            bufferSize: number,
+            /** 用于指定输入node的声道的数量 */
+            numberOfInputChannels: number,
+            /** 用于指定输出node的声道的数量 */
+            numberOfOutputChannels: number
+        ): ScriptProcessorNode
+        /** [WaveShaperNode WebAudioContext.createWaveShaper()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createWaveShaper.html)
+         *
+         * 创建一个WaveShaperNode */
+        createWaveShaper(): WaveShaperNode
+        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.createBuffer(number numOfChannels, number length, number sampleRate)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBuffer.html)
+         *
+         * 创建一个AudioBuffer，代表着一段驻留在内存中的短音频 */
+        createBuffer(
+            /** 定义了 buffer 中包含的声频通道数量的整数 */
+            numOfChannels: number,
+            /** 代表 buffer 中的样本帧数的整数 */
+            length: number,
+            /** 线性音频样本的采样率，即每一秒包含的关键帧的个数 */
+            sampleRate: number
+        ): AudioBuffer
+        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.decodeAudioData()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)
+         *
+         * 异步解码一段资源为AudioBuffer。 */
+        decodeAudioData(): AudioBuffer
+        /** [[BufferSourceNode](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.html) WebAudioContext.createBufferSource()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBufferSource.html)
+         *
+         * 创建一个BufferSourceNode实例，通过AudioBuffer对象来播放音频数据。 */
+        createBufferSource(): BufferSourceNode
     }
     /** 需要基础库： `2.19.0`
      *
@@ -6522,6 +7959,111 @@ worker.terminate()
     interface Worker {
         /** worker内的环境变量 */
         env: WorkerEnv
+        /** [ArrayBuffer Worker.getCameraFrameData()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html)
+*
+* 需要基础库： `2.17.0`
+*
+* 获取摄像头当前帧图像，返回ArrayBuffer数据。仅限在 worker 线程中使用。
+*
+* **示例代码**
+*
+* ```js
+// game.js
+const worker = wx.createWorker('workers/index.js', {
+  useExperimentalWorker: true
+})
+
+const camera = wx.createCamera({
+  success() {
+    camera.listenFrameChange(worker)
+  }
+})
+```
+*
+* ```js
+// workers/index.js
+const data = worker.getCameraFrameData()
+console.log(data)
+``` */
+        getCameraFrameData(): ArrayBuffer
+        /** [Worker.onMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onMessage.html)
+         *
+         * 监听主线程/Worker 线程向当前线程发送的消息的事件。 */
+        onMessage(
+            /** 主线程/Worker 线程向当前线程发送的消息的事件的监听函数 */
+            listener: WorkerOnMessageCallback
+        ): void
+        /** [Worker.onProcessKilled(function listener)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onProcessKilled.html)
+         *
+         * 监听 worker线程被系统回收事件（开启 useExperimentalWorker 后，当iOS系统资源紧张时，ExperimentalWorker 线程存在被系统回收的可能，开发者可监听此事件并重新创建一个worker）。仅限在主线程 worker 对象上调用。 */
+        onProcessKilled(
+            /** worker线程被系统回收事件的监听函数 */
+            listener: OnProcessKilledCallback
+        ): void
+        /** [Worker.postMessage(Object message)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.postMessage.html)
+*
+* 向主线程/Worker 线程发送的消息。
+*
+* **示例代码**
+*
+* worker 线程中
+* ```js
+worker.postMessage({
+  msg: 'hello from worker'
+})
+```
+*
+* 主线程中
+* ```js
+const worker = wx.createWorker('workers/request/index.js')
+
+worker.postMessage({
+  msg: 'hello from main'
+})
+```
+*
+* **提醒**
+*
+* 在基础库版本2.20.2之前，postMessage仅支持传递可序列化的key-value对象。
+* 在基础库2.20.2之后，postMessage支持传递任意类型的数据。 */
+        postMessage(
+            /** 需要发送的消息。 */
+            message: IAnyObject
+        ): void
+        /** [Worker.terminate()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.terminate.html)
+         *
+         * 结束当前 Worker 线程。仅限在主线程 worker 对象上调用。 */
+        terminate(): void
+        /** [Worker.testOnProcessKilled()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.testOnProcessKilled.html)
+*
+* 需要基础库： `2.27.1`
+*
+* 用于模拟 iOS ExperimentalWorker 线程被系统回收事件，以便于调试。接口仅在 worker 线程内可用。参考 [Worker.onProcessKilled](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onProcessKilled.html)
+*
+* **示例代码**
+*
+* ```js
+// game.js
+const worker = wx.createWorker('workers/index.js', {
+  useExperimentalWorker: true
+})
+
+// 监听 ExperimentalWorker 被系统回收事件
+worker.onProcessKilled(function () {
+  console.log('worker has been killed')
+  // 重新创建一个worker
+  // wx.createWorker()
+})
+```
+*
+* ```js
+// workers/index.js
+setTimeout(() => {
+  // 模拟 ExperimentalWorker 线程被系统回收事件
+  worker.testOnProcessKilled()
+}, 2000)
+``` */
+        testOnProcessKilled(): void
     }
     /** worker内的环境变量 */
     interface WorkerEnv {
@@ -6709,34 +8251,6 @@ worker.terminate()
         /** 错误信息 */
         errMsg: string
     }
-    interface AudioBuffer {
-        /** [AudioBuffer.copyFromChannel()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.copyFromChannel.html)
-         *
-         * 从AudioBuffer的指定频道复制到数组终端。 */
-        copyFromChannel(): void
-        /** [AudioBuffer.copyToChannel(Float32Array source, number channelNumber, number startInChannel)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.copyToChannel.html)
-         *
-         * 从指定数组复制样本到audioBuffer的特定通道
-         *
-         * **示例代码**
-         *
-         * 示例代码参考AudioBuffer.copyFromChannel */
-        copyToChannel(
-            /** 需要复制的源数组 */
-            source: Float32Array,
-            /** 需要复制到的目的通道号 */
-            channelNumber: number,
-            /** 复制偏移数据量 */
-            startInChannel: number
-        ): void
-        /** [Float32Array AudioBuffer.getChannelData(number channel)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.getChannelData.html)
-         *
-         * 返回一个 Float32Array，包含了带有频道的PCM数据，由频道参数定义（有0代表第一个频道） */
-        getChannelData(
-            /** 要获取特定通道数据的索引 */
-            channel: number
-        ): Float32Array
-    }
     interface BLEPeripheralServer {
         /** [BLEPeripheralServer.addService(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-peripheral/BLEPeripheralServer.addService.html)
          *
@@ -6885,106 +8399,6 @@ BLEPeripheralServer.offCharacteristicWriteRequest(listener) // 需传入与监�
          * 往指定特征写入二进制数据值，并通知已连接的主机，从机的特征值已发生变化，该接口会处理是走回包还是走订阅。 */
         writeCharacteristicValue(Object: WriteCharacteristicValueObject): void
     }
-    interface BannerAd {
-        /** [BannerAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.destroy.html)
-         *
-         * 销毁 banner 广告。 */
-        destroy(): void
-        /** [BannerAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.hide.html)
-         *
-         * 隐藏 banner 广告。 */
-        hide(): void
-        /** [BannerAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offError.html)
-*
-* 移除 banner 广告错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-BannerAd.onError(listener)
-BannerAd.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GridAdOffErrorCallback
-        ): void
-        /** [BannerAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offLoad.html)
-*
-* 移除 banner 广告加载事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-BannerAd.onLoad(listener)
-BannerAd.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [BannerAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offResize.html)
-*
-* 移除 banner 广告尺寸变化事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-BannerAd.onResize(listener)
-BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offResize(
-            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffResizeCallback
-        ): void
-        /** [BannerAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onError.html)
-         *
-         * 监听 banner 广告错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
-         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
-         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
-         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
-         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
-         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。| */
-        onError(
-            /** banner 广告错误事件的监听函数 */
-            listener: GridAdOnErrorCallback
-        ): void
-        /** [BannerAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onLoad.html)
-         *
-         * 监听 banner 广告加载事件。 */
-        onLoad(
-            /** banner 广告加载事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [BannerAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onResize.html)
-         *
-         * 监听 banner 广告尺寸变化事件。 */
-        onResize(
-            /** banner 广告尺寸变化事件的监听函数 */
-            listener: OnResizeCallback
-        ): void
-        /** [Promise BannerAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.show.html)
-         *
-         * 显示 banner 广告。 */
-        show(): Promise<any>
-    }
     interface BeaconError {
         /** 错误信息
          *
@@ -7049,112 +8463,6 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * | 10012 | operate time out | 连接超时 |
          * | 10013 | invalid_data | 连接 deviceId 为空或者是格式不正确 | */ errCode: number
     }
-    interface Camera {
-        /** [Camera.closeFrameChange()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.closeFrameChange.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 关闭监听帧数据 */
-        closeFrameChange(): void
-        /** [Camera.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.destroy.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 销毁相机 */
-        destroy(): void
-        /** [Camera.listenFrameChange([Worker](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.html) worker)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.listenFrameChange.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 开启监听帧数据 */
-        listenFrameChange(
-            /** [Worker](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.html)
-             *
-             * 需要基础库： `2.17.0`
-             *
-             * 可选参数。如果需要在 iOS ExperimentalWorker 内监听摄像头帧数据，则需要传入对应 Worker 对象，否则不需要传入任何参数。详情 [Worker.getCameraFrameData](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html) */
-            worker?: Worker
-        ): void
-        /** [Camera.onAuthCancel(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onAuthCancel.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 监听用户不允许授权使用摄像头的情况 */
-        onAuthCancel(
-            /** 事件发生时的回调函数 */
-            callback: (...args: any[]) => any
-        ): void
-        /** [Camera.onCameraFrame(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onCameraFrame.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 监听摄像头实时帧数据 */
-        onCameraFrame(
-            /** 摄像头返回实时帧数据的回调函数 */
-            callback: OnCameraFrameCallback
-        ): void
-        /** [Camera.onStop(function callback)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.onStop.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 监听摄像头非正常终止事件，如退出后台等情况 */
-        onStop(
-            /** 事件发生时的回调函数 */
-            callback: (...args: any[]) => any
-        ): void
-        /** [Promise Camera.startRecord()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.startRecord.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 开始录像 */
-        startRecord(): Promise<any>
-        /** [Promise Camera.stopRecord(boolean compressed)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.stopRecord.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 结束录像，成功则返回封面与视频 */
-        stopRecord(
-            /** 是否压缩录制视频 */
-            compressed?: boolean
-        ): Promise<any>
-        /** [Promise Camera.takePhoto(string quality)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.takePhoto.html)
-         *
-         * 需要基础库： `2.9.0`
-         *
-         * 拍照，可指定质量，成功则返回图片 */
-        takePhoto(
-            /** 拍照质量，值为 high, normal, low */
-            quality?: string
-        ): Promise<any>
-    }
-    interface Canvas {
-        /** [Canvas.toTempFilePath(Object object)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePath.html)
-         *
-         * 将当前 Canvas 保存为一个临时文件。**如果使用了开放数据域，则生成后的文件仅能被用于以下接口：`wx.saveImageToPhotosAlbum`、`wx.shareAppMessage`、`wx.onShareAppMessage`** */
-        toTempFilePath(option: ToTempFilePathOption): void
-        /** [[RenderingContext](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/RenderingContext.html) Canvas.getContext(string contextType, Object contextAttributes)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.getContext.html)
-         *
-         * 获取画布对象的绘图上下文 */
-        getContext(
-            /** 上下文类型
-             *
-             * 参数 contextType 可选值：
-             * - '2d': 2d 绘图上下文;
-             * - 'webgl': webgl 绘图上下文;
-             * - 'webgl2': webgl2 绘图上下文; */
-            contextType: '2d' | 'webgl' | 'webgl2',
-            /** webgl 上下文属性，仅当 contextType 为 webgl 时有效 */
-            contextAttributes?: ContextAttributes
-        ): any
-        /** [string Canvas.toDataURL()](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toDataURL.html)
-         *
-         * 把画布上的绘制内容以一个 data URI 的格式返回 */
-        toDataURL(): string
-        /** [string Canvas.toTempFilePathSync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePathSync.html)
-         *
-         * [Canvas.toTempFilePath](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePath.html) 的同步版本 */
-        toTempFilePathSync(option: ToTempFilePathSyncOption): string
-    }
     interface Console {
         /** [console.debug()](https://developers.weixin.qq.com/minigame/dev/api/base/debug/console.debug.html)
          *
@@ -7210,142 +8518,6 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
             /** 日志内容，可以有任意多个。 */
             ...args: any[]
         ): void
-    }
-    interface CustomAd {
-        /** [CustomAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.destroy.html)
-         *
-         * 销毁原生模板广告。 */
-        destroy(): void
-        /** [CustomAd.offClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offClose.html)
-*
-* 移除原生模板广告关闭事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-CustomAd.onClose(listener)
-CustomAd.offClose(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offClose(
-            /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
-        ): void
-        /** [CustomAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offError.html)
-*
-* 移除原生模板广告错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-CustomAd.onError(listener)
-CustomAd.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffErrorCallback
-        ): void
-        /** [CustomAd.offHide(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offHide.html)
-*
-* 需要基础库： `2.14.4`
-*
-* 移除原生模板广告隐藏事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-CustomAd.onHide(listener)
-CustomAd.offHide(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offHide(
-            /** onHide 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffHideCallback
-        ): void
-        /** [CustomAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offLoad.html)
-*
-* 移除原生模板广告加载事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-CustomAd.onLoad(listener)
-CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [CustomAd.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onClose.html)
-         *
-         * 监听原生模板广告关闭事件。 */
-        onClose(
-            /** 原生模板广告关闭事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
-        ): void
-        /** [CustomAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onError.html)
-         *
-         * 监听原生模板广告错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
-         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
-         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
-         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
-         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
-         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。|
-         * | 2001  | 模板渲染错误  | 渲染过程出现错误 | |
-         * | 2002  | 模板为空  | 该广告位的广告能力已经被关闭 | |
-         * | 2003  | 模板解析失败  | 该广告位的广告能力已经被关闭 | |
-         * | 2004  | 触发频率限制  | 小程序启动一定时间内不允许展示原生模板广告 | |
-         * | 2005  | 触发频率限制  | 距离小程序插屏广告或者激励视频广告上次播放时间间隔不足，不允许展示原生模板广告 | | */
-        onError(
-            /** 原生模板广告错误事件的监听函数 */
-            listener: CustomAdOnErrorCallback
-        ): void
-        /** [CustomAd.onHide(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onHide.html)
-         *
-         * 需要基础库： `2.14.4`
-         *
-         * 监听原生模板广告隐藏事件, 某些模板如矩阵格子模板用户点击关闭时也会触发该事件。 */
-        onHide(
-            /** 原生模板广告隐藏事件的监听函数 */
-            listener: OnHideCallback
-        ): void
-        /** [CustomAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onLoad.html)
-         *
-         * 监听原生模板广告加载事件。 */
-        onLoad(
-            /** 原生模板广告加载事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [Promise CustomAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.hide.html)
-         *
-         * 隐藏原生模板广告。（某些模板广告无法隐藏） */
-        hide(): Promise<any>
-        /** [Promise CustomAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.show.html)
-         *
-         * 显示原生模板广告。 */
-        show(): Promise<any>
-        /** [boolean CustomAd.isShow()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.isShow.html)
-         *
-         * 查询原生模板广告展示状态。 */
-        isShow(): boolean
     }
     interface DownloadTask {
         /** [DownloadTask.abort()](https://developers.weixin.qq.com/minigame/dev/api/network/download/DownloadTask.abort.html)
@@ -7408,43 +8580,6 @@ DownloadTask.offProgressUpdate(listener) // 需传入与监听时同一个的函
             /** 下载进度变化事件的监听函数 */
             listener: DownloadTaskOnProgressUpdateCallback
         ): void
-    }
-    interface FeedbackButton {
-        /** [FeedbackButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.destroy.html)
-         *
-         * 销毁意见反馈按钮 */
-        destroy(): void
-        /** [FeedbackButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.hide.html)
-         *
-         * 隐藏意见反馈按钮。 */
-        hide(): void
-        /** [FeedbackButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.offTap.html)
-*
-* 移除意见反馈按钮的点击事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-FeedbackButton.onTap(listener)
-FeedbackButton.offTap(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTap(
-            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameClubButtonOffTapCallback
-        ): void
-        /** [FeedbackButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.onTap.html)
-         *
-         * 监听意见反馈按钮的点击事件 */
-        onTap(
-            /** 意见反馈按钮的点击事件的监听函数 */
-            listener: GameClubButtonOnTapCallback
-        ): void
-        /** [FeedbackButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/feedback/FeedbackButton.show.html)
-         *
-         * 显示意见反馈按钮 */
-        show(): void
     }
     interface FileError {
         /** 错误信息
@@ -8564,7 +9699,7 @@ const stats = fs.fstatSync({fd: fd})
 console.log(stats)
 ``` */
         fstatSync(option: FstatSyncOption): Stats
-        /** [[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)&gt; FileSystemManager.statSync(string path, boolean recursive)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.statSync.html)
+        /** [[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html)|Array.&lt;[FileStats](https://developers.weixin.qq.com/minigame/dev/api/file/FileStats.html)&gt; FileSystemManager.statSync(string path, boolean recursive)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.statSync.html)
          *
          * [FileSystemManager.stat](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.stat.html) 的同步版本 */
         statSync(
@@ -8574,7 +9709,7 @@ console.log(stats)
              *
              * 是否递归获取目录下的每个文件的 Stats 信息 */
             recursive?: boolean
-        ): Stats | Stats[]
+        ): Stats | FileStats[]
         /** [[WriteResult](https://developers.weixin.qq.com/minigame/dev/api/file/WriteResult.html) FileSystemManager.writeSync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.writeSync.html)
 *
 * 需要基础库： `2.16.1`
@@ -8743,43 +9878,6 @@ fs.truncateSync({
 })
 ``` */
         truncateSync(option: TruncateSyncOption): undefined
-    }
-    interface GameClubButton {
-        /** [GameClubButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.destroy.html)
-         *
-         * 销毁游戏圈按钮 */
-        destroy(): void
-        /** [GameClubButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.hide.html)
-         *
-         * 隐藏游戏圈按钮 */
-        hide(): void
-        /** [GameClubButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.offTap.html)
-*
-* 移除游戏圈按钮的点击事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameClubButton.onTap(listener)
-GameClubButton.offTap(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTap(
-            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameClubButtonOffTapCallback
-        ): void
-        /** [GameClubButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.onTap.html)
-         *
-         * 监听游戏圈按钮的点击事件 */
-        onTap(
-            /** 游戏圈按钮的点击事件的监听函数 */
-            listener: GameClubButtonOnTapCallback
-        ): void
-        /** [GameClubButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/GameClubButton.show.html)
-         *
-         * 显示游戏圈按钮 */
-        show(): void
     }
     interface GameRecorder {
         /** [GameRecorder.off(string event, function callback)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorder.off.html)
@@ -8991,47 +10089,6 @@ recorder.on('stop', res => {
          * | 22633 | duration out of limit | share.timeRange 的所有片段的总和超出上限 |
          * | 22643 | time range too short.It should be longer than 2s | share.timeRange 太短 | */ errCode: number
     }
-    interface GameRecorderShareButton {
-        /** [GameRecorderShareButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.hide.html)
-         *
-         * 需要基础库： `2.8.0`
-         *
-         * 隐藏游戏对局回放分享按钮 */
-        hide(): void
-        /** [GameRecorderShareButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.offTap.html)
-*
-* 需要基础库： `2.8.0`
-*
-* 移除游戏对局回放分享按钮的点击事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GameRecorderShareButton.onTap(listener)
-GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTap(
-            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameClubButtonOffTapCallback
-        ): void
-        /** [GameRecorderShareButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.onTap.html)
-         *
-         * 需要基础库： `2.8.0`
-         *
-         * 监听游戏对局回放分享按钮的点击事件。只有当分享由于非用户取消的原因失败时，该事件的回调函数才会执行。 */
-        onTap(
-            /** 游戏对局回放分享按钮的点击事件的监听函数 */
-            listener: GameClubButtonOnTapCallback
-        ): void
-        /** [GameRecorderShareButton.show()](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.show.html)
-         *
-         * 需要基础库： `2.8.0`
-         *
-         * 显示游戏对局回放分享按钮 */
-        show(): void
-    }
     interface GameServerManager {
         /** [GameServerManager.getFriendsStateData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.getFriendsStateData.html)
          *
@@ -9039,6 +10096,12 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
          *
          * 获取所有好友的在线状态及信息。该接口需要用户授权，且只在开放数据域下可用。 */
         getFriendsStateData(option?: GetFriendsStateDataOption): void
+        /** [GameServerManager.inviteFriend(object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.inviteFriend.html)
+         *
+         * 需要基础库： `2.9.4`
+         *
+         * 邀请好友，该好友的系统状态必须为在线（该接口需要在开放数据域使用）该接口没有回调也没有返回值 */
+        inviteFriend(option: InviteFriendOption): void
         /** [GameServerManager.offBeKickedOut(function listener)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.offBeKickedOut.html)
 *
 * 移除自己被踢出当前房间的监听函数
@@ -9373,12 +10436,6 @@ GameServerManager.offSyncFrame(listener) // 需传入与监听时同一个的函
          *
          * 获取房间详情 */
         getRoomInfo(option?: GetRoomInfoOption): Promise<any>
-        /** [Promise GameServerManager.inviteFriend(object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.inviteFriend.html)
-         *
-         * 需要基础库： `2.9.4`
-         *
-         * 邀请好友，该好友的系统状态必须为在线（该接口需要在开放数据域使用） */
-        inviteFriend(option: InviteFriendOption): Promise<any>
         /** [Promise GameServerManager.joinRoom(object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.joinRoom.html)
          *
          * 加入游戏房间 */
@@ -9517,124 +10574,6 @@ GameServerManager.offSyncFrame(listener) // 需传入与监听时同一个的函
          * | 500003 |  | 用户未在匹配队列中 |
          * | 500005 |  | 无效的match_id |
          * | 500009 |  | 路由到错误的服务器 | */ errCode: number
-    }
-    interface GridAd {
-        /** [GridAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.destroy.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 销毁 grid(格子) 广告。 */
-        destroy(): void
-        /** [GridAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.hide.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 隐藏 grid(格子) 广告。 */
-        hide(): void
-        /** [GridAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offError.html)
-*
-* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-*
-* 移除 grid(格子) 广告错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GridAd.onError(listener)
-GridAd.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GridAdOffErrorCallback
-        ): void
-        /** [GridAd.offLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offLoad.html)
-*
-* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-*
-* 移除 grid(格子) 广告加载事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GridAd.onLoad(listener)
-GridAd.offLoad(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offLoad(
-            /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffLoadCallback
-        ): void
-        /** [GridAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offResize.html)
-*
-* @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-*
-* 移除 grid(格子) 广告尺寸变化事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-GridAd.onResize(listener)
-GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offResize(
-            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffResizeCallback
-        ): void
-        /** [GridAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onError.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 监听 grid(格子) 广告错误事件。
-         *
-         * **错误码信息与解决方案表**
-         *
-         *  错误码是通过onError获取到的错误信息。调试期间，可以通过异常返回来捕获信息。
-         *  在小程序发布上线之后，如果遇到异常问题，可以在[“运维中心“](https://mp.weixin.qq.com/)里面搜寻错误日志，还可以针对异常返回加上适当的监控信息。
-         *
-         * | 代码 | 异常情况 | 理由 | 解决方案 |
-         * | ------ | -------------- | --------------- | -------------------------- |
-         * | 1000  | 后端错误调用失败  | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。 |
-         * | 1001  | 参数错误    | 使用方法错误 | 可以前往developers.weixin.qq.com确认具体教程（小程序和小游戏分别有各自的教程，可以在顶部选项中，“设计”一栏的右侧进行切换。|
-         * | 1002  | 广告单元无效    | 可能是拼写错误、或者误用了其他APP的广告ID | 请重新前往mp.weixin.qq.com确认广告位ID。 |
-         * | 1003  | 内部错误    | 该项错误不是开发者的异常情况 | 一般情况下忽略一段时间即可恢复。|
-         * | 1004  | 无适合的广告   | 广告不是每一次都会出现，这次没有出现可能是由于该用户不适合浏览广告 | 属于正常情况，且开发者需要针对这种情况做形态上的兼容。 |
-         * | 1005  | 广告组件审核中  | 你的广告正在被审核，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1006  | 广告组件被驳回  | 你的广告审核失败，无法展现广告 | 请前往mp.weixin.qq.com确认审核状态，且开发者需要针对这种情况做形态上的兼容。|
-         * | 1007  | 广告组件被封禁  | 你的广告能力已经被封禁，封禁期间无法展现广告 | 请前往mp.weixin.qq.com确认小程序广告封禁状态。 |
-         * | 1008  | 广告单元已关闭  | 该广告位的广告能力已经被关闭 | 请前往mp.weixin.qq.com重新打开对应广告位的展现。| */
-        onError(
-            /** grid(格子) 广告错误事件的监听函数 */
-            listener: GridAdOnErrorCallback
-        ): void
-        /** [GridAd.onLoad(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onLoad.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 监听 grid(格子) 广告加载事件。 */
-        onLoad(
-            /** grid(格子) 广告加载事件的监听函数 */
-            listener: OnLoadCallback
-        ): void
-        /** [GridAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onResize.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 监听 grid(格子) 广告尺寸变化事件。 */
-        onResize(
-            /** grid(格子) 广告尺寸变化事件的监听函数 */
-            listener: OnResizeCallback
-        ): void
-        /** [Promise GridAd.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.show.html)
-         *
-         * @deprecated 基础库版本 [2.30.2](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
-         *
-         * 显示 grid(格子) 广告。 */
-        show(): Promise<any>
     }
     interface InferenceSession {
         /** [InferenceSession.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ai/inference/InferenceSession.destroy.html)
@@ -9785,286 +10724,6 @@ session.onLoad(() => {
              * key-value 形式的对象，对象的 key 会作为 input name，对象的 value 则是 Tensor。 Tensor 结构如下。 */
             tensors: Tensors
         ): Promise<Tensors>
-    }
-    interface InnerAudioContext {
-        /** [InnerAudioContext.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.destroy.html)
-         *
-         * 销毁当前实例 */
-        destroy(): void
-        /** [InnerAudioContext.offCanplay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offCanplay.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频进入可以播放状态的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onCanplay(listener)
-InnerAudioContext.offCanplay(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offCanplay(
-            /** onCanplay 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffCanplayCallback
-        ): void
-        /** [InnerAudioContext.offEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offEnded.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频自然播放至结束的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onEnded(listener)
-InnerAudioContext.offEnded(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offEnded(
-            /** onEnded 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffEndedCallback
-        ): void
-        /** [InnerAudioContext.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offError.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频播放错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onError(listener)
-InnerAudioContext.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: InnerAudioContextOffErrorCallback
-        ): void
-        /** [InnerAudioContext.offPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offPause.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频暂停事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onPause(listener)
-InnerAudioContext.offPause(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offPause(
-            /** onPause 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffPauseCallback
-        ): void
-        /** [InnerAudioContext.offPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offPlay.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频播放事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onPlay(listener)
-InnerAudioContext.offPlay(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offPlay(
-            /** onPlay 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffPlayCallback
-        ): void
-        /** [InnerAudioContext.offSeeked(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offSeeked.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频完成跳转操作的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onSeeked(listener)
-InnerAudioContext.offSeeked(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offSeeked(
-            /** onSeeked 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffSeekedCallback
-        ): void
-        /** [InnerAudioContext.offSeeking(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offSeeking.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频进行跳转操作的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onSeeking(listener)
-InnerAudioContext.offSeeking(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offSeeking(
-            /** onSeeking 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffSeekingCallback
-        ): void
-        /** [InnerAudioContext.offStop(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offStop.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频停止事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onStop(listener)
-InnerAudioContext.offStop(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offStop(
-            /** onStop 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffStopCallback
-        ): void
-        /** [InnerAudioContext.offTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offTimeUpdate.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频播放进度更新事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onTimeUpdate(listener)
-InnerAudioContext.offTimeUpdate(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTimeUpdate(
-            /** onTimeUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: InnerAudioContextOffTimeUpdateCallback
-        ): void
-        /** [InnerAudioContext.offWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.offWaiting.html)
-*
-* 需要基础库： `1.9.0`
-*
-* 移除音频加载中事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-InnerAudioContext.onWaiting(listener)
-InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offWaiting(
-            /** onWaiting 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffWaitingCallback
-        ): void
-        /** [InnerAudioContext.onCanplay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onCanplay.html)
-         *
-         * 监听音频进入可以播放状态的事件。但不保证后面可以流畅播放 */
-        onCanplay(
-            /** 音频进入可以播放状态的事件的监听函数 */
-            listener: OnCanplayCallback
-        ): void
-        /** [InnerAudioContext.onEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onEnded.html)
-         *
-         * 监听音频自然播放至结束的事件 */
-        onEnded(
-            /** 音频自然播放至结束的事件的监听函数 */
-            listener: OnEndedCallback
-        ): void
-        /** [InnerAudioContext.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onError.html)
-         *
-         * 监听音频播放错误事件
-         *
-         * **Tips**
-         *
-         * 1. errCode=100001 时，如若 errMsg 中有 INNERCODE -11828 ，请先检查 response header 是否缺少 Content-Length
-         * 2. errCode=100001 时，如若 errMsg 中有 systemErrCode:200333420，请检查文件编码格式和 fileExtension 是否一致 */
-        onError(
-            /** 音频播放错误事件的监听函数 */
-            listener: InnerAudioContextOnErrorCallback
-        ): void
-        /** [InnerAudioContext.onPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onPause.html)
-         *
-         * 监听音频暂停事件 */
-        onPause(
-            /** 音频暂停事件的监听函数 */
-            listener: OnPauseCallback
-        ): void
-        /** [InnerAudioContext.onPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onPlay.html)
-         *
-         * 监听音频播放事件 */
-        onPlay(
-            /** 音频播放事件的监听函数 */
-            listener: OnPlayCallback
-        ): void
-        /** [InnerAudioContext.onSeeked(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onSeeked.html)
-         *
-         * 监听音频完成跳转操作的事件 */
-        onSeeked(
-            /** 音频完成跳转操作的事件的监听函数 */
-            listener: OnSeekedCallback
-        ): void
-        /** [InnerAudioContext.onSeeking(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onSeeking.html)
-         *
-         * 监听音频进行跳转操作的事件 */
-        onSeeking(
-            /** 音频进行跳转操作的事件的监听函数 */
-            listener: OnSeekingCallback
-        ): void
-        /** [InnerAudioContext.onStop(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onStop.html)
-         *
-         * 监听音频停止事件 */
-        onStop(
-            /** 音频停止事件的监听函数 */
-            listener: InnerAudioContextOnStopCallback
-        ): void
-        /** [InnerAudioContext.onTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onTimeUpdate.html)
-         *
-         * 监听音频播放进度更新事件 */
-        onTimeUpdate(
-            /** 音频播放进度更新事件的监听函数 */
-            listener: InnerAudioContextOnTimeUpdateCallback
-        ): void
-        /** [InnerAudioContext.onWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.onWaiting.html)
-         *
-         * 监听音频加载中事件。当音频因为数据不足，需要停下来加载时会触发 */
-        onWaiting(
-            /** 音频加载中事件的监听函数 */
-            listener: OnWaitingCallback
-        ): void
-        /** [InnerAudioContext.pause()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.pause.html)
-         *
-         * 暂停。暂停后的音频再播放会从暂停处开始播放 */
-        pause(): void
-        /** [InnerAudioContext.play()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.play.html)
-         *
-         * 播放 */
-        play(): void
-        /** [InnerAudioContext.seek(number position)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.seek.html)
-         *
-         * 跳转到指定位置 */
-        seek(
-            /** 跳转的时间，单位 s。精确到小数点后 3 位，即支持 ms 级别精确度 */
-            position: number
-        ): void
-        /** [InnerAudioContext.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.stop.html)
-         *
-         * 停止。停止后的音频再播放会从头开始播放。 */
-        stop(): void
     }
     interface InterstitialAd {
         /** [InterstitialAd.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.destroy.html)
@@ -10241,38 +10900,6 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
             ...args: any[]
         ): void
     }
-    interface MediaAudioPlayer {
-        /** [Promise MediaAudioPlayer.addAudioSource([VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) source)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.addAudioSource.html)
-         *
-         * 添加音频源 */
-        addAudioSource(
-            /** [VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html)
-             *
-             * 视频解码器实例。作为音频源添加到音频播放器中 */
-            source: VideoDecoder
-        ): Promise<any>
-        /** [Promise MediaAudioPlayer.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.destroy.html)
-         *
-         * 销毁播放器 */
-        destroy(): Promise<any>
-        /** [Promise MediaAudioPlayer.removeAudioSource([VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) source)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.removeAudioSource.html)
-         *
-         * 移除音频源 */
-        removeAudioSource(
-            /** [VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html)
-             *
-             * 视频解码器实例 */
-            source: VideoDecoder
-        ): Promise<any>
-        /** [Promise MediaAudioPlayer.start()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.start.html)
-         *
-         * 启动播放器 */
-        start(): Promise<any>
-        /** [Promise MediaAudioPlayer.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/MediaAudioPlayer.stop.html)
-         *
-         * 停止播放器 */
-        stop(): Promise<any>
-    }
     interface MidasFriendPaymentError {
         /** 错误信息
          *
@@ -10351,52 +10978,6 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | 1001 |  | 分区未发布 |
          * | 1003 |  | 米大师Portal错误 | */ errCode: number
     }
-    interface OpenDataContext {
-        /** [OpenDataContext.postMessage(Object message)](https://developers.weixin.qq.com/minigame/dev/api/open-api/context/OpenDataContext.postMessage.html)
-         *
-         * 向开放数据域发送消息 */
-        postMessage(
-            /** 要发送的消息，message 中及嵌套对象中 key 的 value 只能是 primitive value。即 number、string、boolean、null、undefined。 */
-            message: IAnyObject
-        ): void
-    }
-    interface OpenSettingButton {
-        /** [OpenSettingButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.destroy.html)
-         *
-         * 销毁打开设置页面按钮 */
-        destroy(): void
-        /** [OpenSettingButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.hide.html)
-         *
-         * 隐藏打开设置页面按钮。 */
-        hide(): void
-        /** [OpenSettingButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.offTap.html)
-*
-* 移除设置页面按钮的点击事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-OpenSettingButton.onTap(listener)
-OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTap(
-            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: GameClubButtonOffTapCallback
-        ): void
-        /** [OpenSettingButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.onTap.html)
-         *
-         * 监听设置页面按钮的点击事件 */
-        onTap(
-            /** 设置页面按钮的点击事件的监听函数 */
-            listener: GameClubButtonOnTapCallback
-        ): void
-        /** [OpenSettingButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.show.html)
-         *
-         * 显示打开设置页面按钮 */
-        show(): void
-    }
     interface Performance {
         /** [number Performance.now()](https://developers.weixin.qq.com/minigame/dev/api/base/performance/Performance.now.html)
          *
@@ -10411,7 +10992,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          * 监听分包加载进度变化事件 */
         onProgressUpdate(
             /** 分包加载进度变化事件的监听函数 */
-            listener: LoadSubpackageTaskOnProgressUpdateCallback
+            listener: PreDownloadSubpackageTaskOnProgressUpdateCallback
         ): void
     }
     interface RealtimeLogManager {
@@ -10781,16 +11362,6 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 通过 WebSocket 连接发送数据 */
         send(option: SocketTaskSendOption): void
     }
-    interface Stats {
-        /** [boolean Stats.isDirectory()](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.isDirectory.html)
-         *
-         * 判断当前文件是否一个目录 */
-        isDirectory(): boolean
-        /** [boolean Stats.isFile()](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.isFile.html)
-         *
-         * 判断当前文件是否一个普通文件 */
-        isFile(): boolean
-    }
     interface UDPSocket {
         /** [UDPSocket.close()](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.close.html)
          *
@@ -11065,245 +11636,6 @@ wx.getRandomValues({
 ``` */
         getRandomValues(option: GetRandomValuesOption): void
     }
-    interface UserInfoButton {
-        /** [UserInfoButton.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.destroy.html)
-         *
-         * 销毁用户信息按钮 */
-        destroy(): void
-        /** [UserInfoButton.hide()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.hide.html)
-         *
-         * 隐藏用户信息按钮。 */
-        hide(): void
-        /** [UserInfoButton.offTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.offTap.html)
-*
-* 移除用户信息按钮的点击事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-UserInfoButton.onTap(listener)
-UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTap(
-            /** onTap 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UserInfoButtonOffTapCallback
-        ): void
-        /** [UserInfoButton.onTap(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.onTap.html)
-         *
-         * 监听用户信息按钮的点击事件 */
-        onTap(
-            /** 用户信息按钮的点击事件的监听函数 */
-            listener: UserInfoButtonOnTapCallback
-        ): void
-        /** [UserInfoButton.show()](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/UserInfoButton.show.html)
-         *
-         * 显示用户信息按钮 */
-        show(): void
-    }
-    interface Video {
-        /** [Promise Video.exitFullScreen()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.exitFullScreen.html)
-         *
-         * 视频退出全屏 */
-        exitFullScreen(): Promise<any>
-        /** [Promise Video.pause()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.pause.html)
-         *
-         * 暂停视频 */
-        pause(): Promise<any>
-        /** [Promise Video.play()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.play.html)
-         *
-         * 播放视频 */
-        play(): Promise<any>
-        /** [Promise Video.requestFullScreen(number direction)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.requestFullScreen.html)
-         *
-         * 视频全屏 */
-        requestFullScreen(
-            /** 设置全屏时视频的方向
-             *
-             * 参数 direction 可选值：
-             * - 0: 正常竖向;
-             * - 90: 屏幕逆时针90度;
-             * - -90: 屏幕顺时针90度; */
-            direction: 0 | 90 | -90
-        ): Promise<any>
-        /** [Promise Video.seek(number time)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.seek.html)
-         *
-         * 视频跳转 */
-        seek(
-            /** 视频跳转到指定位置，单位为 s 秒 */
-            time: number
-        ): Promise<any>
-        /** [Promise Video.stop()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.stop.html)
-         *
-         * 停止视频 */
-        stop(): Promise<any>
-        /** [Video.destroy()](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.destroy.html)
-         *
-         * 销毁视频 */
-        destroy(): void
-        /** [Video.offEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offEnded.html)
-*
-* 移除视频播放到末尾事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onEnded(listener)
-Video.offEnded(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offEnded(
-            /** onEnded 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffEndedCallback
-        ): void
-        /** [Video.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offError.html)
-*
-* 移除视频错误事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onError(listener)
-Video.offError(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offError(
-            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: VideoOffErrorCallback
-        ): void
-        /** [Video.offPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offPause.html)
-*
-* 移除视频暂停事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onPause(listener)
-Video.offPause(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offPause(
-            /** onPause 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffPauseCallback
-        ): void
-        /** [Video.offPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offPlay.html)
-*
-* 移除视频播放事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onPlay(listener)
-Video.offPlay(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offPlay(
-            /** onPlay 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffPlayCallback
-        ): void
-        /** [Video.offProgress(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offProgress.html)
-*
-* 移除视频下载（缓冲）事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onProgress(listener)
-Video.offProgress(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offProgress(
-            /** onProgress 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffProgressCallback
-        ): void
-        /** [Video.offTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offTimeUpdate.html)
-*
-* 移除视频播放进度更新事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onTimeUpdate(listener)
-Video.offTimeUpdate(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offTimeUpdate(
-            /** onTimeUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: VideoOffTimeUpdateCallback
-        ): void
-        /** [Video.offWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.offWaiting.html)
-*
-* 移除视频由于需要缓冲下一帧而停止时触发的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-Video.onWaiting(listener)
-Video.offWaiting(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offWaiting(
-            /** onWaiting 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffWaitingCallback
-        ): void
-        /** [Video.onEnded(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onEnded.html)
-         *
-         * 监听视频播放到末尾事件 */
-        onEnded(
-            /** 视频播放到末尾事件的监听函数 */
-            listener: OnEndedCallback
-        ): void
-        /** [Video.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onError.html)
-         *
-         * 监听视频错误事件 */
-        onError(
-            /** 视频错误事件的监听函数 */
-            listener: VideoOnErrorCallback
-        ): void
-        /** [Video.onPause(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onPause.html)
-         *
-         * 监听视频暂停事件 */
-        onPause(
-            /** 视频暂停事件的监听函数 */
-            listener: OnPauseCallback
-        ): void
-        /** [Video.onPlay(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onPlay.html)
-         *
-         * 监听视频播放事件 */
-        onPlay(
-            /** 视频播放事件的监听函数 */
-            listener: OnPlayCallback
-        ): void
-        /** [Video.onProgress(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onProgress.html)
-         *
-         * 监听视频下载（缓冲）事件 */
-        onProgress(
-            /** 视频下载（缓冲）事件的监听函数 */
-            listener: OnProgressCallback
-        ): void
-        /** [Video.onTimeUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onTimeUpdate.html)
-         *
-         * 监听视频播放进度更新事件 */
-        onTimeUpdate(
-            /** 视频播放进度更新事件的监听函数 */
-            listener: VideoOnTimeUpdateCallback
-        ): void
-        /** [Video.onWaiting(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/video/Video.onWaiting.html)
-         *
-         * 监听视频由于需要缓冲下一帧而停止时触发 */
-        onWaiting(
-            /** 的监听函数 */
-            listener: OnWaitingCallback
-        ): void
-    }
     interface VideoDecoder {
         /** [Object VideoDecoder.getFrameData()](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.getFrameData.html)
          *
@@ -11368,149 +11700,6 @@ Video.offWaiting(listener) // 需传入与监听时同一个的函数对象
             callback: (...args: any[]) => any
         ): void
     }
-    interface WebAudioContext {
-        /** [AnalyserNode WebAudioContext.createAnalyser()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createAnalyser.html)
-         *
-         * 需要基础库： `2.22.0`
-         *
-         * 创建一个 AnalyserNode 。可以用来获取音频时间和频率数据，以及实现数据可视化。 */
-        createAnalyser(): AnalyserNode
-        /** [BiquadFilterNode WebAudioContext.createBiquadFilter()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBiquadFilter.html)
-         *
-         * 创建一个BiquadFilterNode */
-        createBiquadFilter(): BiquadFilterNode
-        /** [BufferSourceNode WebAudioContext.createBufferSource()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBufferSource.html)
-         *
-         * 创建一个BufferSourceNode实例，通过AudioBuffer对象来播放音频数据。 */
-        createBufferSource(): BufferSourceNode
-        /** [ChannelMergerNode WebAudioContext.createChannelMerger(number numberOfInputs)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createChannelMerger.html)
-         *
-         * 创建一个ChannelMergerNode */
-        createChannelMerger(
-            /** 输出流中需要保持的输入流的个数 */
-            numberOfInputs: number
-        ): ChannelMergerNode
-        /** [ChannelSplitterNode WebAudioContext.createChannelSplitter(number numberOfOutputs)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createChannelSplitter.html)
-         *
-         * 创建一个ChannelSplitterNode */
-        createChannelSplitter(
-            /** 要分别输出的输入音频流中的通道数 */
-            numberOfOutputs: number
-        ): ChannelSplitterNode
-        /** [ConstantSourceNode WebAudioContext.createConstantSource()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createConstantSource.html)
-         *
-         * 创建一个ConstantSourceNode */
-        createConstantSource(): ConstantSourceNode
-        /** [DelayNode WebAudioContext.createDelay(number maxDelayTime)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createDelay.html)
-         *
-         * 创建一个DelayNode */
-        createDelay(
-            /** 最大延迟时间 */
-            maxDelayTime: number
-        ): DelayNode
-        /** [DynamicsCompressorNode WebAudioContext.createDynamicsCompressor()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createDynamicsCompressor.html)
-         *
-         * 创建一个DynamicsCompressorNode */
-        createDynamicsCompressor(): DynamicsCompressorNode
-        /** [GainNode WebAudioContext.createGain()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createGain.html)
-         *
-         * 创建一个GainNode */
-        createGain(): GainNode
-        /** [IIRFilterNode WebAudioContext.createIIRFilter(Array.&lt;number&gt; feedforward, Array.&lt;number&gt; feedback)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createIIRFilter.html)
-         *
-         * 创建一个IIRFilterNode */
-        createIIRFilter(
-            /** 一个浮点值数组，指定IIR滤波器传递函数的前馈(分子)系数。 */
-            feedforward: number[],
-            /** 一个浮点值数组，指定IIR滤波器传递函数的反馈(分母)系数。 */
-            feedback: number[]
-        ): IIRFilterNode
-        /** [OscillatorNode WebAudioContext.createOscillator()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createOscillator.html)
-         *
-         * 创建一个OscillatorNode */
-        createOscillator(): OscillatorNode
-        /** [PannerNode WebAudioContext.createPanner()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createPanner.html)
-         *
-         * 创建一个PannerNode */
-        createPanner(): PannerNode
-        /** [PeriodicWaveNode WebAudioContext.createPeriodicWave(Float32Array real, Float32Array imag, object constraints)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createPeriodicWave.html)
-*
-* 创建一个PeriodicWaveNode
-*
-* **注意**
-*
-* `real`和`imag`数组必须拥有一样的长度，否则抛出错误
-* ```js
-const real = new Float32Array(2)
-const imag = new Float32Array(2)
-real[0] = 0
-imag[0] = 0
-real[1] = 1
-imag[1] = 0
-
-const waveNode = audioContext.createPeriodicWave(real, imag, {disableNormalization: true})
-``` */
-        createPeriodicWave(
-            /** 一组余弦项(传统上是A项) */
-            real: Float32Array,
-            /** 一组余弦项(传统上是A项) */
-            imag: Float32Array,
-            /** 一个字典对象，它指定是否应该禁用规范化(默认启用规范化) */
-            constraints: Constraints
-        ): PeriodicWaveNode
-        /** [Promise WebAudioContext.close()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.close.html)
-*
-* 关闭WebAudioContext
-*
-* **注意事项**
-*
-* 同步关闭对应的WebAudio上下文。close后会立即释放当前上下文的资源，<b>不要在close后再次访问state属性。</b>
-* ```js
-const audioCtx = wx.createWebAudioContext()
-audioCtx.close().then(() => {
-  console.log(audioCtx.state) // bad case：不应该在close后再访问state
-})
-``` */
-        close(): Promise<any>
-        /** [Promise WebAudioContext.resume()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.resume.html)
-         *
-         * 同步恢复已经被暂停的WebAudioContext上下文 */
-        resume(): Promise<any>
-        /** [Promise WebAudioContext.suspend()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.suspend.html)
-         *
-         * 同步暂停WebAudioContext上下文 */
-        suspend(): Promise<any>
-        /** [ScriptProcessorNode WebAudioContext.createScriptProcessor(number bufferSize, number numberOfInputChannels, number numberOfOutputChannels)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createScriptProcessor.html)
-         *
-         * 创建一个ScriptProcessorNode */
-        createScriptProcessor(
-            /** 缓冲区大小，以样本帧为单位 */
-            bufferSize: number,
-            /** 用于指定输入node的声道的数量 */
-            numberOfInputChannels: number,
-            /** 用于指定输出node的声道的数量 */
-            numberOfOutputChannels: number
-        ): ScriptProcessorNode
-        /** [WaveShaperNode WebAudioContext.createWaveShaper()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createWaveShaper.html)
-         *
-         * 创建一个WaveShaperNode */
-        createWaveShaper(): WaveShaperNode
-        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.createBuffer(number numOfChannels, number length, number sampleRate)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBuffer.html)
-         *
-         * 创建一个AudioBuffer，代表着一段驻留在内存中的短音频 */
-        createBuffer(
-            /** 定义了 buffer 中包含的声频通道数量的整数 */
-            numOfChannels: number,
-            /** 代表 buffer 中的样本帧数的整数 */
-            length: number,
-            /** 线性音频样本的采样率，即每一秒包含的关键帧的个数 */
-            sampleRate: number
-        ): AudioBuffer
-        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.decodeAudioData()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)
-         *
-         * 异步解码一段资源为AudioBuffer。 */
-        decodeAudioData(): AudioBuffer
-    }
     interface WebGLRenderingContext {
         /** [WebGLRenderingContext.wxBindCanvasTexture(number texture, [Canvas](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.html) canvas)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/WebGLRenderingContext.wxBindCanvasTexture.html)
 *
@@ -11543,113 +11732,6 @@ gl.texImage2D(target, level, internalformat, format, type, canvas)
             canvas: Canvas
         ): void
     }
-    interface Worker {
-        /** [ArrayBuffer Worker.getCameraFrameData()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.getCameraFrameData.html)
-*
-* 需要基础库： `2.17.0`
-*
-* 获取摄像头当前帧图像，返回ArrayBuffer数据。仅限在 worker 线程中使用。
-*
-* **示例代码**
-*
-* ```js
-// game.js
-const worker = wx.createWorker('workers/index.js', {
-  useExperimentalWorker: true
-})
-
-const camera = wx.createCamera({
-  success() {
-    camera.listenFrameChange(worker)
-  }
-})
-```
-*
-* ```js
-// workers/index.js
-const data = worker.getCameraFrameData()
-console.log(data)
-``` */
-        getCameraFrameData(): ArrayBuffer
-        /** [Worker.onMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onMessage.html)
-         *
-         * 监听主线程/Worker 线程向当前线程发送的消息的事件。 */
-        onMessage(
-            /** 主线程/Worker 线程向当前线程发送的消息的事件的监听函数 */
-            listener: WorkerOnMessageCallback
-        ): void
-        /** [Worker.onProcessKilled(function listener)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onProcessKilled.html)
-         *
-         * 监听 worker线程被系统回收事件（开启 useExperimentalWorker 后，当iOS系统资源紧张时，ExperimentalWorker 线程存在被系统回收的可能，开发者可监听此事件并重新创建一个worker）。仅限在主线程 worker 对象上调用。 */
-        onProcessKilled(
-            /** worker线程被系统回收事件的监听函数 */
-            listener: OnProcessKilledCallback
-        ): void
-        /** [Worker.postMessage(Object message)](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.postMessage.html)
-*
-* 向主线程/Worker 线程发送的消息。
-*
-* **示例代码**
-*
-* worker 线程中
-* ```js
-worker.postMessage({
-  msg: 'hello from worker'
-})
-```
-*
-* 主线程中
-* ```js
-const worker = wx.createWorker('workers/request/index.js')
-
-worker.postMessage({
-  msg: 'hello from main'
-})
-```
-*
-* **提醒**
-*
-* 在基础库版本2.20.2之前，postMessage仅支持传递可序列化的key-value对象。
-* 在基础库2.20.2之后，postMessage支持传递任意类型的数据。 */
-        postMessage(
-            /** 需要发送的消息。 */
-            message: IAnyObject
-        ): void
-        /** [Worker.terminate()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.terminate.html)
-         *
-         * 结束当前 Worker 线程。仅限在主线程 worker 对象上调用。 */
-        terminate(): void
-        /** [Worker.testOnProcessKilled()](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.testOnProcessKilled.html)
-*
-* 需要基础库： `2.27.1`
-*
-* 用于模拟 iOS ExperimentalWorker 线程被系统回收事件，以便于调试。接口仅在 worker 线程内可用。参考 [Worker.onProcessKilled](https://developers.weixin.qq.com/minigame/dev/api/worker/Worker.onProcessKilled.html)
-*
-* **示例代码**
-*
-* ```js
-// game.js
-const worker = wx.createWorker('workers/index.js', {
-  useExperimentalWorker: true
-})
-
-// 监听 ExperimentalWorker 被系统回收事件
-worker.onProcessKilled(function () {
-  console.log('worker has been killed')
-  // 重新创建一个worker
-  // wx.createWorker()
-})
-```
-*
-* ```js
-// workers/index.js
-setTimeout(() => {
-  // 模拟 ExperimentalWorker 线程被系统回收事件
-  worker.testOnProcessKilled()
-}, 2000)
-``` */
-        testOnProcessKilled(): void
-    }
     interface Wx {
         /** [ArrayBuffer wx.encode(Object object)](https://developers.weixin.qq.com/minigame/dev/api/util/wx.encode.html)
          *
@@ -11668,7 +11750,7 @@ setTimeout(() => {
 *
 * 需要基础库： `2.11.2`
 *
-* 获取当前帐号信息。线上小程序版本号仅支持在正式版小程序中获取，开发版和体验版中无法获取。
+* 获取当前账号信息。线上小程序版本号仅支持在正式版小程序中获取，开发版和体验版中无法获取。
 *
 * **示例代码**
 *
@@ -12042,7 +12124,7 @@ wx.downloadFile({
          *
          * 需要基础库： `2.8.0`
          *
-         * 获取 **全局唯一** 的游戏服务管理器。 */
+         * 获取 **全局唯一** 的游戏服务管理器。注意：`GameServerManager.inviteFriend`、`GameServerManager.onStateUpdate`、`GameServerManager.offStateUpdate`、`GameServerManager.getFriendsStateData` 这几个接口只允许在开放数据域内使用，其他接口则只允许在游戏域内使用。 */
         getGameServerManager(): GameServerManager
         /** [[GridAd](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.html) wx.createGridAd(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createGridAd.html)
          *
@@ -12414,7 +12496,7 @@ wx.chooseImage({
          *
          * 需要基础库： `2.0.1`
          *
-         * 创建用户信息按钮 */
+         * 创建用户信息按钮。使用前请参考 [用户信息获取](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/user-info.html) */
         createUserInfoButton(option: CreateUserInfoButtonOption): UserInfoButton
         /** [[VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) wx.createVideoDecoder()](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/wx.createVideoDecoder.html)
          *
@@ -12610,7 +12692,7 @@ wx.authPrivateMessage({
 *
 * 需要基础库： `1.2.0`
 *
-* 提前向用户发起授权请求。调用后会立刻弹窗询问用户是否同意授权小程序使用某项功能或获取用户的某些数据，但不会实际调用对应接口。如果用户之前已经同意授权，则不会出现弹窗，直接返回成功。更多用法详见 [用户授权](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)。
+* 提前向用户发起授权请求。调用后会立刻弹窗询问用户是否同意授权小程序使用某项功能或获取用户的某些数据，但不会实际调用对应接口。如果用户之前已经同意授权，则不会出现弹窗，直接返回成功。更多用法详见 [用户授权](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/authorize.html)。
 *
 * **注意事项**
 *
@@ -12620,15 +12702,15 @@ wx.authPrivateMessage({
 * **示例代码**
 *
 * ```js
-// 可以通过 wx.getSetting 先查询一下用户是否授权了 "scope.record" 这个 scope
+// 可以通过 wx.getSetting 先查询一下用户是否授权了 "scope.writePhotosAlbum" 这个 scope
 wx.getSetting({
   success(res) {
-    if (!res.authSetting['scope.record']) {
+    if (!res.authSetting['scope.writePhotosAlbum']) {
       wx.authorize({
-        scope: 'scope.record',
+        scope: 'scope.writePhotosAlbum',
         success () {
-          // 用户已经同意小程序使用录音功能，后续调用 wx.startRecord 接口不会弹窗询问
-          wx.startRecord()
+          // 用户已经同意保存到相册功能，后续调用 wx.saveImageToPhotosAlbum 接口不会弹窗询问
+          wx.saveImageToPhotosAlbum()
         }
       })
     }
@@ -13175,28 +13257,6 @@ if (wx.getExtConfig) {
          *
          * 拉取当前用户所有同玩好友的托管数据。该接口需要用户授权，且只在开放数据域下可用。 */
         getFriendCloudStorage(option: GetFriendCloudStorageOption): void
-        /** [wx.getFuzzyLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html)
-*
-* 需要基础库： `2.25.0`
-*
-* 获取当前的模糊地理位置。
-*  ## 使用方法
-*  自 2022 年 7 月 14 日后发布的小程序，若使用该接口，需要在 app.json 中进行声明，否则将无法正常使用该接口，2022年7月14日前发布的小程序不受影响。[具体规则见公告](https://developers.weixin.qq.com/community/develop/doc/000a02f2c5026891650e7f40351c01)
-*  ## 申请开通
-*  暂只针对具备与地理位置强相关的使用场景的小程序开放，在小程序管理后台，「开发」-「开发管理」-「接口设置」中自助开通该接口权限。 从2022年7月14日开始在代码审核环节将检测该接口是否已完成开通，如未开通，将在代码提审环节进行拦截。
-*
-* **示例代码**
-*
-*  ```js
- wx.getFuzzyLocation({
-  type: 'wgs84',
-  success (res) {
-    const latitude = res.latitude
-    const longitude = res.longitude
-  }
-})
- ``` */
-        getFuzzyLocation(option: GetFuzzyLocationOption): void
         /** [wx.getGameClubData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/wx.getGameClubData.html)
          *
          * 需要基础库： `2.25.4`
@@ -13320,7 +13380,6 @@ wx.getLocalIPAddress({
         /** [wx.getLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html)
 *
 * 获取当前的地理位置、速度。当用户离开小程序后，此接口无法调用。开启高精度定位，接口耗时会增加，可指定 highAccuracyExpireTime 作为超时时间。地图相关使用的坐标格式应为 gcj02。
-*  高频率调用会导致耗电，如有需要可使用持续定位接口 `wx.onLocationChange`。
 *  基础库 `2.17.0` 版本起 `wx.getLocation` 增加调用频率限制，[相关公告](https://developers.weixin.qq.com/community/develop/doc/000aee91a98d206bc6dbe722b51801)。
 *
 * **示例代码**
@@ -13367,6 +13426,23 @@ wx.getNetworkType({
          *
          * 获取可能对游戏感兴趣的未注册的好友名单。每次调用最多可获得 5 个好友。该接口需要用户授权，且只在开放数据域下可用。 */
         getPotentialFriendList(option?: GetPotentialFriendListOption): void
+        /** [wx.getPrivacySetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.getPrivacySetting.html)
+*
+* 需要基础库： `2.33.0`
+*
+* 查询隐私授权情况
+*
+* **示例代码**
+*
+* ```js
+  wx.getPrivacySetting({
+    success: res => { console.log(res)
+        // 返回结果为: res = { needAuthorization: true/false, privacyContractName: '《xxx隐私保护指引》' } },
+    fail: () => {},
+    complete() => {}
+  })
+``` */
+        getPrivacySetting(option: GetPrivacySettingOption): void
         /** [wx.getScreenBrightness(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.getScreenBrightness.html)
          *
          * 需要基础库： `1.2.0`
@@ -13385,7 +13461,7 @@ wx.getNetworkType({
 *
 * 需要基础库： `1.2.0`
 *
-* 获取用户的当前设置。**返回值中只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)**。
+* 获取用户的当前设置。**返回值中只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/authorize.html)**。
 *
 * **示例代码**
 *
@@ -13810,7 +13886,7 @@ wx.hideShareMenu({
         ): PromisifySuccessResult<T, JoinVoIPChatOption>
         /** [wx.login(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)
 *
-* 调用接口获取登录凭证（code）。通过凭证进而换取用户登录态信息，包括用户在当前小程序的唯一标识（openid）、微信开放平台帐号下的唯一标识（unionid，若当前小程序已绑定到微信开放平台帐号）及本次登录的会话密钥（session_key）等。用户数据的加解密通讯需要依赖会话密钥完成。
+* 调用接口获取登录凭证（code）。通过凭证进而换取用户登录态信息，包括用户在当前小程序的唯一标识（openid）、微信开放平台账号下的唯一标识（unionid，若当前小程序已绑定到微信开放平台账号）及本次登录的会话密钥（session_key）等。用户数据的加解密通讯需要依赖会话密钥完成。
 *
 * **示例代码**
 *
@@ -13985,24 +14061,12 @@ wx.offAccelerometerChange(listener) // 需传入与监听时同一个的函数�
             /** onAccelerometerChange 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffAccelerometerChangeCallback
         ): void
-        /** [wx.offAddToFavorites(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offAddToFavorites.html)
-*
-* 需要基础库： `2.10.3`
-*
-* 移除用户点击菜单「收藏」按钮时触发的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-wx.onAddToFavorites(listener)
-wx.offAddToFavorites(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offAddToFavorites(
-            /** onAddToFavorites 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffAddToFavoritesCallback
-        ): void
+        /** [wx.offAddToFavorites()](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offAddToFavorites.html)
+         *
+         * 需要基础库： `2.10.3`
+         *
+         * 移除用户点击菜单「收藏」按钮时触发的事件的全部监听函数 */
+        offAddToFavorites(): void
         /** [wx.offAudioInterruptionBegin(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.offAudioInterruptionBegin.html)
 *
 * 需要基础库： `1.8.0`
@@ -14039,24 +14103,18 @@ wx.offAudioInterruptionEnd(listener) // 需传入与监听时同一个的函数�
             /** onAudioInterruptionEnd 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffAudioInterruptionEndCallback
         ): void
-        /** [wx.offBLECharacteristicValueChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.offBLECharacteristicValueChange.html)
+        /** [wx.offBLECharacteristicValueChange()](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.offBLECharacteristicValueChange.html)
 *
 * 需要基础库： `2.9.2`
 *
-* 移除蓝牙低功耗设备的特征值变化事件的监听函数
+* 移除蓝牙低功耗设备的特征值变化事件的全部监听函数
 *
 * **示例代码**
 *
 * ```js
-const listener = function (res) { console.log(res) }
-
-wx.onBLECharacteristicValueChange(listener)
-wx.offBLECharacteristicValueChange(listener) // 需传入与监听时同一个的函数对象
+wx.offBLECharacteristicValueChange()
 ``` */
-        offBLECharacteristicValueChange(
-            /** onBLECharacteristicValueChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffBLECharacteristicValueChangeCallback
-        ): void
+        offBLECharacteristicValueChange(): void
         /** [wx.offBLEConnectionStateChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.offBLEConnectionStateChange.html)
 *
 * 需要基础库： `2.9.2`
@@ -14111,78 +14169,54 @@ wx.offBLEPeripheralConnectionStateChanged(listener) // 需传入与监听时同�
             /** onBLEPeripheralConnectionStateChanged 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffBLEPeripheralConnectionStateChangedCallback
         ): void
-        /** [wx.offBeaconServiceChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.offBeaconServiceChange.html)
+        /** [wx.offBeaconServiceChange()](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.offBeaconServiceChange.html)
 *
 * 需要基础库： `2.9.2`
 *
-* 移除 Beacon 服务状态变化事件的监听函数
+* 移除 Beacon 服务状态变化事件的全部监听函数
 *
 * **示例代码**
 *
 * ```js
-const listener = function (res) { console.log(res) }
-
-wx.onBeaconServiceChange(listener)
-wx.offBeaconServiceChange(listener) // 需传入与监听时同一个的函数对象
+wx.offBeaconServiceChange()
 ``` */
-        offBeaconServiceChange(
-            /** onBeaconServiceChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffBeaconServiceChangeCallback
-        ): void
-        /** [wx.offBeaconUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.offBeaconUpdate.html)
+        offBeaconServiceChange(): void
+        /** [wx.offBeaconUpdate()](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.offBeaconUpdate.html)
 *
 * 需要基础库： `2.9.2`
 *
-* 移除 Beacon 设备更新事件的监听函数
+* 移除 Beacon 设备更新事件的全部监听函数
 *
 * **示例代码**
 *
 * ```js
-const listener = function (res) { console.log(res) }
-
-wx.onBeaconUpdate(listener)
-wx.offBeaconUpdate(listener) // 需传入与监听时同一个的函数对象
+wx.offBeaconUpdate()
 ``` */
-        offBeaconUpdate(
-            /** onBeaconUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffBeaconUpdateCallback
-        ): void
-        /** [wx.offBluetoothAdapterStateChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.offBluetoothAdapterStateChange.html)
+        offBeaconUpdate(): void
+        /** [wx.offBluetoothAdapterStateChange()](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.offBluetoothAdapterStateChange.html)
 *
 * 需要基础库： `2.9.2`
 *
-* 移除蓝牙适配器状态变化事件的监听函数
+* 移除蓝牙适配器状态变化事件的全部监听函数
 *
 * **示例代码**
 *
 * ```js
-const listener = function (res) { console.log(res) }
-
-wx.onBluetoothAdapterStateChange(listener)
-wx.offBluetoothAdapterStateChange(listener) // 需传入与监听时同一个的函数对象
+wx.offBluetoothAdapterStateChange()
 ``` */
-        offBluetoothAdapterStateChange(
-            /** onBluetoothAdapterStateChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffBluetoothAdapterStateChangeCallback
-        ): void
-        /** [wx.offBluetoothDeviceFound(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.offBluetoothDeviceFound.html)
+        offBluetoothAdapterStateChange(): void
+        /** [wx.offBluetoothDeviceFound()](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.offBluetoothDeviceFound.html)
 *
 * 需要基础库： `2.9.2`
 *
-* 移除搜索到新设备的事件的监听函数
+* 移除搜索到新设备的事件的全部监听函数
 *
 * **示例代码**
 *
 * ```js
-const listener = function (res) { console.log(res) }
-
-wx.onBluetoothDeviceFound(listener)
-wx.offBluetoothDeviceFound(listener) // 需传入与监听时同一个的函数对象
+wx.offBluetoothDeviceFound()
 ``` */
-        offBluetoothDeviceFound(
-            /** onBluetoothDeviceFound 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffBluetoothDeviceFoundCallback
-        ): void
+        offBluetoothDeviceFound(): void
         /** [wx.offCompassChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/compass/wx.offCompassChange.html)
 *
 * 需要基础库： `2.9.3`
@@ -14201,24 +14235,12 @@ wx.offCompassChange(listener) // 需传入与监听时同一个的函数对象
             /** onCompassChange 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffCompassChangeCallback
         ): void
-        /** [wx.offCopyUrl(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offCopyUrl.html)
-*
-* 需要基础库： `2.14.3`
-*
-* 移除用户点击右上角菜单的「复制链接」按钮时触发的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-wx.onCopyUrl(listener)
-wx.offCopyUrl(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offCopyUrl(
-            /** onCopyUrl 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffCopyUrlCallback
-        ): void
+        /** [wx.offCopyUrl()](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offCopyUrl.html)
+         *
+         * 需要基础库： `2.14.3`
+         *
+         * 移除用户点击右上角菜单的「复制链接」按钮时触发的事件的全部监听函数 */
+        offCopyUrl(): void
         /** [wx.offDeviceMotionChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/motion/wx.offDeviceMotionChange.html)
 *
 * 需要基础库： `2.9.3`
@@ -14289,24 +14311,12 @@ wx.offGyroscopeChange(listener) // 需传入与监听时同一个的函数对象
             /** onGyroscopeChange 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffGyroscopeChangeCallback
         ): void
-        /** [wx.offHandoff(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offHandoff.html)
-*
-* 需要基础库： `2.14.4`
-*
-* 移除用户点击菜单「在电脑上打开」按钮时触发的事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-wx.onHandoff(listener)
-wx.offHandoff(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offHandoff(
-            /** onHandoff 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffHandoffCallback
-        ): void
+        /** [wx.offHandoff()](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offHandoff.html)
+         *
+         * 需要基础库： `2.14.4`
+         *
+         * 移除用户点击菜单「在电脑上打开」按钮时触发的事件的全部监听函数 */
+        offHandoff(): void
         /** [wx.offHide(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.offHide.html)
 *
 * 移除小游戏隐藏到后台事件的监听函数
@@ -14898,19 +14908,35 @@ wx.onBLEMTUChange(function (res) {
             listener: OnBLEPeripheralConnectionStateChangedCallback
         ): void
         /** [wx.onBeaconServiceChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.onBeaconServiceChange.html)
-         *
-         * 需要基础库： `2.9.2`
-         *
-         * 监听 Beacon 服务状态变化事件，仅能注册一个监听 */
+*
+* 需要基础库： `2.9.2`
+*
+* 监听 Beacon 服务状态变化事件，仅能注册一个监听
+*
+* **示例代码**
+*
+* ```js
+wx.onBeaconServiceChange(res => {
+   console.log(res.available, res.discovering)
+})
+``` */
         onBeaconServiceChange(
             /** Beacon 服务状态变化事件的监听函数 */
             listener: OnBeaconServiceChangeCallback
         ): void
         /** [wx.onBeaconUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.onBeaconUpdate.html)
-         *
-         * 需要基础库： `2.9.2`
-         *
-         * 监听 Beacon 设备更新事件，仅能注册一个监听 */
+*
+* 需要基础库： `2.9.2`
+*
+* 监听 Beacon 设备更新事件，仅能注册一个监听
+*
+* **示例代码**
+*
+* ```js
+wx.onBeaconUpdate(res => {
+   console.log(res.beacons)
+})
+``` */
         onBeaconUpdate(
             /** Beacon 设备更新事件的监听函数 */
             listener: OnBeaconUpdateCallback
@@ -15173,6 +15199,31 @@ wx.onKeyboardHeightChange(res => {
         onMouseUp(
             /** 鼠标按键弹起事件的监听函数 */
             listener: OnMouseUpCallback
+        ): void
+        /** [wx.onNeedPrivacyAuthorization(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html)
+*
+* 需要基础库： `2.33.0`
+*
+* 该接口将**启用自定义弹窗**，同时对onNeedPrivacyAuthorization事件进行监听，当需要用户授权弹窗时会触发，可以通过调用resolve函数，对授权事件进行上报。
+*
+* **示例代码**
+*
+* ```js
+wx.onNeedPrivacyAuthorization(resolve => {
+    // ------ 自定义弹窗逻辑 ------ //
+    customPopup()
+    // -------上报逻辑 ------- //
+    // 开发者弹出自定义的隐私弹窗，并调用告知平台已经弹窗
+    resolve({ event: 'exposureAuthorization' })
+    // 用户点击同意后，开发者调用 resolve({ event: 'agree' }) 告知平台用户已经同意
+    // 用户点击拒绝后，开发者调用 resolve({ event: 'disagree' }) 告知平台用户已经拒绝
+})
+``` */
+        onNeedPrivacyAuthorization(
+            /** 需要基础库： `2.33.0`
+             *
+             * resolve为callback的参数, 调用resolve函数可以进行事件上报， 例如：resolve({ event: 'agree' }) */
+            callback: (...args: any[]) => any
         ): void
         /** [wx.onNetworkStatusChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/network/wx.onNetworkStatusChange.html)
 *
@@ -15521,11 +15572,27 @@ wx.openCustomerServiceChat({
         >(
             option: T
         ): PromisifySuccessResult<T, OpenCustomerServiceConversationOption>
+        /** [wx.openPrivacyContract(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.openPrivacyContract.html)
+*
+* 需要基础库： `2.33.0`
+*
+* 跳转至隐私协议页面
+*
+* **示例代码**
+*
+* ```js
+  wx.openPrivacyContract({
+      success: () => {}, // 打开成功
+      fail: () => {}, // 打开失败
+      complete() => {}
+  })
+``` */
+        openPrivacyContract(option: OpenPrivacyContractOption): void
         /** [wx.openSetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.openSetting.html)
 *
 * 需要基础库： `1.1.0`
 *
-* 调起客户端小程序设置界面，返回用户设置的操作结果。**设置界面只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/framework/authorize.html)**。
+* 调起客户端小程序设置界面，返回用户设置的操作结果。**设置界面只会出现小程序已经向用户请求过的[权限](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/authorize.html)**。
 *
 * ****
 *
@@ -16017,6 +16084,22 @@ wx.requestSubscribeSystemMessage({
         >(
             option: T
         ): PromisifySuccessResult<T, RequestSubscribeSystemMessageOption>
+        /** [wx.requirePrivacyAuthorize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.requirePrivacyAuthorize.html)
+*
+* 需要基础库： `2.33.0`
+*
+* 支持官方和自定义隐私弹窗的主动拉起, 在自定义弹窗模式下调用会触发[onNeedPrivacyAuthorization事件](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html)
+*
+* **示例代码**
+*
+* ```js
+  wx.requirePrivacyAuthorize({
+      success: () => {}, // 用户同意授权
+      fail: () => {}, // 用户拒绝授权
+      complete() => {}
+  })
+``` */
+        requirePrivacyAuthorize(option: RequirePrivacyAuthorizeOption): void
         /** [wx.reserveChannelsLive(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/channels/wx.reserveChannelsLive.html)
          *
          * 需要基础库： `2.19.0`
@@ -16720,6 +16803,11 @@ wx.stopCompass()
 *
 * 更新转发属性
 *
+* ****
+*
+* ## 注意事项
+* - bug：在iOS上，如果 withShareTicket 传了 true ，同时 isUpdatableMessage 传了 false，会导致 withShareTicket 失效。解决办法：当 withShareTicket 传了 true 的时候，isUpdatableMessage 传 true 或者不传都可以，但不要传 false。如果需要关掉动态消息设置，则另外单独调用一次 wx.updateShareMenu({ isUpdatableMessage: false }) 即可。
+*
 * **示例代码**
 *
 * ```js
@@ -17244,14 +17332,6 @@ wx.writeBLECharacteristicValue({
         result: GetFriendsStateDataSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
-    type GetFuzzyLocationCompleteCallback = (res: GeneralCallbackResult) => void
-    /** 接口调用失败的回调函数 */
-    type GetFuzzyLocationFailCallback = (res: GeneralCallbackResult) => void
-    /** 接口调用成功的回调函数 */
-    type GetFuzzyLocationSuccessCallback = (
-        result: GetFuzzyLocationSuccessCallbackResult
-    ) => void
-    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetGameClubDataCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetGameClubDataFailCallback = (res: GeneralCallbackResult) => void
@@ -17358,6 +17438,16 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type GetPotentialFriendListSuccessCallback = (
         result: GetPotentialFriendListSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetPrivacySettingCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetPrivacySettingFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type GetPrivacySettingSuccessCallback = (
+        result: GetPrivacySettingSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetRandomValuesCompleteCallback = (res: GeneralCallbackResult) => void
@@ -17603,7 +17693,7 @@ wx.writeBLECharacteristicValue({
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type LoginCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
-    type LoginFailCallback = (res: GeneralCallbackResult) => void
+    type LoginFailCallback = (err: RequestFailCallbackErr) => void
     /** 接口调用成功的回调函数 */
     type LoginSuccessCallback = (result: LoginSuccessCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -17664,20 +17754,12 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onAccelerometerChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffAccelerometerChangeCallback = (res: GeneralCallbackResult) => void
-    /** onAddToFavorites 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffAddToFavoritesCallback = (
-        result: OnAddToFavoritesListenerResult
-    ) => void
     /** onAudioInterruptionBegin 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffAudioInterruptionBeginCallback = (
         res: GeneralCallbackResult
     ) => void
     /** onAudioInterruptionEnd 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffAudioInterruptionEndCallback = (res: GeneralCallbackResult) => void
-    /** onBLECharacteristicValueChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffBLECharacteristicValueChangeCallback = (
-        result: OnBLECharacteristicValueChangeListenerResult
-    ) => void
     /** onBLEConnectionStateChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffBLEConnectionStateChangeCallback = (
         result: OnBLEConnectionStateChangeListenerResult
@@ -17692,16 +17774,6 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onBeKickedOut 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffBeKickedOutCallback = (result: OnBeKickedOutListenerResult) => void
-    /** onBeaconServiceChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffBeaconServiceChangeCallback = (res: GeneralCallbackResult) => void
-    /** onBeaconUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffBeaconUpdateCallback = (res: GeneralCallbackResult) => void
-    /** onBluetoothAdapterStateChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffBluetoothAdapterStateChangeCallback = (
-        result: OnBluetoothAdapterStateChangeListenerResult
-    ) => void
-    /** onBluetoothDeviceFound 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffBluetoothDeviceFoundCallback = (res: GeneralCallbackResult) => void
     /** onBroadcast 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffBroadcastCallback = (result: OnBroadcastListenerResult) => void
     /** onCanplay 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -17724,12 +17796,10 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onChunkReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffChunkReceivedCallback = (
-        result: RequestTaskOnChunkReceivedListenerResult
+        result: OnChunkReceivedListenerResult
     ) => void
     /** onCompassChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffCompassChangeCallback = (res: GeneralCallbackResult) => void
-    /** onCopyUrl 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffCopyUrlCallback = (result: OnCopyUrlListenerResult) => void
     /** onDeviceMotionChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffDeviceMotionChangeCallback = (res: GeneralCallbackResult) => void
     /** onDeviceOrientationChange 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -17748,8 +17818,6 @@ wx.writeBLECharacteristicValue({
     type OffGameStartCallback = (res: GeneralCallbackResult) => void
     /** onGyroscopeChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffGyroscopeChangeCallback = (res: GeneralCallbackResult) => void
-    /** onHandoff 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffHandoffCallback = (result: OnHandoffListenerResult) => void
     /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffHeadersReceivedCallback = (
         result: OnHeadersReceivedListenerResult
@@ -17950,7 +18018,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** Transfer-Encoding Chunk Received 事件的监听函数 */
     type OnChunkReceivedCallback = (
-        result: RequestTaskOnChunkReceivedListenerResult
+        result: OnChunkReceivedListenerResult
     ) => void
     /** 罗盘数据变化事件的监听函数 */
     type OnCompassChangeCallback = (
@@ -18228,6 +18296,16 @@ wx.writeBLECharacteristicValue({
     /** 接口调用失败的回调函数 */
     type OpenFailCallback = (res: FileError) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type OpenPrivacyContractCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type OpenPrivacyContractFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type OpenPrivacyContractSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type OpenSettingCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type OpenSettingFailCallback = (res: GeneralCallbackResult) => void
@@ -18255,6 +18333,10 @@ wx.writeBLECharacteristicValue({
     type OwnerLeaveRoomFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type OwnerLeaveRoomSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 分包加载进度变化事件的监听函数 */
+    type PreDownloadSubpackageTaskOnProgressUpdateCallback = (
+        result: PreDownloadSubpackageTaskOnProgressUpdateListenerResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type PreviewImageCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -18378,10 +18460,12 @@ wx.writeBLECharacteristicValue({
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestMidasPaymentCompleteCallback = (res: MidasPaymentError) => void
     /** 接口调用失败的回调函数 */
-    type RequestMidasPaymentFailCallback = (res: MidasPaymentError) => void
+    type RequestMidasPaymentFailCallback = (
+        err: RequestMidasPaymentFailCallbackErr
+    ) => void
     /** 接口调用成功的回调函数 */
     type RequestMidasPaymentSuccessCallback = (
-        result: GeneralCallbackResult
+        result: RequestMidasPaymentSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestSubscribeMessageCompleteCallback = (
@@ -18414,6 +18498,18 @@ wx.writeBLECharacteristicValue({
             | IAnyObject
             | ArrayBuffer
     > = (result: RequestSuccessCallbackResult<T>) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type RequirePrivacyAuthorizeCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type RequirePrivacyAuthorizeFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type RequirePrivacyAuthorizeSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RestartCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
