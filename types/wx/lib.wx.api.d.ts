@@ -1728,7 +1728,7 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         query: IAnyObject
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](#) */
+        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -3813,7 +3813,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         query: IAnyObject
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](#) */
+        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
