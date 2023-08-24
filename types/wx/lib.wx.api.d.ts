@@ -942,6 +942,31 @@ source.start()
         /** 需要被关闭的文件描述符。fd 通过 [FileSystemManager.open](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.open.html) 或 [FileSystemManager.openSync](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.openSync.html) 接口获得 */
         fd: string
     }
+    interface CompressImageOption {
+        /** 图片路径，图片的路径，支持本地路径、代码包路径 */
+        src: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: CompressImageCompleteCallback
+        /** 需要基础库： `2.26.0`
+         *
+         * 压缩后图片的高度，单位为px，若不填写则默认以compressedWidth为准等比缩放 */
+        compressedHeight?: number
+        /** 需要基础库： `2.26.0`
+         *
+         * 压缩后图片的宽度，单位为px，若不填写则默认以compressedHeight为准等比缩放。 */
+        compressedWidth?: number
+        /** 接口调用失败的回调函数 */
+        fail?: CompressImageFailCallback
+        /** 压缩质量，范围0～100，数值越小，质量越低，压缩率越高（仅对jpg有效）。 */
+        quality?: number
+        /** 接口调用成功的回调函数 */
+        success?: CompressImageSuccessCallback
+    }
+    interface CompressImageSuccessCallbackResult {
+        /** 压缩后图片的临时文件路径 (本地路径) */
+        tempFilePath: string
+        errMsg: string
+    }
     interface ConnectOption {
         /** 要发消息的地址 */
         address: string
@@ -1725,10 +1750,10 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
             | 'browseOnly'
             | 'embedded'
         /** 启动小游戏的 query 参数 */
-        query: IAnyObject
+        query: Record<string, string>
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
+        /** 启动小游戏的[场景值](#) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -2279,6 +2304,43 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         mtu: number
         errMsg: string
     }
+    interface GetBackgroundFetchDataOption {
+        /** 缓存数据类别，取值为 periodic 或 pre */
+        fetchType: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetBackgroundFetchDataCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetBackgroundFetchDataFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetBackgroundFetchDataSuccessCallback
+    }
+    interface GetBackgroundFetchDataSuccessCallbackResult {
+        /** 缓存数据 */
+        fetchedData: string
+        /** 小程序页面路径 */
+        path: string
+        /** 传给页面的 query 参数 */
+        query: string
+        /** 进入小程序的场景值 */
+        scene: number
+        /** 客户端拿到缓存数据的时间戳 ms。(iOS 时间戳存在异常，8.0.27 修复) */
+        timeStamp: number
+        errMsg: string
+    }
+    interface GetBackgroundFetchTokenOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetBackgroundFetchTokenCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetBackgroundFetchTokenFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetBackgroundFetchTokenSuccessCallback
+    }
+    interface GetBackgroundFetchTokenSuccessCallbackResult {
+        /** 接口调用结果 */
+        errMsg: string
+        /** 自定义的登录态 */
+        token: string
+    }
     interface GetBatteryInfoOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetBatteryInfoCompleteCallback
@@ -2503,6 +2565,23 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetFriendsStateDataSuccessCallbackResult {
         /** 好友状态信息列表 */
         list: StateData[]
+        errMsg: string
+    }
+    interface GetFuzzyLocationOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetFuzzyLocationCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetFuzzyLocationFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetFuzzyLocationSuccessCallback
+        /** wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标 */
+        type?: string
+    }
+    interface GetFuzzyLocationSuccessCallbackResult {
+        /** 纬度，范围为 -90~90，负数表示南纬 */
+        latitude: number
+        /** 经度，范围为 -180~180，负数表示西经 */
+        longitude: number
         errMsg: string
     }
     interface GetGameClubDataOption {
@@ -2765,7 +2844,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         success?: GetPrivacySettingSuccessCallback
     }
     interface GetPrivacySettingSuccessCallbackResult {
-        /** 用户是否需要进行授权 */
+        /** 是否需要用户授权隐私协议（如果开发者没有在[mp后台-设置-服务内容声明-用户隐私保护指引]中声明隐私收集类型则会返回false；如果开发者声明了隐私收集，且用户之前同意过隐私协议则会返回false；如果开发者声明了隐私收集，且用户还没同意过则返回true；如果用户之前同意过、但后来小程序又新增了隐私收集类型也会返回true） */
         needAuthorization: boolean
         /** 隐私授权协议的名称 */
         privacyContractName: string
@@ -3810,10 +3889,10 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     /** 启动参数 */
     interface LaunchOptionsGame {
         /** 启动小游戏的 query 参数 */
-        query: IAnyObject
+        query: Record<string, string>
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
+        /** 启动小游戏的[场景值](#) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -4173,6 +4252,20 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** server 的 UUID */
         serverId: string
     }
+    interface OnBackgroundFetchDataListenerResult {
+        /** 缓存数据类别，取值为 periodic 或 pre */
+        fetchType: string
+        /** 缓存数据 */
+        fetchedData: string
+        /** 小程序页面路径 */
+        path: string
+        /** 传给页面的 query 参数 */
+        query: string
+        /** 进入小程序的场景值 */
+        scene: number
+        /** 客户端拿到缓存数据的时间戳 */
+        timeStamp: number
+    }
     interface OnBeKickedOutListenerResult {
         res: IAnyObject
     }
@@ -4504,7 +4597,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     }
     interface OnShowListenerResult {
         /** 查询参数 */
-        query: IAnyObject
+        query: Record<string, string>
         /** 当场景为由从另一个小程序或公众号或App打开时，返回此字段 */
         referrerInfo: ResultReferrerInfo
         /** 场景值 */
@@ -6070,6 +6163,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 最终协商的 MTU 值，与传入参数一致。安卓客户端 8.0.9 开始支持。 */
         mtu: number
         errMsg: string
+    }
+    interface SetBackgroundFetchTokenOption {
+        /** 自定义的登录态 */
+        token: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: SetBackgroundFetchTokenCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: SetBackgroundFetchTokenFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: SetBackgroundFetchTokenSuccessCallback
     }
     interface SetClipboardDataOption {
         /** 剪贴板的内容 */
@@ -12934,6 +13037,23 @@ wx.onSocketClose(function(res) {
         closeSocket<T extends CloseSocketOption = CloseSocketOption>(
             option?: T
         ): PromisifySuccessResult<T, CloseSocketOption>
+        /** [wx.compressImage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/image/wx.compressImage.html)
+*
+* 需要基础库： `3.0.1`
+*
+* 压缩图片接口，可选压缩质量
+*
+* **示例代码**
+*
+* ```js
+wx.compressImage({
+  src: '', // 图片路径
+  quality: 80 // 压缩质量
+})
+``` */
+        compressImage<T extends CompressImageOption = CompressImageOption>(
+            option: T
+        ): PromisifySuccessResult<T, CompressImageOption>
         /** [wx.createBLEConnection(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-ble/wx.createBLEConnection.html)
 *
 * 需要基础库： `2.9.2`
@@ -13099,6 +13219,27 @@ wx.getBLEMTU({
         getBLEMTU<T extends GetBLEMTUOption = GetBLEMTUOption>(
             option: T
         ): PromisifySuccessResult<T, GetBLEMTUOption>
+        /** [wx.getBackgroundFetchData(object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.getBackgroundFetchData.html)
+         *
+         * 需要基础库： `3.0.1`
+         *
+         * 拉取 backgroundFetch 客户端缓存数据。
+         * 当调用接口时，若当次请求未结束，会先返回本地的旧数据（之前打开小程序时请求的），如果本地没有旧数据，安卓上会返回fail，不会等待请求完成，iOS上会返回success但fetchedData为空，也不会等待请求完成。 */
+        getBackgroundFetchData<
+            T extends GetBackgroundFetchDataOption = GetBackgroundFetchDataOption
+        >(
+            option: T
+        ): PromisifySuccessResult<T, GetBackgroundFetchDataOption>
+        /** [wx.getBackgroundFetchToken(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.getBackgroundFetchToken.html)
+         *
+         * 需要基础库： `3.0.1`
+         *
+         * 获取设置过的自定义登录态。若无，则返回 fail。 */
+        getBackgroundFetchToken<
+            T extends GetBackgroundFetchTokenOption = GetBackgroundFetchTokenOption
+        >(
+            option?: T
+        ): PromisifySuccessResult<T, GetBackgroundFetchTokenOption>
         /** [wx.getBatteryInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfo.html)
          *
          * 获取设备电量。同步 API [wx.getBatteryInfoSync](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfoSync.html) 在 iOS 上不可用。 */
@@ -13257,6 +13398,24 @@ if (wx.getExtConfig) {
          *
          * 拉取当前用户所有同玩好友的托管数据。该接口需要用户授权，且只在开放数据域下可用。 */
         getFriendCloudStorage(option: GetFriendCloudStorageOption): void
+        /** [wx.getFuzzyLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html)
+*
+* 需要基础库： `3.0.1`
+*
+* 获取当前的模糊地理位置。
+*
+* **示例代码**
+*
+*  ```js
+ wx.getFuzzyLocation({
+  type: 'wgs84',
+  success (res) {
+    const latitude = res.latitude
+    const longitude = res.longitude
+  }
+})
+ ``` */
+        getFuzzyLocation(option: GetFuzzyLocationOption): void
         /** [wx.getGameClubData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-club/wx.getGameClubData.html)
          *
          * 需要基础库： `2.25.4`
@@ -13428,19 +13587,21 @@ wx.getNetworkType({
         getPotentialFriendList(option?: GetPotentialFriendListOption): void
         /** [wx.getPrivacySetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.getPrivacySetting.html)
 *
-* 需要基础库： `2.33.0`
+* 需要基础库： `2.32.3`
 *
-* 查询隐私授权情况
+* 查询隐私授权情况。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
 *
 * **示例代码**
 *
 * ```js
-  wx.getPrivacySetting({
-    success: res => { console.log(res)
-        // 返回结果为: res = { needAuthorization: true/false, privacyContractName: '《xxx隐私保护指引》' } },
-    fail: () => {},
-    complete() => {}
-  })
+wx.getPrivacySetting({
+  success: res => {
+    console.log(res)
+    // 返回结果为: res = { needAuthorization: true/false, privacyContractName: '《xxx隐私保护指引》' }
+  },
+  fail: () => {},
+  complete() => {}
+})
 ``` */
         getPrivacySetting(option: GetPrivacySettingOption): void
         /** [wx.getScreenBrightness(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.getScreenBrightness.html)
@@ -14907,6 +15068,15 @@ wx.onBLEMTUChange(function (res) {
             /** 当前外围设备被连接或断开连接事件的监听函数 */
             listener: OnBLEPeripheralConnectionStateChangedCallback
         ): void
+        /** [wx.onBackgroundFetchData(function listener)](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.onBackgroundFetchData.html)
+         *
+         * 需要基础库： `3.0.1`
+         *
+         * 监听收到 backgroundFetch 数据事件。如果监听时请求已经完成，则事件不会触发。建议和 [wx.getBackgroundFetchData](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.getBackgroundFetchData.html) 配合使用 */
+        onBackgroundFetchData(
+            /** 收到 backgroundFetch 数据事件的监听函数 */
+            listener: OnBackgroundFetchDataCallback
+        ): void
         /** [wx.onBeaconServiceChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/ibeacon/wx.onBeaconServiceChange.html)
 *
 * 需要基础库： `2.9.2`
@@ -15200,30 +15370,68 @@ wx.onKeyboardHeightChange(res => {
             /** 鼠标按键弹起事件的监听函数 */
             listener: OnMouseUpCallback
         ): void
-        /** [wx.onNeedPrivacyAuthorization(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html)
+        /** [wx.onNeedPrivacyAuthorization(function listener)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html)
 *
-* 需要基础库： `2.33.0`
+* 需要基础库： `2.32.3`
 *
-* 该接口将**启用自定义弹窗**，同时对onNeedPrivacyAuthorization事件进行监听，当需要用户授权弹窗时会触发，可以通过调用resolve函数，对授权事件进行上报。
+* 监听隐私接口需要用户授权事件。小游戏注册该事件监听后，会启用自定义隐私授权弹窗模式，当需要用户进行隐私授权时会触发该事件。触发该事件时，开发者需要弹出隐私协议说明，并在用户同意或拒绝授权后调用回调接口 resolve 进行上报。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
+*
+* ****
+*
+* ## 回调参数
+*
+* ### function resolve
+*
+* resolve 是 onNeedPrivacyAuthorization 的回调参数，是一个接口函数, 调用 resolve 将上报用户的隐私授权状态并继续执行原隐私接口，例如 resolve({ event: 'agree' })
+*
+* ****
+*
+* ## resolve 接口参数
+*
+* | 属性 | 类型 | 说明 |
+* | ---- | ---- | ---- |
+* | event | string | 用户操作类型 |
+*
+* ### event 合法值
+*
+* | event | 说明 |
+* | ---- | ---- |
+* | exposureAuthorization | 自定义隐私弹窗曝光 |
+* | agree | 用户同意隐私授权 |
+* | disagree | 用户拒绝隐私授权 |
+*
+* ****
+*
+* ## 具体说明：
+*
+* - 1. 小游戏未注册 wx.onNeedPrivacyAuthorization 事件监听时，会默认使用平台统一隐私弹窗
+* - 2. 小游戏注册 wx.onNeedPrivacyAuthorization 后，会切换至自定义隐私弹窗，此时需要开发者自行渲染隐私弹窗
+* - 3. 什么时候会触发 onNeedPrivacyAuthorization 事件？
+*   - 1. 调用隐私相关接口（比如 wx.getUserInfo、wx.getClipboardData），并且用户还未同意过隐私协议时
+*   - 2. 调用 wx.requirePrivacyAuthorize 接口来模拟隐私接口调用，并且用户还未同意过隐私协议时
+*   - 3. 如果用户已经同意过隐私协议，则不会再触发 onNeedPrivacyAuthorization 事件
+* - 4. 当触发 onNeedPrivacyAuthorization 事件时，触发该事件的隐私接口会处于 pending 状态，等待用户授权后才会继续执行，此时开发者需要弹出自定义隐私弹窗，并在用户点击同意后调用回调接口 resolve 进行上报，上报后，触发该事件的隐私接口（比如 wx.getUserInfo、wx.getClipboardData）才会继续执行。
+* - 5. 开发者必须在用户产生点击操作时调用 resolve 接口
+* - 6. wx.onNeedPrivacyAuthorization 是覆盖式注册监听，若重复注册监听，则只有最后一次注册会生效。
 *
 * **示例代码**
 *
 * ```js
 wx.onNeedPrivacyAuthorization(resolve => {
-    // ------ 自定义弹窗逻辑 ------ //
-    customPopup()
-    // -------上报逻辑 ------- //
-    // 开发者弹出自定义的隐私弹窗，并调用告知平台已经弹窗
-    resolve({ event: 'exposureAuthorization' })
-    // 用户点击同意后，开发者调用 resolve({ event: 'agree' }) 告知平台用户已经同意
-    // 用户点击拒绝后，开发者调用 resolve({ event: 'disagree' }) 告知平台用户已经拒绝
+  // ------ 自定义弹窗逻辑 ------ //
+  showCustomPopup()
+  // -------上报逻辑 ------- //
+  // 开发者弹出自定义的隐私弹窗，并调用 resolve 告知平台已经弹窗
+  resolve({ event: 'exposureAuthorization' })
+  // 用户点击同意后，开发者调用 resolve 告知平台用户已经同意
+  resolve({ event: 'agree' })
+  // 用户点击拒绝后，开发者调用 resolve 告知平台用户已经拒绝
+  resolve({ event: 'disagree' })
 })
 ``` */
         onNeedPrivacyAuthorization(
-            /** 需要基础库： `2.33.0`
-             *
-             * resolve为callback的参数, 调用resolve函数可以进行事件上报， 例如：resolve({ event: 'agree' }) */
-            callback: (...args: any[]) => any
+            /** 隐私接口需要用户授权事件的监听函数 */
+            listener: OnNeedPrivacyAuthorizationCallback
         ): void
         /** [wx.onNetworkStatusChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/network/wx.onNetworkStatusChange.html)
 *
@@ -15274,9 +15482,9 @@ wx.offNetworkWeakChange()
          *
          * 需要基础库： `2.9.4`
          *
-         * 监听主域接收 `wx.shareMessageToFriend` 接口的成功失败通知 */
+         * 监听主域接收`wx.shareMessageToFriend`接口的成功失败通知事件 */
         onShareMessageToFriend(
-            /** 的监听函数 */
+            /** 主域接收`wx.shareMessageToFriend`接口的成功失败通知事件的监听函数 */
             listener: OnShareMessageToFriendCallback
         ): void
         /** [wx.onShareTimeline(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.onShareTimeline.html)
@@ -15574,18 +15782,18 @@ wx.openCustomerServiceChat({
         ): PromisifySuccessResult<T, OpenCustomerServiceConversationOption>
         /** [wx.openPrivacyContract(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.openPrivacyContract.html)
 *
-* 需要基础库： `2.33.0`
+* 需要基础库： `2.32.3`
 *
-* 跳转至隐私协议页面
+* 跳转至隐私协议页面。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
 *
 * **示例代码**
 *
 * ```js
-  wx.openPrivacyContract({
-      success: () => {}, // 打开成功
-      fail: () => {}, // 打开失败
-      complete() => {}
-  })
+wx.openPrivacyContract({
+  success: () => {}, // 打开成功
+  fail: () => {}, // 打开失败
+  complete() => {}
+})
 ``` */
         openPrivacyContract(option: OpenPrivacyContractOption): void
         /** [wx.openSetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.openSetting.html)
@@ -16086,18 +16294,32 @@ wx.requestSubscribeSystemMessage({
         ): PromisifySuccessResult<T, RequestSubscribeSystemMessageOption>
         /** [wx.requirePrivacyAuthorize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.requirePrivacyAuthorize.html)
 *
-* 需要基础库： `2.33.0`
+* 需要基础库： `2.32.3`
 *
-* 支持官方和自定义隐私弹窗的主动拉起, 在自定义弹窗模式下调用会触发[onNeedPrivacyAuthorization事件](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html)
+* 模拟隐私接口调用，并触发隐私弹窗逻辑。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
+*
+* ****
+*
+* ## 具体说明：
+*
+* 调用 wx.requirePrivacyAuthorize() 时：
+*
+* - 1. 如果用户之前已经同意过隐私授权，会立即返回success回调，不会触发 wx.onNeedPrivacyAuthorization 事件。
+* - 2. 如果用户之前没有授权过，并且开发者注册了 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即触发 wx.onNeedPrivacyAuthorization 事件，然后开发者在 onNeedPrivacyAuthorization 回调中弹出自定义隐私授权弹窗，用户点了同意后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'agree' })，会触发 requirePrivacyAuthorize 的 success 回调。用户点击拒绝授权后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'disagree' }) 的话，会触发 requirePrivacyAuthorize 的 fail 回调。
+* - 3. 如果用户之前没有授权过，并且开发者没有注册 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即弹出平台提供的统一隐私授权弹窗，用户点了同意之后，会触发 requirePrivacyAuthorize 的 success 回调，用户点了拒绝后会触发 requirePrivacyAuthorize 的 fail 回调。
+* - 4. 基于上述特性，开发者可以在调用任何真实隐私接口之前调用 wx.requirePrivacyAuthorize 接口来模拟隐私接口调用，并触发隐私弹窗（包括自定义弹窗或平台弹窗）逻辑。
 *
 * **示例代码**
 *
 * ```js
-  wx.requirePrivacyAuthorize({
-      success: () => {}, // 用户同意授权
-      fail: () => {}, // 用户拒绝授权
-      complete() => {}
-  })
+wx.requirePrivacyAuthorize({
+  success: () => {
+    // 用户同意授权
+    // runGame() 继续游戏逻辑
+  },
+  fail: () => {}, // 用户拒绝授权
+  complete: () => {}
+})
 ``` */
         requirePrivacyAuthorize(option: RequirePrivacyAuthorizeOption): void
         /** [wx.reserveChannelsLive(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/channels/wx.reserveChannelsLive.html)
@@ -16232,6 +16454,16 @@ function sendSocketMessage(msg) {
         setBLEMTU<T extends SetBLEMTUOption = SetBLEMTUOption>(
             option: T
         ): PromisifySuccessResult<T, SetBLEMTUOption>
+        /** [wx.setBackgroundFetchToken(object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.setBackgroundFetchToken.html)
+         *
+         * 需要基础库： `3.0.1`
+         *
+         * 设置自定义登录态，在周期性拉取数据时带上，便于第三方服务器验证请求合法性 */
+        setBackgroundFetchToken<
+            T extends SetBackgroundFetchTokenOption = SetBackgroundFetchTokenOption
+        >(
+            option: T
+        ): PromisifySuccessResult<T, SetBackgroundFetchTokenOption>
         /** [wx.setClipboardData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/clipboard/wx.setClipboardData.html)
 *
 * 需要基础库： `1.1.0`
@@ -17051,6 +17283,14 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type CloseSocketSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type CompressImageCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type CompressImageFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type CompressImageSuccessCallback = (
+        result: CompressImageSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type ConnectSocketCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type ConnectSocketFailCallback = (res: GeneralCallbackResult) => void
@@ -17218,6 +17458,30 @@ wx.writeBLECharacteristicValue({
         result: GetBLEMTUSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetBackgroundFetchDataCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetBackgroundFetchDataFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetBackgroundFetchDataSuccessCallback = (
+        result: GetBackgroundFetchDataSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetBackgroundFetchTokenCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetBackgroundFetchTokenFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetBackgroundFetchTokenSuccessCallback = (
+        result: GetBackgroundFetchTokenSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetBatteryInfoCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetBatteryInfoFailCallback = (res: GeneralCallbackResult) => void
@@ -17330,6 +17594,14 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type GetFriendsStateDataSuccessCallback = (
         result: GetFriendsStateDataSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetFuzzyLocationCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type GetFuzzyLocationFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type GetFuzzyLocationSuccessCallback = (
+        result: GetFuzzyLocationSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetGameClubDataCompleteCallback = (res: GeneralCallbackResult) => void
@@ -17974,6 +18246,10 @@ wx.writeBLECharacteristicValue({
     type OnBLEPeripheralConnectionStateChangedCallback = (
         result: OnBLEPeripheralConnectionStateChangedListenerResult
     ) => void
+    /** 收到 backgroundFetch 数据事件的监听函数 */
+    type OnBackgroundFetchDataCallback = (
+        result: OnBackgroundFetchDataListenerResult
+    ) => void
     /** 的监听函数 */
     type OnBeKickedOutCallback = (result: OnBeKickedOutListenerResult) => void
     /** Beacon 服务状态变化事件的监听函数 */
@@ -18107,6 +18383,10 @@ wx.writeBLECharacteristicValue({
     type OnMouseMoveCallback = (result: OnMouseMoveListenerResult) => void
     /** 鼠标按键弹起事件的监听函数 */
     type OnMouseUpCallback = (result: OnMouseDownListenerResult) => void
+    /** 隐私接口需要用户授权事件的监听函数 */
+    type OnNeedPrivacyAuthorizationCallback = (
+        res: GeneralCallbackResult
+    ) => void
     /** 网络状态变化事件的监听函数 */
     type OnNetworkStatusChangeCallback = (
         result: OnNetworkStatusChangeListenerResult
@@ -18138,7 +18418,7 @@ wx.writeBLECharacteristicValue({
     type OnShareAppMessageCallback = (
         result: OnShareAppMessageListenerResult
     ) => void
-    /** 的监听函数 */
+    /** 主域接收`wx.shareMessageToFriend`接口的成功失败通知事件的监听函数 */
     type OnShareMessageToFriendCallback = (
         result: OnShareMessageToFriendListenerResult
     ) => void
@@ -18595,6 +18875,18 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type SetBLEMTUSuccessCallback = (
         result: SetBLEMTUSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type SetBackgroundFetchTokenCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type SetBackgroundFetchTokenFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type SetBackgroundFetchTokenSuccessCallback = (
+        res: GeneralCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type SetClipboardDataCompleteCallback = (res: GeneralCallbackResult) => void
