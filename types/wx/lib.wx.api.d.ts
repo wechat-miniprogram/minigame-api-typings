@@ -220,6 +220,19 @@ declare namespace WechatMinigame {
             channel: number
         ): Float32Array
     }
+    /** 需要基础库： `2.19.0`
+     *
+     * AudioParam 接口代表音频相关的参数，通常是 AudioNode（例如 GainNode.gain）的参数 */
+    interface AudioParam {
+        /** 代表被具体的 AudioNode 创建的 AudioParam 的属性的初始值（只读） */
+        defaultValue: number
+        /** 代表参数有效范围的最大可能值（只读） */
+        maxValue: number
+        /** 代表参数有效范围的最小可能值（只读） */
+        minValue: number
+        /** 当前属性的值（比如音量值或播放倍速值）（可读可写） */
+        value: number
+    }
     interface AuthPrivateMessageOption {
         /** shareTicket。可以从 wx.onShow 中获取。详情 [shareTicket](#) */
         shareTicket: string
@@ -244,9 +257,11 @@ declare namespace WechatMinigame {
     interface AuthSetting {
         /** 是否授权使用你的微信朋友信息，对应开放数据域内的 [wx.getFriendCloudStorage](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getFriendCloudStorage.html) 、[wx.getGroupCloudStorage](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getGroupCloudStorage.html) 、[wx.getGroupInfo](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getGroupInfo.html) 、[wx.getPotentialFriendList](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getPotentialFriendList.html) 、[wx.getUserCloudStorageKeys](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getUserCloudStorageKeys.html) 、[wx.getUserInfo](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/OpenDataContext-wx.getUserInfo.html)  、[GameServerManager.getFriendsStateData](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.getFriendsStateData.html) 接口，以及主域内的 [wx.getUserInteractiveStorage](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getUserInteractiveStorage.html) 接口。 */
         'scope.WxFriendInteraction'?: boolean
+        /** 是否授权模糊地理位置，对应接口 [wx.getFuzzyLocation](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html) */
+        'scope.userFuzzyLocation'?: boolean
         /** 是否授权用户信息，对应接口 [wx.getUserInfo](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.getUserInfo.html) */
         'scope.userInfo'?: boolean
-        /** 是否授权地理位置，对应接口 [wx.getLocation](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html) */
+        /** 是否授权精确地理位置，对应接口 [wx.getLocation](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html)。将废弃，请使用 scope.userFuzzyLocation 代替 */
         'scope.userLocation'?: boolean
         /** 是否授权微信运动步数，对应接口 [wx.getWeRunData](https://developers.weixin.qq.com/minigame/dev/api/open-api/werun/wx.getWeRunData.html) */
         'scope.werun'?: boolean
@@ -518,9 +533,11 @@ source.start()
          * ## 注意事项
          * - bug：从微信8.0.34开始，BufferSource在JS中如果不一直持有的话，会被客户端GC掉，GC掉之后，BufferSource如果正在播放的话会被中断。因此，建议开发者在 BufferSource.start() 开始播放之前缓存 BufferSource 并在 BufferSource.onended 的时候释放缓存。具体可参考下面示例代码中的缓存逻辑。 */
         onended?: (...args: any[]) => any
-        /** 定义音频的播放倍速，数值越大速度越快，默认速度1.0，有效范围为 0 < playbackRate <= 2.0（可读可写） */
-        playbackRate?: number
-        /** [BufferSourceNode.connect(AudioNode|AudioParam destination)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.connect.html)
+        /** [AudioParam](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioParam.html)
+         *
+         * 定义音频的播放倍速，数值越大速度越快，默认速度1.0，有效范围为 0 < playbackRate <= 2.0（可读可写） */
+        playbackRate?: AudioParam
+        /** [BufferSourceNode.connect(AudioNode|[AudioParam](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioParam.html) destination)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.connect.html)
          *
          * 连接到一个指定目标。这个指定的目标可能是另一个 AudioNode（从而将音频数据引导到下一个指定节点）或一个AudioParam, 以便上一个节点的输出数据随着时间流逝能自动地对下一个参数值进行改变 */
         connect(
@@ -1753,7 +1770,7 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         query: Record<string, string>
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](#) */
+        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -2529,12 +2546,20 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         filePath: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetFileInfoCompleteCallback
+        /** 计算文件摘要的算法
+         *
+         * 可选值：
+         * - 'md5': md5 算法;
+         * - 'sha1': sha1 算法; */
+        digestAlgorithm?: 'md5' | 'sha1'
         /** 接口调用失败的回调函数 */
         fail?: GetFileInfoFailCallback
         /** 接口调用成功的回调函数 */
         success?: GetFileInfoSuccessCallback
     }
     interface GetFileInfoSuccessCallbackResult {
+        /** 按照传入的 digestAlgorithm 计算得出的的文件摘要 */
+        digest: string
         /** 文件大小，以字节为单位 */
         size: number
         errMsg: string
@@ -2574,8 +2599,12 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         fail?: GetFuzzyLocationFailCallback
         /** 接口调用成功的回调函数 */
         success?: GetFuzzyLocationSuccessCallback
-        /** wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标 */
-        type?: string
+        /** 返回的坐标类型
+         *
+         * 可选值：
+         * - 'wgs84': 返回 gps 坐标;
+         * - 'gcj02': 返回 gcj02 坐标; */
+        type?: 'wgs84' | 'gcj02'
     }
     interface GetFuzzyLocationSuccessCallbackResult {
         /** 纬度，范围为 -90~90，负数表示南纬 */
@@ -3892,7 +3921,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         query: Record<string, string>
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
         referrerInfo: EnterOptionsGameReferrerInfo
-        /** 启动小游戏的[场景值](#) */
+        /** 启动小游戏的[场景值](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/scene.html) */
         scene: number
         /** 从微信群聊/单聊打开小程序时，chatType 表示具体微信群聊/单聊类型
          *
@@ -3915,15 +3944,6 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 分包加载成功回调事件 */
         success: (...args: any[]) => any
     }
-    interface LoadSubpackageTaskOnProgressUpdateListenerResult {
-        /** 分包下载进度百分比（iOS端为0~1的值，安卓端为0~100的值） */
-        progress: number
-        /** 预期需要下载的数据总长度，单位 Bytes */
-        totalBytesExpectedToWrite: number
-        /** 已经下载的数据长度，单位 Bytes */
-        totalBytesWritten: number
-    }
-    /** 接收端地址信息，2.18.0 起支持 */
     interface LocalInfo {
         /** 接收消息的 socket 的地址 */
         address: string
@@ -4257,11 +4277,11 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         fetchType: string
         /** 缓存数据 */
         fetchedData: string
-        /** 小程序页面路径 */
+        /** 小游戏页面路径（一般不需要传，除非使用到小游戏独立分包） */
         path: string
         /** 传给页面的 query 参数 */
         query: string
-        /** 进入小程序的场景值 */
+        /** 进入小游戏的场景值 */
         scene: number
         /** 客户端拿到缓存数据的时间戳 */
         timeStamp: number
@@ -5572,7 +5592,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
      * 网络请求过程中的一些异常信息，例如httpdns重试等 */
     interface RequestException {
         /** 本次请求底层失败信息，所有失败信息均符合Errno错误码 */
-        reasons: ExceptionReason
+        reasons: ExceptionReason[]
         /** 本次请求底层重试次数 */
         retryCount: number
     }
@@ -6919,7 +6939,7 @@ wx.getSetting({
         albumAuthorized: boolean
         /** 需要基础库： `1.8.0`
          *
-         * 设备性能等级（仅 Android）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不到50） */
+         * 设备性能等级（仅 Android）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好）<br> 注意：性能等级当前仅反馈真机机型，暂不支持 IDE 模拟器机型 */
         benchmarkLevel: number
         /** 需要基础库： `2.6.0`
          *
@@ -7057,6 +7077,14 @@ wx.getSetting({
         locationEnabled: boolean
         /** Wi-Fi 的系统开关 */
         wifiEnabled: boolean
+    }
+    interface TCPSocketOnMessageListenerResult {
+        /** 接收端地址信息 */
+        localInfo: LocalInfo
+        /** 收到的消息 */
+        message: ArrayBuffer
+        /** 发送端地址信息 */
+        remoteInfo: RemoteInfo
     }
     /** 需要基础库： `2.30.0`
 *
@@ -10970,7 +10998,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听分包加载进度变化事件 */
         onProgressUpdate(
             /** 分包加载进度变化事件的监听函数 */
-            listener: LoadSubpackageTaskOnProgressUpdateCallback
+            listener: PreDownloadSubpackageTaskOnProgressUpdateCallback
         ): void
     }
     interface LogManager {
@@ -11465,6 +11493,127 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 通过 WebSocket 连接发送数据 */
         send(option: SocketTaskSendOption): void
     }
+    interface TCPSocket {
+        /** [TCPSocket.offBindWifi(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offBindWifi.html)
+*
+* 需要基础库： `3.1.1`
+*
+* 移除当一个 socket 绑定当前 wifi 网络成功时触发该事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+TCPSocket.onBindWifi(listener)
+TCPSocket.offBindWifi(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offBindWifi(
+            /** onBindWifi 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffBindWifiCallback
+        ): void
+        /** [TCPSocket.offClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offClose.html)
+*
+* 移除一旦 socket 完全关闭就发出该事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+TCPSocket.onClose(listener)
+TCPSocket.offClose(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offClose(
+            /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: UDPSocketOffCloseCallback
+        ): void
+        /** [TCPSocket.offConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offConnect.html)
+*
+* 移除当一个 socket 连接成功建立的时候触发该事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+TCPSocket.onConnect(listener)
+TCPSocket.offConnect(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offConnect(
+            /** onConnect 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffConnectCallback
+        ): void
+        /** [TCPSocket.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offError.html)
+*
+* 移除当错误发生时触发的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+TCPSocket.onError(listener)
+TCPSocket.offError(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offError(
+            /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: UDPSocketOffErrorCallback
+        ): void
+        /** [TCPSocket.offMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offMessage.html)
+*
+* 移除当接收到数据的时触发该事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+TCPSocket.onMessage(listener)
+TCPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offMessage(
+            /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: TCPSocketOffMessageCallback
+        ): void
+        /** [TCPSocket.onBindWifi(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onBindWifi.html)
+         *
+         * 需要基础库： `3.1.1`
+         *
+         * 监听当一个 socket 绑定当前 wifi 网络成功时触发该事件 */
+        onBindWifi(
+            /** 当一个 socket 绑定当前 wifi 网络成功时触发该事件的监听函数 */
+            listener: OnBindWifiCallback
+        ): void
+        /** [TCPSocket.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onClose.html)
+         *
+         * 监听一旦 socket 完全关闭就发出该事件 */
+        onClose(
+            /** 一旦 socket 完全关闭就发出该事件的监听函数 */
+            listener: UDPSocketOnCloseCallback
+        ): void
+        /** [TCPSocket.onConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onConnect.html)
+         *
+         * 监听当一个 socket 连接成功建立的时候触发该事件 */
+        onConnect(
+            /** 当一个 socket 连接成功建立的时候触发该事件的监听函数 */
+            listener: OnConnectCallback
+        ): void
+        /** [TCPSocket.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onError.html)
+         *
+         * 监听当错误发生时触发 */
+        onError(
+            /** 的监听函数 */
+            listener: UDPSocketOnErrorCallback
+        ): void
+        /** [TCPSocket.onMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onMessage.html)
+         *
+         * 监听当接收到数据的时触发该事件 */
+        onMessage(
+            /** 当接收到数据的时触发该事件的监听函数 */
+            listener: TCPSocketOnMessageCallback
+        ): void
+    }
     interface UDPSocket {
         /** [UDPSocket.close()](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.close.html)
          *
@@ -11538,7 +11687,7 @@ UDPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offMessage(
             /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffMessageCallback
+            listener?: UDPSocketOffMessageCallback
         ): void
         /** [UDPSocket.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.onClose.html)
          *
@@ -12004,7 +12153,7 @@ console.log(extConfig)
         getExtConfigSync(): IAnyObject
         /** [Object wx.getLaunchOptionsSync()](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.getLaunchOptionsSync.html)
          *
-         * 获取小游戏冷启动时的参数。热启动参数通过 [wx.onShow](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.onShow.html) 接口获取。
+         * 获取小游戏冷启动时的参数。热启动参数通过 [wx.onShow](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.onShow.html) 或 [wx.getEnterOptionsSync](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.getEnterOptionsSync.html) 接口获取。
          *
          * **返回有效 referrerInfo 的场景**
          *
@@ -12542,11 +12691,23 @@ wx.connectSocket({
   url: 'wss://example.qq.com',
   header:{
     'content-type': 'application/json'
-  },
-  protocols: ['protocol1']
+  }
 })
 ``` */
         connectSocket(option: ConnectSocketOption): SocketTask
+        /** [[TCPSocket](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.html) wx.createTCPSocket()](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/wx.createTCPSocket.html)
+         *
+         * 需要基础库： `3.1.1`
+         *
+         * 创建一个 TCP Socket 实例。使用前请注意阅读[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)。
+         *
+         * **连接限制**
+         *
+         * - 允许与局域网内的非本机 IP 通信
+         * - 允许与配置过的服务器域名通信，详见[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)
+         * - 禁止与以下端口号连接：`1024 以下` `1099` `1433` `1521` `1719` `1720` `1723` `2049` `2375` `3128` `3306` `3389` `3659` `4045` `5060` `5061` `5432` `5984` `6379` `6000` `6566` `7001` `7002` `8000-8100` `8443` `8888` `9200` `9300` `10051` `10080` `11211` `27017` `27018` `27019`
+         * - 每 5 分钟内最多创建 20 个 TCPSocket */
+        createTCPSocket(): TCPSocket
         /** [[UDPSocket](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.html) wx.createUDPSocket()](https://developers.weixin.qq.com/minigame/dev/api/network/udp/wx.createUDPSocket.html)
          *
          * 需要基础库： `2.7.0`
@@ -12800,7 +12961,7 @@ wx.authPrivateMessage({
 * **注意事项**
 *
 * - 小游戏内使用 `wx.authorize({scope: "scope.userInfo"})`，不会弹出授权窗口，请使用 [wx.createUserInfoButton](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.createUserInfoButton.html)
-* - 需要授权 `scope.userLocation` 时必须[配置地理位置用途说明](https://developers.weixin.qq.com/minigame/dev/reference/configuration/app.html#permission)。
+* - 需要授权 `scope.userFuzzyLocation` 时必须[配置地理位置用途说明](https://developers.weixin.qq.com/minigame/dev/reference/configuration/app.html#permission)。
 *
 * **示例代码**
 *
@@ -13400,7 +13561,7 @@ if (wx.getExtConfig) {
         getFriendCloudStorage(option: GetFriendCloudStorageOption): void
         /** [wx.getFuzzyLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html)
 *
-* 需要基础库： `3.0.1`
+* 需要基础库： `2.25.0`
 *
 * 获取当前的模糊地理位置。
 *
@@ -13538,6 +13699,8 @@ wx.getLocalIPAddress({
         getLocalIPAddress(option: GetLocalIPAddressOption): void
         /** [wx.getLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getLocation.html)
 *
+* @deprecated 基础库版本 [3.0.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.getFuzzyLocation](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html) 替换
+*
 * 获取当前的地理位置、速度。当用户离开小程序后，此接口无法调用。开启高精度定位，接口耗时会增加，可指定 highAccuracyExpireTime 作为超时时间。地图相关使用的坐标格式应为 gcj02。
 *  基础库 `2.17.0` 版本起 `wx.getLocation` 增加调用频率限制，[相关公告](https://developers.weixin.qq.com/community/develop/doc/000aee91a98d206bc6dbe722b51801)。
 *
@@ -13591,6 +13754,14 @@ wx.getNetworkType({
 *
 * 查询隐私授权情况。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
 *
+* ****
+*
+* ## 具体说明：
+*
+* 1. 一定要调用 wx.getPrivacySetting 接口吗？
+*
+*   - 不是，wx.getPrivacySetting 只是一个辅助接口，可以根据实际情况选择使用。
+*
 * **示例代码**
 *
 * ```js
@@ -13600,7 +13771,7 @@ wx.getPrivacySetting({
     // 返回结果为: res = { needAuthorization: true/false, privacyContractName: '《xxx隐私保护指引》' }
   },
   fail: () => {},
-  complete() => {}
+  complete: () => {}
 })
 ``` */
         getPrivacySetting(option: GetPrivacySettingOption): void
@@ -13667,7 +13838,7 @@ wx.getSetting({
 *
 * 需要基础库： `1.1.0`
 *
-* 获取转发详细信息
+* 获取转发详细信息（主要是获取群ID）。 从群聊内的小程序消息卡片打开小程序时，调用此接口才有效。从基础库 v2.17.3 开始，推荐用 [wx.getGroupEnterInfo](https://developers.weixin.qq.com/minigame/dev/api/open-api/group/wx.getGroupEnterInfo.html) 替代此接口。
 *
 * **示例代码**
 *
@@ -15374,7 +15545,7 @@ wx.onKeyboardHeightChange(res => {
 *
 * 需要基础库： `2.32.3`
 *
-* 监听隐私接口需要用户授权事件。小游戏注册该事件监听后，会启用自定义隐私授权弹窗模式，当需要用户进行隐私授权时会触发该事件。触发该事件时，开发者需要弹出隐私协议说明，并在用户同意或拒绝授权后调用回调接口 resolve 进行上报。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
+* 监听隐私接口需要用户授权事件。小游戏注册该事件监听后，会启用自定义隐私授权弹窗模式，当需要用户进行隐私授权时会触发该事件。触发该事件时，开发者需要弹出隐私协议说明，并在用户同意或拒绝授权后调用回调接口 resolve 触发原隐私接口继续执行。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
 *
 * ****
 *
@@ -15382,7 +15553,23 @@ wx.onKeyboardHeightChange(res => {
 *
 * ### function resolve
 *
-* resolve 是 onNeedPrivacyAuthorization 的回调参数，是一个接口函数, 调用 resolve 将上报用户的隐私授权状态并继续执行原隐私接口，例如 resolve({ event: 'agree' })
+* resolve 是 onNeedPrivacyAuthorization 的首个回调参数，是一个接口函数。
+*
+* 当触发 onNeedPrivacyAuthorization 事件时，触发该事件的隐私接口会处于 pending 状态。
+*
+* 如果调用 resolve({ event:'agree' })，则触发当前 onNeedPrivacyAuthorization 事件的原隐私接口会继续执行。
+*
+* 如果调用 resolve({ event: 'disagree' })，则触发当前 onNeedPrivacyAuthorization 事件的原隐私接口会失败并返回 `API:fail privacy permission is not authorized` 的错误信息。
+*
+* 在调用 resolve({ event: 'agree'/'disagree' }) 之前，开发者可以调用 resolve({ event: 'exposureAuthorization' }) 把隐私弹窗曝光告知平台。
+*
+* ### Object eventInfo
+*
+* eventInfo 是 onNeedPrivacyAuthorization 的第二个回调参数，表示触发本次 onNeedPrivacyAuthorization 事件的关联信息
+*
+* | 属性 | 类型 | 说明 |
+* | ---- | ---- | ---- |
+* | referrer | string | 触发本次 onNeedPrivacyAuthorization 事件的接口或组件名（例如："getUserInfo", "UserInfoButton.onTap"） |
 *
 * ****
 *
@@ -15410,17 +15597,21 @@ wx.onKeyboardHeightChange(res => {
 *   - 1. 调用隐私相关接口（比如 wx.getUserInfo、wx.getClipboardData），并且用户还未同意过隐私协议时
 *   - 2. 调用 wx.requirePrivacyAuthorize 接口来模拟隐私接口调用，并且用户还未同意过隐私协议时
 *   - 3. 如果用户已经同意过隐私协议，则不会再触发 onNeedPrivacyAuthorization 事件
-* - 4. 当触发 onNeedPrivacyAuthorization 事件时，触发该事件的隐私接口会处于 pending 状态，等待用户授权后才会继续执行，此时开发者需要弹出自定义隐私弹窗，并在用户点击同意后调用回调接口 resolve 进行上报，上报后，触发该事件的隐私接口（比如 wx.getUserInfo、wx.getClipboardData）才会继续执行。
+* - 4. 当触发 onNeedPrivacyAuthorization 事件时，触发该事件的隐私接口会处于 pending 状态，等待用户授权后才会继续执行，此时开发者需要弹出自定义隐私弹窗，并在用户点击同意/拒绝后调用回调接口 resolve，触发该事件的隐私接口才会继续执行。
 * - 5. 开发者必须在用户产生点击操作时调用 resolve 接口
 * - 6. wx.onNeedPrivacyAuthorization 是覆盖式注册监听，若重复注册监听，则只有最后一次注册会生效。
+* - 7. 一定要注册 wx.onNeedPrivacyAuthorization 监听以及调用 resolve 吗？
+*   - 1. 不是的，如果使用小游戏官方弹窗，不使用自定义弹窗，那就不需要 wx.onNeedPrivacyAuthorization。
+*   - 2. 但如果注册了 wx.onNeedPrivacyAuthorization 监听，则一定要调用 resolve 接口。
 *
 * **示例代码**
 *
 * ```js
-wx.onNeedPrivacyAuthorization(resolve => {
+wx.onNeedPrivacyAuthorization((resolve, eventInfo) => {
+  console.log('触发本次事件的接口是：' + eventInfo.referrer)
   // ------ 自定义弹窗逻辑 ------ //
   showCustomPopup()
-  // -------上报逻辑 ------- //
+  // -------弹窗后根据用户操作，进行以下逻辑逻辑 ------- //
   // 开发者弹出自定义的隐私弹窗，并调用 resolve 告知平台已经弹窗
   resolve({ event: 'exposureAuthorization' })
   // 用户点击同意后，开发者调用 resolve 告知平台用户已经同意
@@ -15786,13 +15977,21 @@ wx.openCustomerServiceChat({
 *
 * 跳转至隐私协议页面。隐私合规开发指南详情可见[《小游戏隐私合规开发指南》](https://developers.weixin.qq.com/community/develop/doc/000aa25cf1c8a0e64310ac3ef66401?highLine=%25E9%259A%2590%25E7%25A7%2581)
 *
+* ****
+*
+* ## 具体说明：
+*
+* - 1. 一定要调用 wx.openPrivacyContract 接口吗？
+*
+*   - 不是。开发者也可以选择在小游戏内自行展示完整的隐私协议。但推荐使用该接口。
+*
 * **示例代码**
 *
 * ```js
 wx.openPrivacyContract({
   success: () => {}, // 打开成功
   fail: () => {}, // 打开失败
-  complete() => {}
+  complete: () => {}
 })
 ``` */
         openPrivacyContract(option: OpenPrivacyContractOption): void
@@ -16084,6 +16283,8 @@ wx.reportScene({
 *
 * 需要基础库： `2.11.0`
 *
+* @warning **接口已废弃**
+*
 * 发起米大师朋友礼物索要。接口用法详见 [小游戏礼物索要接入指南](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/friend-payment.html)
 *
 * **示例代码**
@@ -16302,12 +16503,14 @@ wx.requestSubscribeSystemMessage({
 *
 * ## 具体说明：
 *
-* 调用 wx.requirePrivacyAuthorize() 时：
+* 1. 调用 wx.requirePrivacyAuthorize() 时：
+*   - 1. 如果用户之前已经同意过隐私授权，会立即返回success回调，不会触发 wx.onNeedPrivacyAuthorization 事件。
+*   - 2. 如果用户之前没有授权过，并且开发者注册了 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即触发 wx.onNeedPrivacyAuthorization 事件，然后开发者在 onNeedPrivacyAuthorization 回调中弹出自定义隐私授权弹窗，用户点了同意后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'agree' })，会触发 requirePrivacyAuthorize 的 success 回调。用户点击拒绝授权后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'disagree' }) 的话，会触发 requirePrivacyAuthorize 的 fail 回调。
+*   - 3. 如果用户之前没有授权过，并且开发者没有注册 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即弹出平台提供的统一隐私授权弹窗，用户点了同意之后，会触发 requirePrivacyAuthorize 的 success 回调，用户点了拒绝后会触发 requirePrivacyAuthorize 的 fail 回调。
+*   - 4. 基于上述特性，开发者可以在调用任何真实隐私接口之前调用 wx.requirePrivacyAuthorize 接口来模拟隐私接口调用，并触发隐私弹窗（包括自定义弹窗或平台弹窗）逻辑。
 *
-* - 1. 如果用户之前已经同意过隐私授权，会立即返回success回调，不会触发 wx.onNeedPrivacyAuthorization 事件。
-* - 2. 如果用户之前没有授权过，并且开发者注册了 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即触发 wx.onNeedPrivacyAuthorization 事件，然后开发者在 onNeedPrivacyAuthorization 回调中弹出自定义隐私授权弹窗，用户点了同意后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'agree' })，会触发 requirePrivacyAuthorize 的 success 回调。用户点击拒绝授权后开发者调用 wx.onNeedPrivacyAuthorization 的回调接口 resolve({ event: 'disagree' }) 的话，会触发 requirePrivacyAuthorize 的 fail 回调。
-* - 3. 如果用户之前没有授权过，并且开发者没有注册 [wx.onNeedPrivacyAuthorization()](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.onNeedPrivacyAuthorization.html) 事件监听，就会立即弹出平台提供的统一隐私授权弹窗，用户点了同意之后，会触发 requirePrivacyAuthorize 的 success 回调，用户点了拒绝后会触发 requirePrivacyAuthorize 的 fail 回调。
-* - 4. 基于上述特性，开发者可以在调用任何真实隐私接口之前调用 wx.requirePrivacyAuthorize 接口来模拟隐私接口调用，并触发隐私弹窗（包括自定义弹窗或平台弹窗）逻辑。
+* 2. 一定要调用 wx.requirePrivacyAuthorize 接口吗？
+*   - 不是，wx.requirePrivacyAuthorize 只是一个辅助接口，可以根据实际情况选择使用。当开发者希望在调用隐私接口之前就主动弹出隐私弹窗时，就可以使用这个接口。
 *
 * **示例代码**
 *
@@ -17958,10 +18161,6 @@ wx.writeBLECharacteristicValue({
     type KickoutMemberFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type KickoutMemberSuccessCallback = (res: GeneralCallbackResult) => void
-    /** 分包加载进度变化事件的监听函数 */
-    type LoadSubpackageTaskOnProgressUpdateCallback = (
-        result: LoadSubpackageTaskOnProgressUpdateListenerResult
-    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type LoginCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -18046,6 +18245,8 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onBeKickedOut 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffBeKickedOutCallback = (result: OnBeKickedOutListenerResult) => void
+    /** onBindWifi 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffBindWifiCallback = (res: GeneralCallbackResult) => void
     /** onBroadcast 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffBroadcastCallback = (result: OnBroadcastListenerResult) => void
     /** onCanplay 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -18072,6 +18273,8 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onCompassChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffCompassChangeCallback = (res: GeneralCallbackResult) => void
+    /** onConnect 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffConnectCallback = (res: GeneralCallbackResult) => void
     /** onDeviceMotionChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffDeviceMotionChangeCallback = (res: GeneralCallbackResult) => void
     /** onDeviceOrientationChange 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -18136,8 +18339,6 @@ wx.writeBLECharacteristicValue({
     type OffMemoryWarningCallback = (
         result: OnMemoryWarningListenerResult
     ) => void
-    /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffMessageCallback = (result: UDPSocketOnMessageListenerResult) => void
     /** onMouseDown 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffMouseDownCallback = (result: OnMouseDownListenerResult) => void
     /** onMouseMove 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -18258,6 +18459,8 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** Beacon 设备更新事件的监听函数 */
     type OnBeaconUpdateCallback = (result: OnBeaconUpdateListenerResult) => void
+    /** 当一个 socket 绑定当前 wifi 网络成功时触发该事件的监听函数 */
+    type OnBindWifiCallback = (res: GeneralCallbackResult) => void
     /** 蓝牙适配器状态变化事件的监听函数 */
     type OnBluetoothAdapterStateChangeCallback = (
         result: OnBluetoothAdapterStateChangeListenerResult
@@ -18300,6 +18503,8 @@ wx.writeBLECharacteristicValue({
     type OnCompassChangeCallback = (
         result: OnCompassChangeListenerResult
     ) => void
+    /** 当一个 socket 连接成功建立的时候触发该事件的监听函数 */
+    type OnConnectCallback = (res: GeneralCallbackResult) => void
     /** 用户点击右上角菜单的「复制链接」按钮时触发的事件的监听函数 */
     type OnCopyUrlCallback = (result: OnCopyUrlListenerResult) => void
     /** 设备方向变化事件的监听函数 */
@@ -19204,6 +19409,14 @@ wx.writeBLECharacteristicValue({
     type StopGyroscopeFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type StopGyroscopeSuccessCallback = (res: GeneralCallbackResult) => void
+    /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type TCPSocketOffMessageCallback = (
+        result: TCPSocketOnMessageListenerResult
+    ) => void
+    /** 当接收到数据的时触发该事件的监听函数 */
+    type TCPSocketOnMessageCallback = (
+        result: TCPSocketOnMessageListenerResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type ToTempFilePathCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -19222,6 +19435,10 @@ wx.writeBLECharacteristicValue({
     type UDPSocketOffCloseCallback = (res: GeneralCallbackResult) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type UDPSocketOffErrorCallback = (result: GeneralCallbackResult) => void
+    /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type UDPSocketOffMessageCallback = (
+        result: UDPSocketOnMessageListenerResult
+    ) => void
     type UDPSocketOnCloseCallback = (res: GeneralCallbackResult) => void
     type UDPSocketOnErrorCallback = (result: GeneralCallbackResult) => void
     /** 收到消息的事件的监听函数 */
