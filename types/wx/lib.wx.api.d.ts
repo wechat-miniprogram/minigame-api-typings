@@ -466,6 +466,10 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** 用于判断距离设备 1 米时 RSSI 大小的参考值 */
         measuredPower?: number
     }
+    interface BindWifiOption {
+        /** 当前 wifi 网络的 BSSID ，可通过 wx.getConnectedWifi 获取 */
+        BSSID: string
+    }
     interface BlueToothDevice {
         /** 当前蓝牙设备的信号强度，单位 dBm */
         RSSI: number
@@ -490,6 +494,19 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
         deviceId: string
         /** 蓝牙设备名称，某些设备可能没有 */
         name: string
+    }
+    /** 需要基础库： `2.28.0`
+     *
+     * 人体检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/body.html)。 */
+    interface BodyTrack {
+        /** 需要基础库： `2.28.0`
+         *
+         * 人体检测模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测;
+         * - 2: 静态图片检测; */
+        mode: 1 | 2
     }
     interface BroadcastInRoomOption {
         /** 广播内容 */
@@ -983,12 +1000,6 @@ source.start()
         /** 压缩后图片的临时文件路径 (本地路径) */
         tempFilePath: string
         errMsg: string
-    }
-    interface ConnectOption {
-        /** 要发消息的地址 */
-        address: string
-        /** 要发送消息的端口号 */
-        port: number
     }
     interface ConnectSocketOption {
         /** 开发者服务器 wss 接口地址 */
@@ -1627,6 +1638,19 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
             | 'latin1'
             | 'gbk'
     }
+    /** 需要基础库： `3.0.0`
+     *
+     * 深度识别配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/depth.html)。 */
+    interface DepthTrack {
+        /** 需要基础库： `3.0.0`
+         *
+         * 深度识别模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测;
+         * - 2: 静态图片检测; */
+        mode: 1 | 2
+    }
     /** 描述符数据 */
     interface Descriptor {
         /** Descriptor 的 UUID */
@@ -1642,6 +1666,70 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         read?: boolean
         /** 写 */
         write?: boolean
+    }
+    interface DetectBodyOption {
+        /** 人脸图像像素点数据，每四项表示一个像素点的 RGBA */
+        frameBuffer: ArrayBuffer
+        /** 图像高度 */
+        height: number
+        /** 图像宽度 */
+        width: number
+        /** 评分阈值。正常情况传入 0.8 即可。 */
+        scoreThreshold?: number
+        /** 图像源类型。正常情况传入 1 即可。当输入的图片是来自一个连续视频的每一帧图像时，sourceType 传入 0 会得到更优的效果
+         *
+         * 可选值：
+         * - 1: 表示输入的图片是随机的图片;
+         * - 0: 表示输入的图片是来自一个连续视频的每一帧图像; */
+        sourceType?: 1 | 0
+    }
+    interface DetectDepthOption {
+        /** 需要识别深度的图像像素点数据，每四项表示一个像素点的 RGBA */
+        frameBuffer: ArrayBuffer
+        /** 图像高度 */
+        height: number
+        /** 图像宽度 */
+        width: number
+    }
+    interface DetectFaceOption {
+        /** 人脸图像像素点数据，每四项表示一个像素点的 RGBA */
+        frameBuffer: ArrayBuffer
+        /** 图像高度 */
+        height: number
+        /** 图像宽度 */
+        width: number
+        /** 算法模型类型。正常情况传入 1 即可。0、1、2 分别表示小、中、大模型，模型越大识别准确率越高，但资源占用也越高。建议根据用户设备性能进行选择。
+         *
+         * 可选值：
+         * - 0: 小模型;
+         * - 1: 中模型;
+         * - 2: 大模型; */
+        modelModel?: 0 | 1 | 2
+        /** 评分阈值。正常情况传入 0.8 即可。 */
+        scoreThreshold?: number
+        /** 图像源类型。正常情况传入 1 即可。当输入的图片是来自一个连续视频的每一帧图像时，sourceType 传入 0 会得到更优的效果
+         *
+         * 可选值：
+         * - 1: 表示输入的图片是随机的图片;
+         * - 0: 表示输入的图片是来自一个连续视频的每一帧图像; */
+        sourceType?: 1 | 0
+    }
+    interface DetectHandOption {
+        /** 人脸图像像素点数据，每四项表示一个像素点的 RGBA */
+        frameBuffer: ArrayBuffer
+        /** 图像高度 */
+        height: number
+        /** 图像宽度 */
+        width: number
+        /** 算法检测模式
+         *
+         * 可选值：
+         * - 0: 检测模式，输出框和点;
+         * - 1: 手势模式，输出框和手势分类;
+         * - 2: 结合0和1模式，输出框、点、手势分类; */
+        algoMode?: 0 | 1 | 2
+        /** 评分阈值。正常情况传入 0.8 即可。 */
+        scoreThreshold?: number
     }
     interface DeviceInfo {
         /** 应用（微信APP）二进制接口类型（仅 Android 支持） */
@@ -1701,6 +1789,10 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         /** 临时文件路径 (本地路径)。没传入 filePath 指定文件存储路径时会返回，下载后的文件会存储到一个临时文件 */
         tempFilePath: string
         errMsg: string
+    }
+    interface DownloadTaskOnHeadersReceivedListenerResult {
+        /** 开发者服务器返回的 HTTP Response Header */
+        header: IAnyObject
     }
     interface DownloadTaskOnProgressUpdateListenerResult {
         /** 下载进度百分比 */
@@ -1830,6 +1922,13 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         /** 从文件指定位置开始读，如果不指定，则从文件头开始读。读取的范围应该是左闭右开区间 [position, position+length)。有效范围：[0, fileLength - 1]。单位：byte */
         position?: number
     }
+    /** 错误 */
+    interface Error {
+        /** 错误 */
+        message: string
+        /** 错误调用堆栈 */
+        stack: string
+    }
     /** 本次请求底层失败信息，所有失败信息均符合Errno错误码 */
     interface ExceptionReason {
         /** 错误原因 */
@@ -1918,6 +2017,19 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         /** 脸部中心点纵坐标，检测不到人脸则为 -1 */
         y: number
         errMsg: string
+    }
+    /** 需要基础库： `2.25.0`
+     *
+     * 人脸检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)。安卓微信8.0.25开始支持，iOS微信8.0.24开始支持。 */
+    interface FaceTrack {
+        /** 需要基础库： `2.25.0`
+         *
+         * 人脸检测模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测;
+         * - 2: 静态图片检测; */
+        mode: 1 | 2
     }
     /** 用户点击后打开意见反馈页面的按钮 */
     interface FeedbackButton {
@@ -2672,7 +2784,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         iv: string
     }
     interface GetGroupInfoOption {
-        /** 群 openGId，可通过 `wx.getShareInfo` 获取 */
+        /** 群 openGId，可通过 `wx.getGroupEnterInfo` 或 `wx.getShareInfo` 获取 */
         openGId: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetGroupInfoCompleteCallback
@@ -2933,6 +3045,23 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetScreenBrightnessSuccessCallbackOption {
         /** 屏幕亮度值，范围 0 ~ 1，0 最暗，1 最亮 */
         value: number
+        errMsg: string
+    }
+    interface GetScreenRecordingStateOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetScreenRecordingStateCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetScreenRecordingStateFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetScreenRecordingStateSuccessCallback
+    }
+    interface GetScreenRecordingStateSuccessCallbackResult {
+        /** 录屏状态
+         *
+         * 可选值：
+         * - 'on': 开启;
+         * - 'off': 关闭; */
+        state: 'on' | 'off'
         errMsg: string
     }
     interface GetSettingOption {
@@ -3336,6 +3465,19 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** grid(格子) 广告组件的宽度。最小 300，最大至 `屏幕宽度`（屏幕宽度可以通过 wx.getSystemInfoSync() 获取）。 */
         width: number
     }
+    /** 需要基础库： `2.28.0`
+     *
+     * 手势检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/hand.html)。 */
+    interface HandTrack {
+        /** 需要基础库： `2.28.0`
+         *
+         * 手势检测模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测;
+         * - 2: 静态图片检测; */
+        mode: 1 | 2
+    }
     interface HideKeyboardOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: HideKeyboardCompleteCallback
@@ -3379,6 +3521,11 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         noConflict?: boolean
         /** 接口调用成功的回调函数 */
         success?: HideToastSuccessCallback
+    }
+    /** 检测结果 */
+    interface HitTestRes {
+        /** 包含位置、旋转、放缩信息的矩阵，以列为主序 */
+        transform: Float32Array
     }
     /** 图片对象 */
     interface Image {
@@ -4224,6 +4371,19 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * 设置特征订阅类型，有效值有 `notification` 和 `indication` */
         type?: string
     }
+    /** 需要基础库： `2.27.0`
+     *
+     * OCR检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/ocr.html)。 */
+    interface OCRTrack {
+        /** 需要基础库： `2.27.0`
+         *
+         * OCR检测模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测;
+         * - 2: 静态图片检测; */
+        mode: 1 | 2
+    }
     interface OnAccelerometerChangeListenerResult {
         /** X 轴 */
         x: number
@@ -4409,10 +4569,6 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 需要传递给接力客户端的 query */
         query: string
     }
-    interface OnHeadersReceivedListenerResult {
-        /** 开发者服务器返回的 HTTP Response Header */
-        header: IAnyObject
-    }
     interface OnInviteListenerResult {
         /** 邀请者附带的额外信息 */
         data: string
@@ -4562,6 +4718,14 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         udpReliabilityStrategy: number
         /** 最近更新时间 */
         updateTimestamp: number
+    }
+    interface OnScreenRecordingStateChangedListenerResult {
+        /** 录屏状态
+         *
+         * 可选值：
+         * - 'start': 开始录屏;
+         * - 'stop': 结束录屏; */
+        state: 'start' | 'stop'
     }
     interface OnShareAppMessageListenerResult {
         /** 转发显示图片的链接，可以是网络图片路径或本地图片文件路径或相对代码包根目录的图片文件路径。显示图片长宽比是 5:4 */
@@ -4867,7 +5031,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         sendMessagePath?: string
         /** 会话内消息卡片标题 */
         sendMessageTitle?: string
-        /** 会话来源 */
+        /** 会话来源。该字段会在进入客服会话时透传给开发者配置好的后台服务。该字段（utf-8编码）最长不得超过 1000 个字节（不是字符串长度），超过将被截断。 */
         sessionFrom?: string
         /** 是否显示会话内消息卡片，设置此参数为 true，用户进入客服会话会在右下角显示"可能要发送的小程序"提示，用户点击后可以快速发送小程序消息 */
         showMessageCard?: boolean
@@ -5131,6 +5295,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
      *
      * Canvas 2D API 的接口 Path2D 用来声明路径，此路径稍后会被 CanvasRenderingContext2D 对象使用。允许你在 canvas 中根据需要创建可以保留并重用的路径。 */
     interface Path2D {}
+    /** 平面跟踪配置 */
+    interface PlaneTrack {
+        /** 平面跟踪配置模式
+         *
+         * 可选值：
+         * - 1: 检测横向平面;
+         * - 2: 检测纵向平面，只有 v2 版本支持;
+         * - 3: 检测横向和纵向平面，只有 v2 版本支持; */
+        mode: 1 | 2 | 3
+    }
     /** 插件账号信息（仅在插件中调用时包含这一项） */
     interface Plugin {
         /** 插件 appId */
@@ -5776,6 +5950,14 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
             | 'DELETE'
             | 'TRACE'
             | 'CONNECT'
+        /** 需要基础库： `3.2.2`
+         *
+         * 重定向拦截策略。（目前仅安卓和iOS端支持，开发者工具和PC端将在后续支持）
+         *
+         * 可选值：
+         * - 'follow': 不拦截重定向，即客户端自动处理重定向;
+         * - 'manual': 拦截重定向。开启后，当 http 状态码为 3xx 时客户端不再自动重定向，而是触发 onHeadersReceived 回调，并结束本次 request 请求。可通过 onHeadersReceived 回调中的 header.Location 获取重定向的 url; */
+        redirect?: 'follow' | 'manual'
         /** 需要基础库： `1.7.0`
          *
          * 响应的数据类型
@@ -5912,6 +6094,14 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         statusCode: number
         errMsg: string
     }
+    interface RequestTaskOnHeadersReceivedListenerResult {
+        /** 开发者服务器返回的 cookies，格式为字符串数组 */
+        cookies: string[]
+        /** 开发者服务器返回的 HTTP Response Header */
+        header: IAnyObject
+        /** 开发者服务器返回的 HTTP 状态码 （目前开发者工具上不会返回 statusCode 字段，可用真机查看该字段，后续将会支持） */
+        statusCode: number
+    }
     interface RequirePrivacyAuthorizeOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: RequirePrivacyAuthorizeCompleteCallback
@@ -6026,6 +6216,14 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          * - 0: 普通成员;
          * - 1: 房主; */
         role: 0 | 1
+    }
+    interface RunOCROption {
+        /** 待识别图像的像素点数据，每四项表示一个像素点的 RGBA */
+        frameBuffer: ArrayBuffer
+        /** 图像高度 */
+        height: number
+        /** 图像宽度 */
+        width: number
     }
     interface SafeArea {
         /** 安全区域右下角纵坐标 */
@@ -6332,6 +6530,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 接口调用成功的回调函数 */
         success?: SetUserCloudStorageSuccessCallback
     }
+    interface SetVisualEffectOnCaptureOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: SetVisualEffectOnCaptureCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: SetVisualEffectOnCaptureFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: SetVisualEffectOnCaptureSuccessCallback
+        /** 截屏/录屏时的表现，仅支持 none / hidden，传入 hidden 则表示在截屏/录屏时隐藏屏幕 */
+        visualEffect?: string
+    }
     interface SetWindowSizeOption {
         /** 窗口高度，以像素为单位 */
         height: number
@@ -6396,7 +6604,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         complete?: ShareMessageToFriendCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: ShareMessageToFriendFailCallback
-        /** 转发显示图片的链接，可以是网络图片路径或本地图片文件路径或相对代码包根目录的图片文件路径。显示图片长宽比是 5:4 */
+        /** 转发显示图片的链接，可使用本地图片文件路径或相对代码包根目录的图片文件路径，不可使用网络图片。如需使用网络图片，可先在游戏域调用 wx.downloadFile 下载到本地后，调用 OpenDataContext.postMessage 发送本地图片路径到开放数据域使用。显示图片长宽比是 5:4 */
         imageUrl?: string
         /** 审核通过的图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imageUrlId?: string
@@ -6534,8 +6742,20 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         path: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: ShowShareImageMenuCompleteCallback
+        /** 需要基础库： `3.2.0`
+         *
+         * 从消息小程序入口打开小程序的路径，如果当前页面允许分享给朋友，则默认为当前页面路径，否则默认为小程序首页 */
+        entrancePath?: string
         /** 接口调用失败的回调函数 */
         fail?: ShowShareImageMenuFailCallback
+        /** 需要基础库： `3.2.0`
+         *
+         * 分享的图片消息是否要带小程序入口 */
+        needShowEntrance?: string
+        /** 需要基础库： `3.2.0`
+         *
+         * 分享样式，可选 v2 */
+        style?: string
         /** 接口调用成功的回调函数 */
         success?: ShowShareImageMenuSuccessCallback
     }
@@ -7078,6 +7298,14 @@ wx.getSetting({
         /** Wi-Fi 的系统开关 */
         wifiEnabled: boolean
     }
+    interface TCPSocketConnectOption {
+        /** 套接字要连接的地址 */
+        address: string
+        /** 套接字要连接的端口 */
+        port: number
+        /** 套接字要连接的超时时间，默认为 2s */
+        timeout?: number
+    }
     interface TCPSocketOnMessageListenerResult {
         /** 接收端地址信息 */
         localInfo: LocalInfo
@@ -7226,6 +7454,43 @@ session.run({
         /** 触点相对于页面上边沿的 Y 坐标。 */
         pageY: number
     }
+    /** 跟踪能力配置，目前不同的跟踪能力之间是互斥的，默认使用平面跟踪能力。需要注意目前 track 中不同的跟踪配置存在互斥关系（比如 marker 跟踪配置和 OSD 跟踪配置不能同时存在），请按需配置。 */
+    interface Track {
+        /** 平面跟踪配置 */
+        plane: PlaneTrack
+        /** 需要基础库： `2.27.0`
+         *
+         * OCR检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/ocr.html)。 */
+        OCR?: OCRTrack
+        /** 需要基础库： `2.24.5`
+         *
+         * OSD 跟踪配置 */
+        OSD?: boolean
+        /** 需要基础库： `2.28.0`
+         *
+         * 人体检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/body.html)。 */
+        body?: BodyTrack
+        /** 需要基础库： `3.0.0`
+         *
+         * 深度识别配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/depth.html)。 */
+        depth?: DepthTrack
+        /** 需要基础库： `2.25.0`
+         *
+         * 人脸检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)。安卓微信8.0.25开始支持，iOS微信8.0.24开始支持。 */
+        face?: FaceTrack
+        /** 需要基础库： `2.28.0`
+         *
+         * 手势检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/hand.html)。 */
+        hand?: HandTrack
+        /** 需要基础库： `2.24.5`
+         *
+         * marker 跟踪配置，基础库(3.0.0)开始允许同时支持v2的水平面检测能力 */
+        marker?: boolean
+        /** 需要基础库： `2.28.0`
+         *
+         * 提供基础AR功能，输出相机旋转的3个自由度的位姿，利用手机陀螺仪传感器，实现快速稳定的AR定位能力，适用于简单AR场景。 */
+        threeDof?: boolean
+    }
     interface TruncateOption {
         /** 要截断的文件路径 (本地路径) */
         filePath: string
@@ -7243,6 +7508,12 @@ session.run({
         filePath: string
         /** 截断位置，默认0。如果 length 小于文件长度（字节），则只有前面 length 个字节会保留在文件中，其余内容会被删除；如果 length 大于文件长度，则会对其进行扩展，并且扩展部分将填充空字节（'\0'） */
         length?: number
+    }
+    interface UDPSocketConnectOption {
+        /** 要发消息的地址 */
+        address: string
+        /** 要发送消息的端口号 */
+        port: number
     }
     interface UDPSocketOnMessageListenerResult {
         /** 接收端地址信息，2.18.0 起支持 */
@@ -7508,6 +7779,651 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 显示用户信息按钮 */
         show(): void
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * 人体 anchor
+     *
+     * **示例代码**
+     *
+     * [静态图像body检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/photo-body-detect)
+     *
+     * [实时摄像头body检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/body-detect) */
+    interface VKBodyAnchor {
+        /** 关键点的置信度 */
+        confidence: number[]
+        /** 识别序号 */
+        detectId: number
+        /** 唯一标识 */
+        id: number
+        /** 相对视窗的位置信息，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        origin: VKOrigin
+        /** 关键点 */
+        points: VKOrigin[]
+        /** 总体置信值 */
+        score: number
+        /** 相对视窗的尺寸，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        size: VKSize
+        /** 类型
+         *
+         * 可选值：
+         * - 5: 人体; */
+        type: 5
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * 相机对象 */
+    interface VKCamera {
+        /** 需要基础库： `2.22.0`
+         *
+         * 相机内参，只有 v2 版本支持 */
+        intrinsics: Float32Array
+        /** 视图矩阵 */
+        viewMatrix: Float32Array
+        /** [Float32Array VKCamera.getProjectionMatrix(number near, number far)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKCamera.getProjectionMatrix.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取投影矩阵 */
+        getProjectionMatrix(
+            /** 近视点 */
+            near: number,
+            /** 远视点 */
+            far: number
+        ): Float32Array
+    }
+    interface VKConfig {
+        /** 跟踪能力配置，目前不同的跟踪能力之间是互斥的，默认使用平面跟踪能力。需要注意目前 track 中不同的跟踪配置存在互斥关系（比如 marker 跟踪配置和 OSD 跟踪配置不能同时存在），请按需配置。 */
+        track: Track
+        /** 需要基础库： `2.23.0`
+         *
+         * 绑定的 WebGLRenderingContext 对象 */
+        gl?: WebGLRenderingContext
+        /** 需要基础库： `2.22.0`
+         *
+         * vision kit 版本。
+         *
+         * 可选值：
+         * - 'v1': v1适用于用户在平面场景下，例如桌面，地面，泛平面场景，放置虚拟物体，不提供真实世界距离。用户放置物体时，手机相机倾斜向下对着目标平面点击即可，具有广泛的机型支持;
+         * - 'v2': v2提供真实物理距离的 ar 定位功能，提供平面识别功能，用户在平面范围点击放置虚拟物体的功能，具有[有限的机型支持](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/plane.html#%E9%99%84%E5%BD%95)。iOS 设备在基础库 2.22.0 开始支持v2。安卓设备在基础库 2.25.1 开始支持v2，另外，安卓v2不支持竖直平面。**使用v2算法需要初始化，移动手机进行左右平移初始化效果最佳。**; */
+        version?: 'v1' | 'v2'
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * depth anchor
+     *
+     * **示例代码**
+     *
+     * [深度估计能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/depth-detect) */
+    interface VKDepthAnchor {
+        /** 包含深度信息的数组 */
+        depthArray: number[]
+        /** 唯一标识 */
+        id: number
+        /** 相对视窗的尺寸，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        size: VKSize
+        /** 类型
+         *
+         * 可选值：
+         * - 8: DEPTH; */
+        type: 8
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * 人脸 anchor
+     *
+     * **示例代码**
+     *
+     * [静态图像人脸检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/photo-face-detect)
+     *
+     * [实时摄像头人脸检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/face-detect) */
+    interface VKFaceAnchor {
+        /** 人脸角度信息 */
+        angle: number[]
+        /** 关键点的置信度 */
+        confidence: number[]
+        /** 识别序号 */
+        detectId: number
+        /** 唯一标识 */
+        id: number
+        /** 相对视窗的位置信息，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        origin: VKOrigin
+        /** 人脸 106 个关键点的坐标 */
+        points: VKPoint[]
+        /** 相对视窗的尺寸，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        size: VKSize
+        /** 类型
+         *
+         * 可选值：
+         * - 3: 人脸; */
+        type: 3
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * vision kit 会话对象。 */
+    interface VKFrame {
+        /** [VKCamera](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKCamera.html)
+         *
+         * 相机对象 */
+        camera: VKCamera
+        /** 生成时间，单位:纳秒(ns) */
+        timestamp: number
+        /** [ArrayBuffer VKFrame.getCameraBuffer(number width, number height)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getCameraBuffer.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取当前帧 rgba buffer。iOS 端微信在 v8.0.20 开始支持，安卓端微信在 v8.0.30 开始支持。按 aspect-fill 规则裁剪，此接口要求在创建 VKSession 对象时必须传入 gl 参数。此接口仅建议拿来做帧分析使用，上屏请使用 getCameraTexture 来代替。 */
+        getCameraBuffer(
+            /** 宽度，受系统限制，必须是 16 的整数倍 */
+            width: number,
+            /** 高度 */
+            height: number
+        ): ArrayBuffer
+        /** [Float32Array VKFrame.getDisplayTransform()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getDisplayTransform.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取纹理调整矩阵。默认获取到的纹理是未经裁剪调整的纹理，此矩阵可用于在着色器中根据帧对象尺寸对纹理进行裁剪。 */
+        getDisplayTransform(): Float32Array
+        /** [Object VKFrame.getCameraTexture(WebGLRenderingContext gl)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getCameraTexture.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取当前帧纹理，目前只支持 YUV 纹理。 */
+        getCameraTexture(
+            /** 画布 */
+            gl: WebGLRenderingContext
+        ): YUVTextureRes
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * 手势 anchor
+     *
+     * **示例代码**
+     *
+     * [静态图像hand检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/photo-hand-detect)
+     *
+     * [实时摄像头hand检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/hand-detect) */
+    interface VKHandAnchor {
+        /** 关键点的置信度 */
+        confidence: number[]
+        /** 识别序号 */
+        detectId: number
+        /** 手势分类, 返回整数-1到18, -1表示无效手势
+         *
+         * 可选值：
+         * - 0: 单手比心;
+         * - 1: 布（数字5）;
+         * - 2: 剪刀（数字2）;
+         * - 3: 握拳;
+         * - 4: 数字1;
+         * - 5: 热爱;
+         * - 6: 点赞;
+         * - 7: 数字3;
+         * - 8: 摇滚;
+         * - 9: 数字6;
+         * - 10: 数字8;
+         * - 11: 双手抱拳（恭喜发财）;
+         * - 12: 数字4;
+         * - 13: 比ok;
+         * - 14: 不喜欢（踩）;
+         * - 15: 双手比心;
+         * - 16: 祈祷（双手合十）;
+         * - 17: 双手抱拳;
+         * - 18: 无手势动作;
+         * - -1: 无效手势; */
+        gesture:
+            | 0
+            | 1
+            | 2
+            | 3
+            | 4
+            | 5
+            | 6
+            | 7
+            | 8
+            | 9
+            | 10
+            | 11
+            | 12
+            | 13
+            | 14
+            | 15
+            | 16
+            | 17
+            | 18
+            | -1
+        /** 唯一标识 */
+        id: number
+        /** 相对视窗的位置信息，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        origin: VKOrigin
+        /** 关键点 */
+        points: VKOrigin[]
+        /** 总体置信值 */
+        score: number
+        /** 相对视窗的尺寸，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        size: VKSize
+        /** 类型
+         *
+         * 可选值：
+         * - 7: 手势; */
+        type: 7
+    }
+    interface VKMarker {
+        /** marker id */
+        markerId: number
+        /** 图片路径 */
+        path: string
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * marker anchor
+     *
+     * **示例代码**
+     *
+     * [2D Marker能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/2dmarker-ar) */
+    interface VKMarkerAnchor {
+        /** 唯一标识 */
+        id: number
+        /** marker id */
+        markerId: number
+        /** 图片路径 */
+        path: string
+        /** 包含位置、旋转、放缩信息的矩阵，以列为主序 */
+        transform: Float32Array
+        /** 类型
+         *
+         * 可选值：
+         * - 1: marker; */
+        type: 1
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * OCR anchor
+     *
+     * **示例代码**
+     *
+     * [静态图像OCR检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/photo-ocr-detect)
+     *
+     * [实时摄像头OCR检测能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/ocr-detect) */
+    interface VKOCRAnchor {
+        /** 唯一标识 */
+        id: number
+        /** 识别的文字结果 */
+        text: string
+        /** 类型
+         *
+         * 可选值：
+         * - 6: OCR; */
+        type: 6
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * OSD anchor
+     *
+     * **示例代码**
+     *
+     * [单样本检测(OSD)能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/osd-ar) */
+    interface VKOSDAnchor {
+        /** 唯一标识 */
+        id: number
+        /** marker id */
+        markerId: number
+        /** 相对视窗的位置信息，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        origin: VKOrigin
+        /** 图片路径 */
+        path: string
+        /** 相对视窗的尺寸，取值范围为 [0, 1]，0 为左/上边缘，1 为右/下边缘 */
+        size: VKSize
+        /** 类型
+         *
+         * 可选值：
+         * - 2: OSD; */
+        type: 2
+    }
+    interface VKOrigin {
+        /** 横坐标 */
+        x: number
+        /** 纵坐标 */
+        y: number
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * 平面 anchor，只有 v2 版本支持
+     *
+     * **示例代码**
+     *
+     * v1 版本：[水平面AR能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/plane-ar)
+     * v2 版本：[水平面AR能力v2使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/plane-ar-v2) */
+    interface VKPlaneAnchor {
+        /** 方向 */
+        alignment: number
+        /** 唯一标识 */
+        id: number
+        /** 尺寸 */
+        size: VKSize
+        /** 包含位置、旋转、放缩信息的矩阵，以列为主序 */
+        transform: Float32Array
+        /** 类型
+         *
+         * 可选值：
+         * - 0: 平面; */
+        type: 0
+    }
+    /** 人脸 106 个关键点的坐标 */
+    interface VKPoint {
+        /** 横坐标 */
+        x: number
+        /** 纵坐标 */
+        y: number
+    }
+    /** 需要基础库： `2.32.1`
+     *
+     * vision kit 会话对象。 */
+    interface VKSession {
+        /** 相机尺寸 */
+        cameraSize: VKSize
+        /** 会话配置 */
+        config: VKConfig
+        /** 会话状态
+         *
+         * 可选值：
+         * - 0: 不可用;
+         * - 1: 运行中;
+         * - 2: 暂停中;
+         * - 3: 初始化中; */
+        state: 0 | 1 | 2 | 3
+        /** [Array.&lt;Object&gt; VKSession.getAllMarker()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.getAllMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取所有 marker，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.marker 为 true */
+        getAllMarker(): VKMarker[]
+        /** [Array.&lt;Object&gt; VKSession.getAllOSDMarker()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.getAllOSDMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取所有 OSD marker，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.OSD 为 true */
+        getAllOSDMarker(): VKMarker[]
+        /** [Array.&lt;Object&gt; VKSession.hitTest(number x, number y, Object reset)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.hitTest.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 触摸检测，v1 版本只支持单平面（即 hitTest 生成一次平面后，后续 hitTest 均不会再生成平面，而是以之前生成的平面为基础进行检测）。如果需要重新识别其他平面，可以在调用此方法时将 reset 参数置为 true。 */
+        hitTest(
+            /** 相对视窗的横坐标，取值范围为 [0, 1]，0 为左边缘，1 为右边缘 */
+            x: number,
+            /** 相对视窗的纵坐标，取值范围为 [0, 1]，0 为上边缘，1 为下边缘 */
+            y: number,
+            /** 是否需要重新识别其他平面，v2 版本不再需要此参数 */
+            reset: IAnyObject
+        ): HitTestRes[]
+        /** [VKSession.cancelAnimationFrame(number requestID)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.cancelAnimationFrame.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 取消由 requestAnimationFrame 添加到计划中的动画帧请求。 */
+        cancelAnimationFrame(requestID: number): void
+        /** [VKSession.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.destroy.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 销毁会话。 */
+        destroy(): void
+        /** [VKSession.detectBody(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.detectBody.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 静态图像人体关键点检测。当 wx.createVKSession 参数传入 {track: {body: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/body.html)。 */
+        detectBody(option: DetectBodyOption): void
+        /** [VKSession.detectDepth(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.detectDepth.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 深度识别。当 wx.createVKSession 参数传入 {track: {depth: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/depth.html)。 */
+        detectDepth(option: DetectDepthOption): void
+        /** [VKSession.detectFace(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.detectFace.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 静态图像人脸关键点检测。当 wx.createVKSession 参数传入 {track: {face: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)。安卓微信8.0.25开始支持，iOS微信8.0.24开始支持。
+         *
+         * ****
+         *
+         * ### 特别说明
+         * 若小程序人脸识别功能涉及采集、存储用户生物特征（如人脸照片或视频、身份证和手持身份证、身份证照和免冠照等），此类型服务需使用[微信原生人脸识别接口](https://developers.weixin.qq.com/community/develop/doc/000442d352c1202bd498ecb105c00d?highline=%E4%BA%BA%E8%84%B8%E6%A0%B8%E8%BA%AB)。 */
+        detectFace(option: DetectFaceOption): void
+        /** [VKSession.detectHand(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.detectHand.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 静态图像手势关键点检测。当 wx.createVKSession 参数传入 {track: {hand: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/hand.html)。 */
+        detectHand(option: DetectHandOption): void
+        /** [VKSession.off(string eventName, function fn)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.off.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 取消监听会话事件。 */
+        off(
+            /** 事件名称 */
+            eventName: string,
+            /** 事件监听函数 */
+            fn: (...args: any[]) => any
+        ): void
+        /** [VKSession.on(string eventName, function fn)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.on.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 监听会话事件。 */
+        on(
+            /** 事件名称
+             *
+             * 参数 eventName 可选值：
+             * - 'resize': 相机尺寸变化事件，回调参数为相机尺寸;
+             * - 'addAnchors': 增加 anchor 事件，回调参数为 [VKPlaneAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKPlaneAnchor.html)/[VKMarkerAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKMarkerAnchor.html)/[VKOSDAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKOSDAnchor.html) 列表（只有v2版本支持）;
+             * - 'updateAnchors': 更新 anchor 事件，回调参数为 [VKPlaneAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKPlaneAnchor.html)/[VKMarkerAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKMarkerAnchor.html)/[VKOSDAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKOSDAnchor.html) 列表（只有v2版本支持） 或 [VKFaceAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFaceAnchor.html)/[VKOCRAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKOCRAnchor.html)/[VKHandAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKHandAnchor.html)/[VKBodyAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKBodyAnchor.html)列表（v1、v2都支持）;
+             * - 'removeAnchors': 删除 anchor 事件，回调参数为 [VKPlaneAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKPlaneAnchor.html)/[VKMarkerAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKMarkerAnchor.html)/[VKOSDAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKOSDAnchor.html) 列表（只有v2版本支持） 或 [VKFaceAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFaceAnchor.html)/[VKOCRAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKOCRAnchor.html)/[VKHandAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKHandAnchor.html)/[VKBodyAnchor](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKBodyAnchor.html) 列表（v1、v2都支持）; */
+            eventName:
+                | 'resize'
+                | 'addAnchors'
+                | 'updateAnchors'
+                | 'removeAnchors',
+            /** 事件监听函数 */
+            fn: (...args: any[]) => any
+        ): void
+        /** [VKSession.removeMarker(number markerId)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.removeMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 删除一个 marker，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.marker 为 true */
+        removeMarker(
+            /** marker id */
+            markerId: number
+        ): void
+        /** [VKSession.removeOSDMarker(number markerId)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.removeOSDMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 删除一个 OSD marker，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.OSD 为 true */
+        removeOSDMarker(
+            /** marker id */
+            markerId: number
+        ): void
+        /** [VKSession.runOCR(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.runOCR.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 静态图像OCR检测。当 wx.createVKSession 参数传入 {track: {OCR: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/ocr.html)。 */
+        runOCR(option: RunOCROption): void
+        /** [VKSession.start(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.start.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 开启会话。 */
+        start(
+            /** 开启会话回调 */
+            callback: VKSessionStartCallback
+        ): void
+        /** [VKSession.stop()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.stop.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 停止会话。 */
+        stop(): void
+        /** [VKSession.update3DMode(boolean open3d)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.update3DMode.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 开启3D模式 */
+        update3DMode(
+            /** 是否开启 */
+            open3d: boolean
+        ): void
+        /** [VKSession.updateOSDThreshold(number threshold)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.updateOSDThreshold.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 更新 OSD 识别精确度，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.OSD 为 true */
+        updateOSDThreshold(
+            /** 阈值 */
+            threshold: number
+        ): void
+        /** [[VKFrame](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.html) VKSession.getVKFrame(number width, number height)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.getVKFrame.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 获取帧对象，每调用一次都会触发一次帧分析过程。目前 VKSession 相机的最大帧数是 30 fps，因此调用 getVKFrame 的频率也可以限制在 30 fps，以减少渲染开销。 */
+        getVKFrame(
+            /** 宽度 */
+            width: number,
+            /** 高度 */
+            height: number
+        ): VKFrame
+        /** [number VKSession.addMarker(string path)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.addMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 添加一个 marker，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.marker 为 true
+         *
+         * **使用提示**
+         *
+         * 注意事项：
+         * 1. 使用 addMarker 接口之前，需要在 createVKSession 的时候声明开启 marker 跟踪。即 wx.createVKSession({ track: { marker: true } })
+         * 2. 可以添加多个 marker 图片，但不能重复添加相同的 marker 图片。
+         * 3. 在v2模式下同时支持水平面检测与marker检测，同时可输出多个2d/3d marker位姿（需要基础库版本不低于 [2.33.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html)
+         *
+         * ### 2Dmarker
+         * 对传入的图片有如下要求：
+         * 1. 格式：jpg/png 格式三通道彩图或者 1 通道灰度图
+         * 2. 分辨率：尺寸在 480x480 ~ 1920x1920 之间，建议为 1080 分辨率
+         * 3. 宽高比：在 1:1 ~ 16:9 之间，要求尽量方正，避免狭长的图片
+         * 4. 质量：目标图像为平面模型，需要占画面主体，避免大面积留白，建议用扫描件
+         *
+         * 示例：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/sJPS5gttY4yQq-CmG9crrtaOpjb6Yc6mDhJKdUmrIpmtbWBMfAUAFavtKT6-tEZIh-8zT8tfBJBtvH048ge5Vw" alt="image.png" />
+         *
+         * 建议：
+         *
+         * 1. 图片具有丰富的细节
+         * 2. 避免重复单一的纹理，例如：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/VfNcS-M6nPWWXq_CJ483Dq3iLsNXMvLiM6Wb5ZHOrVVGR2u5ixbQlbiSSuNHzVcMQQY5V0dvnlyOGihUIbyTvA" alt="image.png" />
+         * <br>
+         * <img width="500px" src="https://res.wx.qq.com/op_res/VfNcS-M6nPWWXq_CJ483Dq-_lR2j4eOi23IOJ2LHFQY_PWufbx3s3uROgLi_flJMHQA8DNvlebs9UwumozPlXg" alt="image.png" />
+         * <br>
+         * <img width="500px" src="https://res.wx.qq.com/op_res/VfNcS-M6nPWWXq_CJ483Dr9IaSPF18UPnz4KrbAhGW9pIb8oWxzHgmClGIRZK59N4gUnJh69yoQW1TFGqce8ew" alt="image.png" />
+         * <br>
+         *
+         * 3. 避免使用柔和平滑边缘的纹理及大量渐变图像，例如：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCq6DPj88qSVwHFZiumbE0IMq9ibzbnhjewzUSa-n5_VgF_lF9g07FFHHYyrY14KTSfA" alt="image.png" />
+         *
+         * 4. 避免模糊，建议采用高清、高对比度图像作为识别对象
+         * 5. 建议图像有均匀的特征（角点）分布，正确示例：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/sJPS5gttY4yQq-CmG9crrrBRWB_Cw2aFXAn1KY0YtfjnQ7WNt854gA8H2zfmZUztlFcJbdEHouBGs63hUO4Mxg" alt="image.png" />
+         *
+         * 避免角点较少、中间大量空白、没有特征及角点的图像，错误示例：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCqzjY2LY-ylRjFS7TVD-cZsEE8TTB-xzR2YiWKhWyWg1bgpbRqQq-4l6OWPDii4S3Xg" alt="image.png" />
+         *
+         * ### 3Dmarker
+         * 现小程序demo支持通过上传视频, 生成对应模型的3dmarker识别文件,后缀名为.map
+         *
+         * 对传入的视频有如下要求：
+         * 1.视频长宽比为16:9或4:3; 短边大于480px
+         * 2.目标物体易于和背景物体区分出来，同时目标物体放置与背景物体一定距离，放置底面与物体易于区分，底面可以放置一张白纸，例如：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/a0ooLtlHHfpfb37tq3AxZWPrfqINIs2MvJnZxQeTLzkpbgAGn6m8CaWAoy_osmlVDVhWm16e-yBDXjIY0dhCEQ" alt="image.png" />
+         *
+         * 3.目标物体最好为刚体，本身不会发生较大形变， 容易变形的物体不适合用作识别对象
+         * 4.视频匀速移动，避免模糊，对目标识别面环绕物体拍摄，需要保证相机有足够的平移移动
+         * 5.marker物体要求与2d图像要求类似，具有丰富细节，避免重复单一纹理，不反光，无高光
+         * 6.拍摄视频中特征纹理丰富，如果marker本身问题较弱，可以在背景中适当添加纹理物体
+         * 服务耗时：当前版本30s视频耗时约20分钟，请静待算法返回模型
+         *
+         * 建议：
+         *
+         * 1.视频格式：视频帧率30fps，分辨率建议1080p
+         * 2.视频时长：视频建议时长在20s~30s，超过30s会被截断，时长过短会导致marker效果欠佳 */
+        addMarker(
+            /** 图片路径，目前只支持本地用户图片 */
+            path: string
+        ): number
+        /** [number VKSession.addOSDMarker(string path)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.addOSDMarker.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 添加一个 OSD marker（one-shot detection marker），要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入的 track.OSD 为 true
+         *
+         * **使用提示**
+         *
+         * 注意事项：
+         * 1. 使用 addOSDMarker 接口之前，需要在 createVKSession 的时候声明开启 OSD 跟踪。即 wx.createVKSession({ track: { OSD: true } })
+         * 2. 可以添加多个 OSDMarker 图片，但不能重复添加相同的 OSDMarker 图片。
+         *
+         * 对传入的图片有如下要求：
+         * 1. 格式：jpg 格式彩色图片
+         * 2. 分辨率：尺寸不低于 240x240
+         * 3. 宽高比：在 1:1 ~ 16:9 之间，要求尽量方正，避免狭长的图片
+         * 4. 质量：目标物体需要占画面主体，避免大面积留白，避免大面积文字，不能含其他物体。
+         *
+         * 示例：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCq_Mq0ReXEA5nOzDIvnYYPttmwxn0V1e_yI6UUgkNT6K6aOQj2QRba5IHQglHULkrKg" alt="image.png" />
+         * <br>
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCqwiRcyGk9oenkCpd3vAHWSTSZPPJcgIrPzcpwnSpmk_9bMiCqUdS8Ds789Rjhy0CtA" alt="image.png" />
+         * <br>
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCqx8fYUYypBmFmB1_zX-APH06j1oMZDz7K0CE2To_982NDOB5fmM4Y2Rrr1uQF6J4gg" alt="image.png" />
+         * <br>
+         *
+         * 建议：
+         *
+         * 1. 具有丰富的细节，避免纯色且形状特点不鲜明的物体，例如：
+         *
+         * <img width="500px" src="https://res.wx.qq.com/op_res/rg0BkiSl-LPBybgJtcQCq-6WwSZKlNbN-if0NCag-Dm6AmNJeBFi5dvR-bRZINlZmuA9G1e4wpngvhlr2z6CXQ" alt="image.png" />
+         *
+         * 2. 避免模糊，最好采用高清图片 */
+        addOSDMarker(
+            /** 图片路径，目前只支持本地用户图片 */
+            path: string
+        ): number
+        /** [number VKSession.requestAnimationFrame(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.requestAnimationFrame.html)
+         *
+         * 需要基础库： `2.32.1`
+         *
+         * 在下次进行重绘时执行。 */
+        requestAnimationFrame(
+            /** 执行的 callback */
+            callback: (...args: any[]) => any
+        ): number
+    }
+    interface VKSize {
+        /** 高度 */
+        height: number
+        /** 宽度 */
+        width: number
     }
     interface VibrateLongOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -8375,6 +9291,13 @@ setTimeout(() => {
         /** 指定文件开头的偏移量，即数据要被写入的位置。当 position 不传或者传入非 Number 类型的值时，数据会被写入当前指针所在位置。 */
         position?: number
     }
+    /** 帧纹理对象 */
+    interface YUVTextureRes {
+        /** UV 分量纹理 */
+        uvTexture: WebGLTexture
+        /** Y 分量纹理 */
+        yTexture: WebGLTexture
+    }
     /** 文件路径 */
     interface ZipFileItem {
         /** 文件内容 */
@@ -8673,7 +9596,7 @@ DownloadTask.offHeadersReceived(listener) // 需传入与监听时同一个的�
 ``` */
         offHeadersReceived(
             /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffHeadersReceivedCallback
+            listener?: DownloadTaskOffHeadersReceivedCallback
         ): void
         /** [DownloadTask.offProgressUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/download/DownloadTask.offProgressUpdate.html)
 *
@@ -8700,7 +9623,7 @@ DownloadTask.offProgressUpdate(listener) // 需传入与监听时同一个的函
          * 监听 HTTP Response Header 事件。会比请求完成事件更早 */
         onHeadersReceived(
             /** HTTP Response Header 事件的监听函数 */
-            listener: OnHeadersReceivedCallback
+            listener: DownloadTaskOnHeadersReceivedCallback
         ): void
         /** [DownloadTask.onProgressUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/download/DownloadTask.onProgressUpdate.html)
          *
@@ -11332,7 +12255,7 @@ RequestTask.offHeadersReceived(listener) // 需传入与监听时同一个的函
 ``` */
         offHeadersReceived(
             /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffHeadersReceivedCallback
+            listener?: RequestTaskOffHeadersReceivedCallback
         ): void
         /** [RequestTask.onChunkReceived(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/request/RequestTask.onChunkReceived.html)
          *
@@ -11350,7 +12273,7 @@ RequestTask.offHeadersReceived(listener) // 需传入与监听时同一个的函
          * 监听 HTTP Response Header 事件。会比请求完成事件更早 */
         onHeadersReceived(
             /** HTTP Response Header 事件的监听函数 */
-            listener: OnHeadersReceivedCallback
+            listener: RequestTaskOnHeadersReceivedCallback
         ): void
     }
     interface RewardedVideoAd {
@@ -11494,6 +12417,20 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
         send(option: SocketTaskSendOption): void
     }
     interface TCPSocket {
+        /** [TCPSocket.bindWifi(Object options)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.bindWifi.html)
+         *
+         * 需要基础库： `3.1.1`
+         *
+         * 将 TCP Socket 绑定到当前 wifi 网络，成功后会触发 onBindWifi 事件（仅安卓支持） */
+        bindWifi(options: BindWifiOption): void
+        /** [TCPSocket.close()](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.close.html)
+         *
+         * 关闭连接 */
+        close(): void
+        /** [TCPSocket.connect(Object options)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.connect.html)
+         *
+         * 在给定的套接字上启动连接 */
+        connect(options: TCPSocketConnectOption): void
         /** [TCPSocket.offBindWifi(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offBindWifi.html)
 *
 * 需要基础库： `3.1.1`
@@ -11613,6 +12550,13 @@ TCPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
             /** 当接收到数据的时触发该事件的监听函数 */
             listener: TCPSocketOnMessageCallback
         ): void
+        /** [TCPSocket.write(string|ArrayBuffer data)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.write.html)
+         *
+         * 在 socket 上发送数据 */
+        write(
+            /** 要发送的数据 */
+            data: string | ArrayBuffer
+        ): void
     }
     interface UDPSocket {
         /** [UDPSocket.close()](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.close.html)
@@ -11624,7 +12568,7 @@ TCPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
          * 需要基础库： `2.15.0`
          *
          * 预先连接到指定的 IP 和 port，需要配合 write 方法一起使用 */
-        connect(option: ConnectOption): void
+        connect(option: UDPSocketConnectOption): void
         /** [UDPSocket.offClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.offClose.html)
 *
 * 移除关闭事件的监听函数
@@ -11812,7 +12756,7 @@ UploadTask.offHeadersReceived(listener) // 需传入与监听时同一个的函�
 ``` */
         offHeadersReceived(
             /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffHeadersReceivedCallback
+            listener?: DownloadTaskOffHeadersReceivedCallback
         ): void
         /** [UploadTask.offProgressUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/upload/UploadTask.offProgressUpdate.html)
 *
@@ -11839,7 +12783,7 @@ UploadTask.offProgressUpdate(listener) // 需传入与监听时同一个的函�
          * 监听 HTTP Response Header 事件。会比请求完成事件更早 */
         onHeadersReceived(
             /** HTTP Response Header 事件的监听函数 */
-            listener: OnHeadersReceivedCallback
+            listener: DownloadTaskOnHeadersReceivedCallback
         ): void
         /** [UploadTask.onProgressUpdate(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/upload/UploadTask.onProgressUpdate.html)
          *
@@ -11879,7 +12823,8 @@ userCryptoManager.getLatestUserKey({
 * **示例代码**
 *
 * ```js
-wx.getRandomValues({
+const userCryptoManager = wx.getUserCryptoManager()
+userCryptoManager.getRandomValues({
   length: 6 // 生成 6 个字节长度的随机数,
   success: res => {
     console.log(wx.arrayBufferToBase64(res.randomValues)) // 转换为 base64 字符串后打印
@@ -12547,6 +13492,7 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
         /** [[OpenSettingButton](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/OpenSettingButton.html) wx.createOpenSettingButton(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.createOpenSettingButton.html)
          *
          * 需要基础库： `2.0.7`
+         * @deprecated 基础库版本 [3.0.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.openSetting](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.openSetting.html) 替换
          *
          * 创建打开设置页面的按钮 */
         createOpenSettingButton(
@@ -12575,7 +13521,7 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
 {
   "workers": {
     "path": "myWorkersFolder",
-    "isSubpackage": true  // true 表示把 worker 打包为分包。默认 false。填 false 时等同于 { "workers": "workers" }
+    "isSubpackage": true  // true 表示把 worker 打包为分包。默认 false。填 false 时等同于 { "workers": "myWorkersFolder" }
   }
 }
 ```
@@ -12762,6 +13708,48 @@ wx.chooseImage({
          *
          * 创建用户信息按钮。使用前请参考 [用户信息获取](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/user-info.html) */
         createUserInfoButton(option: CreateUserInfoButtonOption): UserInfoButton
+        /** [[VKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.html) wx.createVKSession(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html)
+*
+* 需要基础库： `2.32.1`
+*
+* 创建 vision kit 会话对象。详见[指南](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/base.html)
+*
+* **示例代码**
+*
+* v1 版本：[VisionKit基础能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/visionkit-basic)
+* v2 版本：[VisionKit-v2基础能力使用参考](https://github.com/wechat-miniprogram/miniprogram-demo/tree/master/miniprogram/packageAPI/pages/ar/visionkit-basic-v2)
+* ```js
+// 以下 demo 以 v2 为例
+// 创建 session 对象
+const ssession = wx.createVKSession({
+  track: {
+    plane: {mode: 3},
+  },
+  version: 'v2',
+  gl, // WebGLRenderingContext
+})
+
+// 逐帧分析
+const onFrame = timestamp => {
+  // 开发者可以自己控制帧率
+  const frame = session.getVKFrame(canvasWidth, canvasHeight)
+    if (frame) {
+      // 分析完毕，可以拿到帧对象
+      doRender(frame)
+    }
+
+  session.requestAnimationFrame(onFrame)
+}
+session.start(err => {
+  if (!err) session.requestAnimationFrame(onFrame)
+})
+
+// 渲染函数
+const doRender = frame => {
+  // ...
+}
+``` */
+        createVKSession(option: VKConfig): VKSession
         /** [[VideoDecoder](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/VideoDecoder.html) wx.createVideoDecoder()](https://developers.weixin.qq.com/minigame/dev/api/media/video-decoder/wx.createVideoDecoder.html)
          *
          * 需要基础库： `2.11.1`
@@ -12834,6 +13822,29 @@ try {
             /** 本地缓存中指定的 key */
             key: string
         ): T
+        /** [boolean wx.isPointerLocked()](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.isPointerLocked.html)
+         *
+         * 需要基础库： `3.2.0`
+         *
+         * 检查鼠标指针是否被锁定。此接口仅在 Windows、Mac 端支持。 */
+        isPointerLocked(): boolean
+        /** [boolean wx.isVKSupport(string version)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.isVKSupport.html)
+*
+* 需要基础库： `2.22.0`
+*
+* 判断支持版本
+*
+* **示例代码**
+*
+* ```js
+const isSupportV2 = wx.isVKSupport('v2')
+``` */
+        isVKSupport(
+            /** 参数 version 可选值：
+             * - 'v1': 旧版本;
+             * - 'v2': v2 版本，目前只有 iOS 基础库 2.22.0 以上支持; */
+            version: 'v1' | 'v2'
+        ): boolean
         /** [boolean wx.setCursor(string path, number x, number y)](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.setCursor.html)
          *
          * 需要基础库： `2.10.1`
@@ -13265,6 +14276,12 @@ wx.createBLEConnection({
         >(
             option?: T
         ): PromisifySuccessResult<T, ExitMiniProgramOption>
+        /** [wx.exitPointerLock()](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.exitPointerLock.html)
+         *
+         * 需要基础库： `3.2.0`
+         *
+         * 解除锁定鼠标指针。此接口仅在 Windows、Mac 端支持。 */
+        exitPointerLock(): void
         /** [wx.exitVoIPChat(Object object)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.exitVoIPChat.html)
          *
          * 需要基础库： `2.7.0`
@@ -13277,9 +14294,9 @@ wx.createBLEConnection({
          *
          * 需要基础库： `2.18.0`
          *
-         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](#) 代替**
+         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 代替**
          *
-         * 人脸检测，使用前需要通过 wx.initFaceDetect 进行一次初始化，推荐使用相机接口返回的帧数据。本接口不再维护，请使用 [wx.createVKSession](#) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)
+         * 人脸检测，使用前需要通过 wx.initFaceDetect 进行一次初始化，推荐使用相机接口返回的帧数据。本接口不再维护，请使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)
          *
          * ****
          *
@@ -13789,6 +14806,21 @@ wx.getPrivacySetting({
         >(
             option?: T
         ): PromisifySuccessResult<T, GetScreenBrightnessOption>
+        /** [wx.getScreenRecordingState(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.getScreenRecordingState.html)
+         *
+         * 需要基础库： `3.1.4`
+         *
+         * 查询用户是否在录屏。
+         *
+         * **示例代码**
+         *
+         * ```js
+         * wx.getScreenRecordingState({
+         *   success: function (res) {
+         *     console.log(res.state)
+         *   },
+         * }) */
+        getScreenRecordingState(option?: GetScreenRecordingStateOption): void
         /** [wx.getSetting(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/setting/wx.getSetting.html)
 *
 * 需要基础库： `1.2.0`
@@ -14189,9 +15221,9 @@ wx.hideShareMenu({
          *
          * 需要基础库： `2.18.0`
          *
-         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](#) 代替**
+         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 代替**
          *
-         * 初始化人脸检测。本接口不再维护，请使用 [wx.createVKSession](#) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)
+         * 初始化人脸检测。本接口不再维护，请使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html)
          *
          * ****
          *
@@ -14877,6 +15909,24 @@ wx.offNetworkWeakChange(listener) // 需传入与监听时同一个的函数对�
         offNetworkWeakChange(
             /** onNetworkWeakChange 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffNetworkWeakChangeCallback
+        ): void
+        /** [wx.offScreenRecordingStateChanged(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.offScreenRecordingStateChanged.html)
+*
+* 需要基础库： `3.1.4`
+*
+* 移除用户录屏事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+wx.onScreenRecordingStateChanged(listener)
+wx.offScreenRecordingStateChanged(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offScreenRecordingStateChanged(
+            /** onScreenRecordingStateChanged 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffScreenRecordingStateChangedCallback
         ): void
         /** [wx.offShareAppMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offShareAppMessage.html)
 *
@@ -15662,6 +16712,15 @@ wx.offNetworkWeakChange()
             /** 弱网状态变化事件的监听函数 */
             listener: OnNetworkWeakChangeCallback
         ): void
+        /** [wx.onScreenRecordingStateChanged(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.onScreenRecordingStateChanged.html)
+         *
+         * 需要基础库： `3.1.4`
+         *
+         * 监听用户录屏事件。 */
+        onScreenRecordingStateChanged(
+            /** 用户录屏事件的监听函数 */
+            listener: OnScreenRecordingStateChangedCallback
+        ): void
         /** [wx.onShareAppMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.onShareAppMessage.html)
          *
          * 监听用户点击右上角菜单的「转发」按钮时触发的事件 */
@@ -15732,28 +16791,45 @@ wx.offNetworkWeakChange()
         ): void
         /** [wx.onTouchCancel(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/touch-event/wx.onTouchCancel.html)
          *
-         * 监听触点失效事件 */
+         * 监听触点失效事件
+         *
+         * **注意**
+         *
+         * - 在 Windows/Mac 设备上，将会由鼠标事件转义而成。 */
         onTouchCancel(
             /** 触点失效事件的监听函数 */
             listener: OnTouchCancelCallback
         ): void
         /** [wx.onTouchEnd(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/touch-event/wx.onTouchEnd.html)
          *
-         * 监听触摸结束事件 */
+         * 监听触摸结束事件
+         *
+         * **注意**
+         *
+         * - 在 Windows/Mac 设备上，将会由鼠标事件转义而成。 */
         onTouchEnd(
             /** 触摸结束事件的监听函数 */
             listener: OnTouchEndCallback
         ): void
         /** [wx.onTouchMove(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/touch-event/wx.onTouchMove.html)
          *
-         * 监听触点移动事件 */
+         * 监听触点移动事件
+         *
+         * **注意**
+         *
+         * - 在 Windows/Mac 设备上，将会由鼠标事件转义而成。
+         * - 在 Windows/Mac 设备上并处于鼠标锁定状态时，touchMove 事件将会随着鼠标滑动持续触发。 */
         onTouchMove(
             /** 触点移动事件的监听函数 */
             listener: OnTouchMoveCallback
         ): void
         /** [wx.onTouchStart(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/touch-event/wx.onTouchStart.html)
          *
-         * 监听开始触摸事件 */
+         * 监听开始触摸事件
+         *
+         * **注意**
+         *
+         * - 在 Windows/Mac 设备上，将会由鼠标事件转义而成。 */
         onTouchStart(
             /** 开始触摸事件的监听函数 */
             listener: OnTouchStartCallback
@@ -16402,6 +17478,24 @@ wx.requestMidasFriendPayment({
         >(
             option: T
         ): PromisifySuccessResult<T, RequestMidasPaymentOption>
+        /** [wx.requestPointerLock()](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.requestPointerLock.html)
+*
+* 需要基础库： `3.2.0`
+*
+* 锁定鼠标指针。锁定指针后，鼠标会被隐藏，可以通过 [wx.touchMove](#) 事件获取鼠标偏移量。 **此接口仅在 Windows、Mac 端支持，且必须在用户进行操作后才可调用。**
+*
+* **示例代码</title>
+* ```js
+wx.onTouchEnd(() => {
+  wx.requestPointerLock() // 触发鼠标锁定
+})
+```
+*
+* <title>示例 demo**
+*
+* 下方打开后点按窗口会鼠标锁定，同时会在 touchMove 时持续在控制台打印偏移量。
+* [https://developers.weixin.qq.com/s/wGruMHm97tMF](https://developers.weixin.qq.com/s/wGruMHm97tMF) */
+        requestPointerLock(): void
         /** [wx.requestSubscribeMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)
 *
 * 需要基础库： `2.4.4`
@@ -16863,6 +17957,12 @@ try {
         >(
             option: T
         ): PromisifySuccessResult<T, SetUserCloudStorageOption>
+        /** [wx.setVisualEffectOnCapture(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.setVisualEffectOnCapture.html)
+         *
+         * 需要基础库： `3.1.4`
+         *
+         * 设置截屏/录屏时屏幕表现，仅支持在 Android 端调用 */
+        setVisualEffectOnCapture(option: SetVisualEffectOnCaptureOption): void
         /** [wx.setWindowSize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/window/wx.setWindowSize.html)
          *
          * 需要基础库： `2.10.1`
@@ -17208,9 +18308,9 @@ wx.stopCompass()
          *
          * 需要基础库： `2.18.0`
          *
-         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](#) 代替**
+         * @warning **该接口已停止维护，推荐使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 代替**
          *
-         * 停止人脸检测。本接口不再维护，请使用 [wx.createVKSession](#) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html) */
+         * 停止人脸检测。本接口不再维护，请使用 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 接口代替。详情参考[人脸检测指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/face.html) */
         stopFaceDetect(option?: StopFaceDetectOption): void
         /** [wx.stopGyroscope(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/gyroscope/wx.stopGyroscope.html)
          *
@@ -17553,9 +18653,17 @@ wx.writeBLECharacteristicValue({
     type DownloadFileSuccessCallback = (
         result: DownloadFileSuccessCallbackResult
     ) => void
+    /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type DownloadTaskOffHeadersReceivedCallback = (
+        result: DownloadTaskOnHeadersReceivedListenerResult
+    ) => void
     /** onProgressUpdate 传入的监听函数。不传此参数则移除所有监听函数。 */
     type DownloadTaskOffProgressUpdateCallback = (
         result: DownloadTaskOnProgressUpdateListenerResult
+    ) => void
+    /** HTTP Response Header 事件的监听函数 */
+    type DownloadTaskOnHeadersReceivedCallback = (
+        result: DownloadTaskOnHeadersReceivedListenerResult
     ) => void
     /** 下载进度变化事件的监听函数 */
     type DownloadTaskOnProgressUpdateCallback = (
@@ -17959,6 +19067,18 @@ wx.writeBLECharacteristicValue({
         option: GetScreenBrightnessSuccessCallbackOption
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetScreenRecordingStateCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetScreenRecordingStateFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetScreenRecordingStateSuccessCallback = (
+        result: GetScreenRecordingStateSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetSettingCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetSettingFailCallback = (res: GeneralCallbackResult) => void
@@ -18293,10 +19413,6 @@ wx.writeBLECharacteristicValue({
     type OffGameStartCallback = (res: GeneralCallbackResult) => void
     /** onGyroscopeChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffGyroscopeChangeCallback = (res: GeneralCallbackResult) => void
-    /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffHeadersReceivedCallback = (
-        result: OnHeadersReceivedListenerResult
-    ) => void
     /** onHide 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffHideCallback = (res: GeneralCallbackResult) => void
     /** onInvite 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -18362,6 +19478,10 @@ wx.writeBLECharacteristicValue({
     /** onRoomInfoChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffRoomInfoChangeCallback = (
         result: GameServerManagerOnRoomInfoChangeListenerResult
+    ) => void
+    /** onScreenRecordingStateChanged 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffScreenRecordingStateChangedCallback = (
+        result: OnScreenRecordingStateChangedListenerResult
     ) => void
     /** onSeeked 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffSeekedCallback = (res: GeneralCallbackResult) => void
@@ -18534,10 +19654,6 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 用户点击菜单「在电脑上打开」按钮时触发的事件的监听函数 */
     type OnHandoffCallback = (result: OnHandoffListenerResult) => void
-    /** HTTP Response Header 事件的监听函数 */
-    type OnHeadersReceivedCallback = (
-        result: OnHeadersReceivedListenerResult
-    ) => void
     type OnHideCallback = (res: GeneralCallbackResult) => void
     /** 录音因为受到系统占用而被中断开始事件的监听函数 */
     type OnInterruptionBeginCallback = (res: GeneralCallbackResult) => void
@@ -18614,6 +19730,10 @@ wx.writeBLECharacteristicValue({
     /** 的监听函数 */
     type OnRoomInfoChangeCallback = (
         result: GameServerManagerOnRoomInfoChangeListenerResult
+    ) => void
+    /** 用户录屏事件的监听函数 */
+    type OnScreenRecordingStateChangedCallback = (
+        result: OnScreenRecordingStateChangedListenerResult
     ) => void
     /** 音频完成跳转操作的事件的监听函数 */
     type OnSeekedCallback = (res: GeneralCallbackResult) => void
@@ -18983,6 +20103,14 @@ wx.writeBLECharacteristicValue({
             | IAnyObject
             | ArrayBuffer
     > = (result: RequestSuccessCallbackResult<T>) => void
+    /** onHeadersReceived 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type RequestTaskOffHeadersReceivedCallback = (
+        result: RequestTaskOnHeadersReceivedListenerResult
+    ) => void
+    /** HTTP Response Header 事件的监听函数 */
+    type RequestTaskOnHeadersReceivedCallback = (
+        result: RequestTaskOnHeadersReceivedListenerResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequirePrivacyAuthorizeCompleteCallback = (
         res: GeneralCallbackResult
@@ -19175,6 +20303,18 @@ wx.writeBLECharacteristicValue({
     type SetUserCloudStorageFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type SetUserCloudStorageSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type SetVisualEffectOnCaptureCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type SetVisualEffectOnCaptureFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type SetVisualEffectOnCaptureSuccessCallback = (
         res: GeneralCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -19521,6 +20661,37 @@ wx.writeBLECharacteristicValue({
     type UserInfoButtonOffTapCallback = (result: OnTapListenerResult) => void
     /** 用户信息按钮的点击事件的监听函数 */
     type UserInfoButtonOnTapCallback = (result: OnTapListenerResult) => void
+    /** 开启会话回调 */
+    type VKSessionStartCallback = (
+        /** 参数 status 可选值：
+         * - 0: 成功;
+         * - 104: 用户取消授权;
+         * - 112: 接口未在隐私协议中声明;
+         * - 1025: 小程序隐私接口被封禁，[解决方案参考链接](https://developers.weixin.qq.com/community/develop/doc/00062a6d514c88baacdf52e8a56009);
+         * - 1026: 小游戏隐私接口被封禁，[解决方案参考链接](https://developers.weixin.qq.com/community/minigame/doc/0004c84925817819b7ffd8b2356008);
+         * - 2000001: 参数错误;
+         * - 2003000: 会话不可用;
+         * - 2000000: 系统错误;
+         * - 2000002: 设备不支持;
+         * - 2000003: 系统不支持;
+         * - 2000004: 设备不支持;
+         * - 2003001: 未开启系统相机权限;
+         * - 2003002: 未开启小程序相机权限; */
+        status:
+            | 0
+            | 104
+            | 112
+            | 1025
+            | 1026
+            | 2000001
+            | 2003000
+            | 2000000
+            | 2000002
+            | 2000003
+            | 2000004
+            | 2003001
+            | 2003002
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type VibrateLongCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -19590,9 +20761,7 @@ wx.writeBLECharacteristicValue({
     /** 全局错误事件的监听函数 */
     type WxOnErrorCallback = (
         /** 错误 */
-        message: string,
-        /** 错误调用堆栈 */
-        stack: string
+        error: Error
     ) => void
 }
 
