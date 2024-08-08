@@ -1,5 +1,5 @@
 /*! *****************************************************************************
-Copyright (c) 2023 Tencent, Inc. All rights reserved.
+Copyright (c) 2024 Tencent, Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -125,6 +125,12 @@ declare namespace WechatMinigame {
         SDKVersion: string
         /** 是否已打开调试。可通过右上角菜单或 [wx.setEnableDebug](https://developers.weixin.qq.com/minigame/dev/api/base/debug/wx.setEnableDebug.html) 打开调试。 */
         enableDebug: boolean
+        /** 微信字体大小缩放比例 */
+        fontSizeScaleFactor: number
+        /** 需要基础库： `2.23.4`
+         *
+         * 微信字体大小，单位px */
+        fontSizeSetting: number
         /** 当前小程序运行的宿主环境 */
         host: AppBaseInfoHost
         /** 微信设置的语言 */
@@ -183,7 +189,7 @@ declare namespace WechatMinigame {
     }
     /** 需要基础库： `2.19.0`
      *
-     * AudioBuffer接口表示存在内存里的一段短小的音频资源，利用[WebAudioContext.decodeAudioData](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)方法从一个音频文件构建，或者利用 [AudioContext.createBuffer](#)从原始数据构建。把音频放入AudioBuffer后，可以传入到一个 AudioBufferSourceNode进行播放。 */
+     * AudioBuffer接口表示存在内存里的一段短小的音频资源，利用[WebAudioContext.decodeAudioData](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)方法从一个音频文件构建，或者利用 [WebAudioContext.createBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBuffer.html)从原始数据构建。把音频放入AudioBuffer后，可以传入到一个 AudioBufferSourceNode进行播放。 */
     interface AudioBuffer {
         /** 返回存储在缓存区的PCM数据的时长（单位为秒） */
         duration: number
@@ -220,6 +226,31 @@ declare namespace WechatMinigame {
             channel: number
         ): Float32Array
     }
+    /** 空间音频监听器，代表在一个音频场景内唯一的位置和方向信息。 */
+    interface AudioListener {
+        /** 表示监听器的前向系统在同一笛卡尔坐标系中的水平位置，作为位置（位置x，位置和位置和位置）值。 */
+        forwardX: number
+        /** 表示听众的前向方向在同一笛卡尔坐标系中作为位置（位置x，位置和位置和位置）值的垂直位置。 */
+        forwardY: number
+        /** 表示与position (positionX、positionY和positionZ)值在同一笛卡尔坐标系下的听者前进方向的纵向(前后)位置。 */
+        forwardZ: number
+        /** 右手笛卡尔坐标系中X轴的位置。 */
+        positionX: number
+        /** 右手笛卡尔坐标系中Y轴的位置。 */
+        positionY: number
+        /** 右手笛卡尔坐标系中Z轴的位置。 */
+        positionZ: number
+        /** 设置监听器的方向 */
+        setOrientation: (...args: any[]) => any
+        /** 设置监听器的位置 */
+        setPosition: (...args: any[]) => any
+        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向前方向的水平位置。 */
+        upX: number
+        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向上方向的水平位置。 */
+        upY: number
+        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向后方向的水平位置。 */
+        upZ: number
+    }
     /** 需要基础库： `2.19.0`
      *
      * AudioParam 接口代表音频相关的参数，通常是 AudioNode（例如 GainNode.gain）的参数 */
@@ -234,7 +265,7 @@ declare namespace WechatMinigame {
         value: number
     }
     interface AuthPrivateMessageOption {
-        /** shareTicket。可以从 wx.onShow 中获取。详情 [shareTicket](#) */
+        /** shareTicket。可以从 wx.getEnterOptionsSync 中获取。详情 [shareTicket](#) */
         shareTicket: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: AuthPrivateMessageCompleteCallback
@@ -528,10 +559,6 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
 const source = audioCtx.createBufferSource()
 source.buffer = AudioBuffer
 source.connect(audioCtx.destination)
-sourceCache.add(source) // Tips：缓存住 source，防止被GC掉，GC掉的话音频会中断
-source.onended = () => {
-  sourceCache.delete(source) // Tips：播放完之后，再清掉source缓存
-}
 source.start()
 ``` */
     interface BufferSourceNode {
@@ -545,10 +572,7 @@ source.start()
         loopEnd?: number
         /** 定义音频循环播放时，开始播放的位置。单位是秒，默认值是0（可读可写） */
         loopStart?: number
-        /** 定义音频播放结束事件回调函数（可读可写）
-         *
-         * ## 注意事项
-         * - bug：从微信8.0.34开始，BufferSource在JS中如果不一直持有的话，会被客户端GC掉，GC掉之后，BufferSource如果正在播放的话会被中断。因此，建议开发者在 BufferSource.start() 开始播放之前缓存 BufferSource 并在 BufferSource.onended 的时候释放缓存。具体可参考下面示例代码中的缓存逻辑。 */
+        /** 定义音频播放结束事件回调函数（可读可写） */
         onended?: (...args: any[]) => any
         /** [AudioParam](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioParam.html)
          *
@@ -1147,6 +1171,8 @@ source.start()
         left: number
         /** 原生模板广告组件的左上角纵坐标 */
         top: number
+        /** 原生模板广告组件的宽度（仅在某些模板生效，如矩阵格子） */
+        width: number
     }
     interface CreateGameClubButtonOption {
         /** 游戏圈按钮的图标，仅当 object.type 参数为 image 时有效。
@@ -1638,6 +1664,15 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
             | 'latin1'
             | 'gbk'
     }
+    /** 帧深度纹理buffer对象 */
+    interface DepthBufferRes {
+        /** 深度纹理buffer */
+        DepthAddress: ArrayBuffer
+        /** 深度纹理高 */
+        height: number
+        /** 深度纹理宽 */
+        width: number
+    }
     /** 需要基础库： `3.0.0`
      *
      * 深度识别配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/depth.html)。 */
@@ -1734,7 +1769,7 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
     interface DeviceInfo {
         /** 应用（微信APP）二进制接口类型（仅 Android 支持） */
         abi: string
-        /** 设备性能等级（仅 Android 支持）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不到50） */
+        /** 设备性能等级（仅 Android 支持）。取值为：-2 或 0（该设备无法运行小游戏），-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不到50）<br> 注意：从基础库3.4.5开始，本返回值停止维护，请使用[wx.getDeviceBenchmarkInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceBenchmarkInfo.html)获取设备性能等级 */
         benchmarkLevel: number
         /** 设备品牌 */
         brand: string
@@ -1762,6 +1797,16 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         url: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: DownloadFileCompleteCallback
+        /** 需要基础库： `2.10.4`
+         *
+         * 是否开启 http2 */
+        enableHttp2?: boolean
+        /** 是否开启 profile，默认开启。开启后可在接口回调的 res.profile 中查看性能调试信息。 */
+        enableProfile?: boolean
+        /** 需要基础库： `2.10.4`
+         *
+         * 是否开启 Quic 协议（gQUIC Q43） */
+        enableQuic?: boolean
         /** 接口调用失败的回调函数 */
         fail?: DownloadFileFailCallback
         /** 需要基础库： `1.8.0`
@@ -1776,6 +1821,10 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
          *
          * 超时时间，单位为毫秒，默认值为 60000 即一分钟。 */
         timeout?: number
+        /** 需要基础库： `3.4.1`
+         *
+         * 使用高性能模式，暂仅支持 Android，默认关闭。该模式下有更优的网络性能表现。 */
+        useHighPerformanceMode?: boolean
     }
     interface DownloadFileSuccessCallbackResult {
         /** 用户文件路径 (本地路径)。传入 filePath 时会返回，跟传入的 filePath 一致 */
@@ -1928,6 +1977,15 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         message: string
         /** 错误调用堆栈 */
         stack: string
+    }
+    /** 需要基础库： `3.4.0`
+     *
+     * 网络请求过程中的一些异常信息（例如：TCPSocket.connect 传了 enableHttpDNS: true，但最终未使用 HttpDNS 时，exception 就会说明未使用 HttpDNS 的原因） */
+    interface Exception {
+        /** 需要基础库： `3.4.0`
+         *
+         * 异常信息 */
+        reasons: TCPExceptionReason[]
     }
     /** 本次请求底层失败信息，所有失败信息均符合Errno错误码 */
     interface ExceptionReason {
@@ -2481,6 +2539,10 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetBatteryInfoSuccessCallbackResult {
         /** 是否正在充电中 */
         isCharging: boolean
+        /** 需要基础库： `3.4.3`
+         *
+         * 是否处于省电模式，目前仅 iOS 端支持 */
+        isLowPowerModeEnabled: boolean
         /** 设备电量，范围 1 - 100 */
         level: number
         errMsg: string
@@ -2488,6 +2550,10 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetBatteryInfoSyncResult {
         /** 是否正在充电中 */
         isCharging: boolean
+        /** 需要基础库： `3.4.3`
+         *
+         * 是否处于省电模式，目前仅 iOS 端支持 */
+        isLowPowerModeEnabled: boolean
         /** 设备电量，范围 1 - 100 */
         level: number
     }
@@ -2640,6 +2706,25 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         devices: BluetoothDeviceInfo[]
         errMsg: string
     }
+    interface GetDeviceBenchmarkInfoOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetDeviceBenchmarkInfoCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetDeviceBenchmarkInfoFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetDeviceBenchmarkInfoSuccessCallback
+    }
+    interface GetDeviceBenchmarkInfoSuccessCallbackResult {
+        /** 需要基础库： `3.4.5`
+         *
+         * 设备性能等级。-1（性能未知），>=1（设备性能值，该值越高，设备性能越好，目前最高不超过50）<br> 注意：设备的benchmarkLevel值不会随着时间的推移而变化 */
+        benchmarkLevel: number
+        /** 需要基础库： `3.4.5`
+         *
+         * 设备机型档位。0（档位未知），1（高档机），2（中档机），3（低档机）<br> 注意：设备的机型档位会随着时间的推移而变化，因此在使用时请谨慎对待；若业务逻辑依赖于机型档位，但担心受到机型档位变化的影响，请参考[设备档位映射文档](https://developers.weixin.qq.com/minigame/dev/guide/performance/perf-benchmarkLevel.html)自行判断机型档位 */
+        modelLevel: number
+        errMsg: string
+    }
     interface GetExtConfigOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetExtConfigCompleteCallback
@@ -2662,8 +2747,9 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
          *
          * 可选值：
          * - 'md5': md5 算法;
-         * - 'sha1': sha1 算法; */
-        digestAlgorithm?: 'md5' | 'sha1'
+         * - 'sha1': sha1 算法;
+         * - 'sha256': sha256 算法; */
+        digestAlgorithm?: 'md5' | 'sha1' | 'sha256'
         /** 接口调用失败的回调函数 */
         fail?: GetFileInfoFailCallback
         /** 接口调用成功的回调函数 */
@@ -3094,7 +3180,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         errMsg: string
     }
     interface GetShareInfoOption {
-        /** shareTicket */
+        /** shareTicket，详见[获取更多转发信息](#) */
         shareTicket: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetShareInfoCompleteCallback
@@ -3527,6 +3613,18 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** 包含位置、旋转、放缩信息的矩阵，以列为主序 */
         transform: Float32Array
     }
+    /** 需要基础库： `3.3.0`
+     *
+     * 身份证检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/idcard.html)。 */
+    interface IDCardTrack {
+        /** 需要基础库： `3.3.0`
+         *
+         * 身份证检测模式
+         *
+         * 可选值：
+         * - 2: 静态图片检测; */
+        mode: 2
+    }
     /** 图片对象 */
     interface Image {
         /** 图片的真实高度 */
@@ -3540,7 +3638,7 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** 图片的真实宽度 */
         width: number
     }
-    /** 需要基础库： `2.24.6`
+    /** 需要基础库： `3.4.10`
      *
      * ImageData 对象。用于动态创建一个图片对象。 */
     interface ImageData {
@@ -4081,6 +4179,15 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** shareTicket，详见[获取更多转发信息](#) */
         shareTicket?: string
     }
+    /** 帧深度纹理buffer对象，width * height 大小的 深度值（float32） */
+    interface LegSegmentBufferRes {
+        /** 腿部分割纹理buffer，width * height 大小的 裁剪值（0 为不是脚，越靠近 255 越接近腿部区域）（uint8） */
+        DepthAddress: ArrayBuffer
+        /** 腿部分割纹理高 */
+        height: number
+        /** 腿部分割纹理宽 */
+        width: number
+    }
     interface LoadSubpackageOption {
         /** 分包加载结束回调事件(加载成功、失败都会执行） */
         complete: (...args: any[]) => any
@@ -4090,14 +4197,6 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         name: string
         /** 分包加载成功回调事件 */
         success: (...args: any[]) => any
-    }
-    interface LocalInfo {
-        /** 接收消息的 socket 的地址 */
-        address: string
-        /** 使用的协议族，为 IPv4 或者 IPv6 */
-        family: string
-        /** 端口号 */
-        port: number
     }
     interface LoginOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -4521,6 +4620,58 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 面对的方向度数 */
         direction: number
     }
+    interface OnConnectListenerResult {
+        /** 需要基础库： `3.4.0`
+         *
+         * 网络请求过程中的一些异常信息（例如：TCPSocket.connect 传了 enableHttpDNS: true，但最终未使用 HttpDNS 时，exception 就会说明未使用 HttpDNS 的原因） */
+        exception: Exception
+        /** 需要基础库： `3.4.1`
+         *
+         * 接收端地址信息（目前仅iOS和Android端支持） */
+        localInfo: OnConnectListenerResultLocalInfo
+        /** 需要基础库： `3.4.1`
+         *
+         * 发送端地址信息（目前仅iOS和Android端支持） */
+        remoteInfo: OnConnectListenerResultRemoteInfo
+        /** 需要基础库： `3.4.0`
+         *
+         * 本次连接是否使用了 HttpDNS */
+        useHttpDNS: boolean
+    }
+    /** 需要基础库： `3.4.1`
+     *
+     * 接收端地址信息（目前仅iOS和Android端支持） */
+    interface OnConnectListenerResultLocalInfo {
+        /** 需要基础库： `3.4.1`
+         *
+         * 接收消息的 socket 的地址 */
+        address: string
+        /** 需要基础库： `3.4.1`
+         *
+         * 使用的协议族，为 IPv4 或者 IPv6 */
+        family: string
+        /** 需要基础库： `3.4.1`
+         *
+         * 端口号 */
+        port: number
+    }
+    /** 需要基础库： `3.4.1`
+     *
+     * 发送端地址信息（目前仅iOS和Android端支持） */
+    interface OnConnectListenerResultRemoteInfo {
+        /** 需要基础库： `3.4.1`
+         *
+         * 发送消息的 socket 的地址 */
+        address: string
+        /** 需要基础库： `3.4.1`
+         *
+         * 使用的协议族，为 IPv4 或者 IPv6 */
+        family: string
+        /** 需要基础库： `3.4.1`
+         *
+         * 端口号 */
+        port: number
+    }
     interface OnCopyUrlListenerResult {
         /** 用短链打开小程序时当前页面携带的查询字符串。小程序中使用时，应在进入页面时调用 `wx.onCopyUrl` 自定义 `query`，退出页面时调用 `wx.offCopyUrl`，防止影响其它页面。 */
         query: string
@@ -4618,6 +4769,28 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * - 10: TRIM_MEMORY_RUNNING_LOW;
          * - 15: TRIM_MEMORY_RUNNING_CRITICAL; */
         level: 5 | 10 | 15
+    }
+    interface OnMenuButtonBoundingClientRectWeightChangeListenerResult {
+        /** 下边界坐标，单位：px */
+        bottom: number
+        /** 高度，单位：px */
+        height: number
+        /** 左边界坐标，单位：px */
+        left: number
+        /** 右边界坐标，单位：px */
+        right: number
+        /** 上边界坐标，单位：px */
+        top: number
+        /** 宽度，单位：px */
+        width: number
+    }
+    interface OnMessageListenerResultLocalInfo {
+        /** 接收消息的 socket 的地址 */
+        address: string
+        /** 使用的协议族，为 IPv4 或者 IPv6 */
+        family: string
+        /** 端口号 */
+        port: number
     }
     interface OnMouseDownListenerResult {
         /** 按键类型，0左键，1中键，2右键 */
@@ -4826,8 +4999,14 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         frameId: number
     }
     interface OnTapListenerResult {
+        /** 需要基础库： `2.7.0`
+         *
+         * 敏感数据对应的云 ID，开通[云开发](../../wxcloud/basis/getting-started.md)的小程序才会返回，可通过云调用直接获取开放数据，详细见[云调用直接获取开放数据](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#method-cloud) */
+        cloudID: string
         /** 包括敏感数据在内的完整用户信息的加密数据，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
         encryptedData: string
+        /** 调用结果（错误原因） */
+        errMsg: string
         /** 加密算法的初始向量，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
         iv: string
         /** 不包括敏感信息的原始数据字符串，用于计算签名 */
@@ -4858,6 +5037,16 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         promise: string
         /** 拒绝原因，一般是一个 Error 对象 */
         reason: string
+    }
+    interface OnUserCaptureScreenListenerResult {
+        /** 需要基础库： `3.3.0`
+         *
+         * 如果该参数存在，则其它的参数将会以 resolve 结果为准，如果一秒内不 resolve，分享会使用上面传入的默认参数 */
+        promise?: Promise<any>
+        /** 需要基础库： `3.3.0`
+         *
+         * 支持开发者自定义一键打开小程序时的 query */
+        query?: string
     }
     interface OnVoIPChatInterruptedListenerResult {
         /** 错误码 */
@@ -5249,33 +5438,33 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
     interface OptionStyle {
         /** 背景颜色 */
         backgroundColor: string
-        /** 边框颜色 */
-        borderColor: string
-        /** 边框圆角 */
-        borderRadius: number
-        /** 边框宽度 */
-        borderWidth: number
-        /** 文本的颜色。格式为 6 位 16 进制数。 */
-        color: string
-        /** 字号 */
-        fontSize: number
         /** 高度 */
         height: number
         /** 左上角横坐标 */
         left: number
+        /** 左上角纵坐标 */
+        top: number
+        /** 宽度 */
+        width: number
+        /** 边框颜色 */
+        borderColor?: string
+        /** 边框圆角 */
+        borderRadius?: number
+        /** 边框宽度 */
+        borderWidth?: number
+        /** 文本的颜色。格式为 6 位 16 进制数。 */
+        color?: string
+        /** 字号 */
+        fontSize?: number
         /** 文本的行高 */
-        lineHeight: number
+        lineHeight?: number
         /** 文本的水平居中方式
          *
          * 可选值：
          * - 'left': 居左;
          * - 'center': 居中;
          * - 'right': 居右; */
-        textAlign: 'left' | 'center' | 'right'
-        /** 左上角纵坐标 */
-        top: number
-        /** 宽度 */
-        width: number
+        textAlign?: 'left' | 'center' | 'right'
     }
     interface OwnerLeaveRoomOption {
         /** 游戏房间访问凭证 */
@@ -5317,10 +5506,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         complete: (...args: any[]) => any
         /** 分包加载失败回调事件 */
         fail: (...args: any[]) => any
-        /** 分包的类型。目前仅支持填 "workers"，表示 workers 分包。 */
-        packageType: string
+        /** 分包的名字，可以填 name 或者 root。在独立分包内，填 __GAME__ 表示加载主包，详见 [小游戏独立分包指南](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/independent-sub-packages.html), [3.4.9](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html)及以上版本支持 */
+        name: string
         /** 分包加载成功回调事件 */
         success: (...args: any[]) => any
+        /** 分包的类型，填写 "workers" 后 name 字段失效
+         *
+         * 可选值：
+         * - 'workers': worker 分包;
+         * - 'normal': 普通分包, [3.4.9](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html)及以上版本支持; */
+        packageType?: 'workers' | 'normal'
     }
     interface PreDownloadSubpackageTaskOnProgressUpdateListenerResult {
         /** 分包下载进度百分比 */
@@ -5639,17 +5834,6 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
             | 44100
             | 48000
     }
-    /** 发送端地址信息 */
-    interface RemoteInfo {
-        /** 发送消息的 socket 的地址 */
-        address: string
-        /** 使用的协议族，为 IPv4 或者 IPv6 */
-        family: string
-        /** 端口号 */
-        port: number
-        /** message 的大小，单位：字节 */
-        size: number
-    }
     interface RemoveSavedFileOption {
         /** 需要删除的文件路径 (本地路径) */
         filePath: string
@@ -5836,6 +6020,38 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         errCode: number
         /** 错误信息 */
         errMsg: string
+        /** 错误码 */
+        errno: number
+    }
+    interface RequestMidasPaymentGameItemOption {
+        /** <b>支付签名</b>
+         *
+         * pay_sig参数的签名算法，使用<b>“mp-支付基础配置”</b>中的<b>AppKey</b>对支付的请求进行签名，代表请求经过开发者服务端的支付模块发起。签名算法伪代码为：
+         *
+         * paySig = to_hex(hmac_sha256(appKey,'requestMidasPaymentGameItem' + '&' + signData))
+         *
+         * 具体可见代码示例中的支付签名代码实现 */
+        paySig: string
+        /** <b>支付原串</b>
+         *
+         * 具体支付参数见下面的signData，需要将数据以json格式传递
+         *
+         * signData例子:
+         *
+         * '{"mode":"goods","offerId":"123","buyQuantity":1,"env":0,"currencyType":"CNY","platform":"android","zoneId":"1","productId":"testproductId","goodsPrice":10,"outTradeNo":"xxxxxx","attach":"testdata"}' */
+        signData: SignData1
+        /** <b>用户态签名</b>
+         *
+         * signature参数签名算法参考[用户态签名](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E6%80%81%E7%AD%BE%E5%90%8D)
+         *
+         * 可参考[calc_signature](https://docs.qq.com/doc/DVUN0QWJja0J5c2x4) */
+        signature: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: RequestMidasPaymentGameItemCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: RequestMidasPaymentGameItemFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: RequestMidasPaymentGameItemSuccessCallback
     }
     interface RequestMidasPaymentOption {
         /** 币种
@@ -5898,7 +6114,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         dataType?: 'json' | '其他'
         /** 需要基础库： `2.10.4`
          *
-         * 开启 cache */
+         * 开启 Http 缓存 */
         enableCache?: boolean
         /** 需要基础库： `2.20.2`
          *
@@ -5912,9 +6128,11 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          *
          * 是否开启 HttpDNS 服务。如开启，需要同时填入 httpDNSServiceId 。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/HTTPDNS.html) */
         enableHttpDNS?: boolean
+        /** 是否开启 profile，默认开启。开启后可在接口回调的 res.profile 中查看性能调试信息。 */
+        enableProfile?: boolean
         /** 需要基础库： `2.10.4`
          *
-         * 开启 quic */
+         * 开启 Quic 协议（gQUIC Q43） */
         enableQuic?: boolean
         /** 接口调用失败的回调函数 */
         fail?: RequestFailCallback
@@ -5952,7 +6170,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
             | 'CONNECT'
         /** 需要基础库： `3.2.2`
          *
-         * 重定向拦截策略。（目前仅安卓和iOS端支持，开发者工具和PC端将在后续支持）
+         * 重定向拦截策略。（目前安卓、iOS、开发者工具已支持，PC端将在后续支持）
          *
          * 可选值：
          * - 'follow': 不拦截重定向，即客户端自动处理重定向;
@@ -5972,6 +6190,10 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          *
          * 超时时间，单位为毫秒。默认值为 60000 */
         timeout?: number
+        /** 需要基础库： `3.3.3`
+         *
+         * 使用高性能模式，暂仅支持 Android，默认关闭。该模式下有更优的网络性能表现，更多信息请查看下方说明。 */
+        useHighPerformanceMode?: boolean
     }
     /** 需要基础库： `2.10.4`
      *
@@ -6027,6 +6249,8 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         throughputKbps: number
         /** 传输层根据多个请求评估的当前网络的 rtt（仅供参考） */
         transportRttEstimate: number
+        /** 是否走到了高性能模式。基础库 v3.3.4 起支持。 */
+        usingHighPerformanceMode: boolean
     }
     interface RequestSubscribeMessageFailCallbackResult {
         /** 接口调用失败错误码 */
@@ -6092,6 +6316,10 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         profile: RequestProfile
         /** 开发者服务器返回的 HTTP 状态码 */
         statusCode: number
+        /** 需要基础库： `3.4.10`
+         *
+         * 最终请求是否使用了HttpDNS（仅当enableHttpDNS传true时返回此字段） */
+        useHttpDNS: boolean
         errMsg: string
     }
     interface RequestTaskOnHeadersReceivedListenerResult {
@@ -6638,6 +6866,18 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          * 对局回放的音量大小，最小 0，最大 1。 */
         volume?: number
     }
+    /** 需要基础库： `3.2.1`
+     *
+     * 鞋部检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/shoe.html)。 */
+    interface ShoeTrack {
+        /** 需要基础库： `3.2.1`
+         *
+         * 鞋部检测模式
+         *
+         * 可选值：
+         * - 1: 通过摄像头实时检测; */
+        mode: 1
+    }
     interface ShowActionSheetOption {
         /** 按钮的文字数组，数组长度最大为 6 */
         itemList: string[]
@@ -6750,8 +6990,8 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: ShowShareImageMenuFailCallback
         /** 需要基础库： `3.2.0`
          *
-         * 分享的图片消息是否要带小程序入口 */
-        needShowEntrance?: string
+         * 分享的图片消息是否要带小程序入口 (仅部分小程序类目可用) */
+        needShowEntrance?: boolean
         /** 需要基础库： `3.2.0`
          *
          * 分享样式，可选 v2 */
@@ -6799,6 +7039,61 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 接口调用成功的回调函数 */
         success?: ShowToastSuccessCallback
     }
+    /** <b>支付原串</b>
+     *
+     * 具体支付参数见下面的signData，需要将数据以json格式传递
+     *
+     * signData例子:
+     *
+     * '{"mode":"goods","offerId":"123","buyQuantity":1,"env":0,"currencyType":"CNY","platform":"android","zoneId":"1","productId":"testproductId","goodsPrice":10,"outTradeNo":"xxxxxx","attach":"testdata"}' */
+    interface SignData1 {
+        /** <b>购买数量</b> */
+        buyQuantity: number
+        /** <b>币种</b>
+         *
+         * 可选值：
+         * - 'CNY': 人民币; */
+        currencyType: 'CNY'
+        /** <b>道具单价（分）</b>
+         *
+         * 用来校验价格与后台道具价格是否一致，避免用户在业务商城页看到的价格与实际价格不一致导致投诉 */
+        goodsPrice: number
+        /** <b>支付的类型</b>
+         *
+         * 不同的支付类型有各自额外要传的附加参数 */
+        mode: string
+        /** <b>在米大师侧申请的应用id</b>
+         *
+         * mp-支付基础配置中的offerid */
+        offerId: string
+        /** <b>业务订单号</b>
+         *
+         * 每个订单号只能使用一次，重复使用会失败（极端情况不保证唯一，不建议业务强依赖唯一性）。
+         *
+         * 要求32个字符内，只能是数字、大小写字母、符号 _-|*@组成，不能以下划线(_)开头。
+         *
+         * 若没有传入，则平台会自动填充一个，并以下划线开头。 */
+        outTradeNo: string
+        /** <b>道具ID</b> */
+        productId: string
+        /** <b>透传数据</b>
+         *
+         * 发货通知时会透传给开发者 */
+        attach?: string
+        /** <b>环境配置</b>
+         *
+         * 可选值：
+         * - 0: 米大师正式环境;
+         * - 1: 米大师沙箱环境; */
+        env?: 0 | 1
+        /** <b>平台</b>
+         *
+         * 可选值：
+         * - 'android': 安卓; */
+        platform?: 'android'
+        /** <b>分区ID</b> */
+        zoneId?: string
+    }
     /** 需要基础库： `2.10.4`
      *
      * 网络请求过程中一些调试信息 */
@@ -6810,9 +7105,9 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 上层请求到返回的耗时 */
         cost: number
         /** DNS 域名查询完成的时间，如果使用了本地缓存（即无 DNS 查询）或持久连接，则与 fetchStart 值相等 */
-        domainLookupEnd: number
+        domainLookUpEnd: number
         /** DNS 域名查询开始的时间，如果使用了本地缓存（即无 DNS 查询）或持久连接，则与 fetchStart 值相等 */
-        domainLookupStart: number
+        domainLookUpStart: number
         /** 组件准备好使用 SOCKET 建立请求的时间，这发生在检查本地缓存之前 */
         fetchStart: number
         /** 握手耗时 */
@@ -7173,7 +7468,7 @@ wx.getSetting({
          *
          * 允许微信使用摄像头的开关 */
         cameraAuthorized: boolean
-        /** 设备方向
+        /** 设备方向（注意：IOS客户端横屏游戏获取deviceOrientation可能不准，建议以屏幕宽高为准）
          *
          * 可选值：
          * - 'portrait': 竖屏;
@@ -7287,7 +7582,7 @@ wx.getSetting({
     interface SystemSetting {
         /** 蓝牙的系统开关 */
         bluetoothEnabled: boolean
-        /** 设备方向
+        /** 设备方向（注意：IOS客户端横屏游戏获取deviceOrientation可能不准，建议以屏幕宽高为准）
          *
          * 可选值：
          * - 'portrait': 竖屏;
@@ -7298,21 +7593,47 @@ wx.getSetting({
         /** Wi-Fi 的系统开关 */
         wifiEnabled: boolean
     }
+    /** 需要基础库： `3.4.0`
+     *
+     * 异常信息 */
+    interface TCPExceptionReason {
+        /** 错误原因 */
+        errMsg: string
+        /** 错误码 */
+        errno: string
+    }
     interface TCPSocketConnectOption {
         /** 套接字要连接的地址 */
         address: string
         /** 套接字要连接的端口 */
         port: number
+        /** 需要基础库： `3.4.0`
+         *
+         * 是否开启 HttpDNS 服务。如开启，需要同时填入 httpDNSServiceId 。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/HTTPDNS.html) */
+        enableHttpDNS?: boolean
+        /** 需要基础库： `3.4.0`
+         *
+         * HttpDNS 服务商 Id。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/HTTPDNS.html) */
+        httpDNSServiceId?: string
         /** 套接字要连接的超时时间，默认为 2s */
         timeout?: number
     }
     interface TCPSocketOnMessageListenerResult {
         /** 接收端地址信息 */
-        localInfo: LocalInfo
+        localInfo: OnMessageListenerResultLocalInfo
         /** 收到的消息 */
         message: ArrayBuffer
         /** 发送端地址信息 */
-        remoteInfo: RemoteInfo
+        remoteInfo: TCPSocketOnMessageListenerResultRemoteInfo
+    }
+    /** 发送端地址信息 */
+    interface TCPSocketOnMessageListenerResultRemoteInfo {
+        /** 发送消息的 socket 的地址 */
+        address: string
+        /** 使用的协议族，为 IPv4 或者 IPv6 */
+        family: string
+        /** 端口号 */
+        port: number
     }
     /** 需要基础库： `2.30.0`
 *
@@ -7458,6 +7779,10 @@ session.run({
     interface Track {
         /** 平面跟踪配置 */
         plane: PlaneTrack
+        /** 需要基础库： `3.3.0`
+         *
+         * 身份证检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/idcard.html)。 */
+        IDCard?: IDCardTrack
         /** 需要基础库： `2.27.0`
          *
          * OCR检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/ocr.html)。 */
@@ -7486,6 +7811,10 @@ session.run({
          *
          * marker 跟踪配置，基础库(3.0.0)开始允许同时支持v2的水平面检测能力 */
         marker?: boolean
+        /** 需要基础库： `3.2.1`
+         *
+         * 鞋部检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/shoe.html)。 */
+        shoe?: ShoeTrack
         /** 需要基础库： `2.28.0`
          *
          * 提供基础AR功能，输出相机旋转的3个自由度的位姿，利用手机陀螺仪传感器，实现快速稳定的AR定位能力，适用于简单AR场景。 */
@@ -7517,11 +7846,22 @@ session.run({
     }
     interface UDPSocketOnMessageListenerResult {
         /** 接收端地址信息，2.18.0 起支持 */
-        localInfo: LocalInfo
+        localInfo: OnMessageListenerResultLocalInfo
         /** 收到的消息。消息长度需要小于4096。 */
         message: ArrayBuffer
         /** 发送端地址信息 */
-        remoteInfo: RemoteInfo
+        remoteInfo: UDPSocketOnMessageListenerResultRemoteInfo
+    }
+    /** 发送端地址信息 */
+    interface UDPSocketOnMessageListenerResultRemoteInfo {
+        /** 发送消息的 socket 的地址 */
+        address: string
+        /** 使用的协议族，为 IPv4 或者 IPv6 */
+        family: string
+        /** 端口号 */
+        port: number
+        /** message 的大小，单位：字节 */
+        size: number
     }
     interface UDPSocketSendOption {
         /** 要发消息的地址。在基础库 <= 2.9.3 版本必须是和本机同网段的 IP 地址，或安全域名列表内的域名地址；之后版本可以是任意 IP 和域名 */
@@ -7572,6 +7912,12 @@ session.run({
     interface UpdatableMessageFrontEndTemplateInfo {
         /** 参数列表 */
         parameterList: UpdatableMessageFrontEndParameter[]
+        /** 模板ID */
+        templateId: string
+    }
+    interface Update3DModeOption {
+        /** 是否开启三维识别 */
+        open3d: boolean
     }
     interface UpdateKeyboardOption {
         /** 键盘输入框的当前值 */
@@ -7582,6 +7928,10 @@ session.run({
         fail?: UpdateKeyboardFailCallback
         /** 接口调用成功的回调函数 */
         success?: UpdateKeyboardSuccessCallback
+    }
+    interface UpdateMaskModeOption {
+        /** 设置是否开启试鞋，返回腿部遮挡纹理 */
+        useMask: boolean
     }
     interface UpdateReadyStatusOption {
         /** 游戏房间访问凭证 */
@@ -7652,6 +8002,12 @@ session.run({
         url: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: UploadFileCompleteCallback
+        /** 需要基础库： `2.10.4`
+         *
+         * 是否开启 http2 */
+        enableHttp2?: boolean
+        /** 是否开启 profile，默认开启。开启后可在接口回调的 res.profile 中查看性能调试信息。目前仅 iOS 端支持。 */
+        enableProfile?: boolean
         /** 接口调用失败的回调函数 */
         fail?: UploadFileFailCallback
         /** HTTP 请求中其他额外的 form data */
@@ -7664,6 +8020,10 @@ session.run({
          *
          * 超时时间，单位为毫秒 */
         timeout?: number
+        /** 需要基础库： `3.4.1`
+         *
+         * 使用高性能模式，暂仅支持 Android，默认关闭。该模式下有更优的网络性能表现。 */
+        useHighPerformanceMode?: boolean
     }
     interface UploadFileSuccessCallbackResult {
         /** 开发者服务器返回的数据 */
@@ -7818,6 +8178,8 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 相机内参，只有 v2 版本支持 */
         intrinsics: Float32Array
+        /** 相机原始的Pose矩阵 */
+        transform: Float32Array
         /** 视图矩阵 */
         viewMatrix: Float32Array
         /** [Float32Array VKCamera.getProjectionMatrix(number near, number far)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKCamera.getProjectionMatrix.html)
@@ -7919,6 +8281,19 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
             /** 高度 */
             height: number
         ): ArrayBuffer
+        /** [ArrayBuffer VKFrame.getCameraJpgBuffer(number width, number height, number quality)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getCameraJpgBuffer.html)
+         *
+         * 需要基础库： `3.0.0`
+         *
+         * 获取当前帧的 jpg 信息Buffer。安卓微信 8.0.49 开始支持，iOS微信 8.0.49 开始支持。 */
+        getCameraJpgBuffer(
+            /** 宽度 */
+            width: number,
+            /** 高度 */
+            height: number,
+            /** 获取纹理质量，(0 - 100) */
+            quality: number
+        ): ArrayBuffer
         /** [Float32Array VKFrame.getDisplayTransform()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getDisplayTransform.html)
          *
          * 需要基础库： `2.32.1`
@@ -7934,6 +8309,18 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
             /** 画布 */
             gl: WebGLRenderingContext
         ): YUVTextureRes
+        /** [Object VKFrame.getDepthBuffer()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getDepthBuffer.html)
+         *
+         * 需要基础库： `3.0.0`
+         *
+         * 获取每帧的深度图信息Buffer。安卓微信 8.0.38 开始支持，iOS微信 8.0.39 开始支持。 */
+        getDepthBuffer(): DepthBufferRes
+        /** [Object VKFrame.getLegSegmentBuffer()](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKFrame.getLegSegmentBuffer.html)
+         *
+         * 需要基础库： `3.2.1`
+         *
+         * 获取每帧的腿部分割信息Buffer，安卓微信 8.0.43，iOS微信 8.0.43 开始支持。 */
+        getLegSegmentBuffer(): LegSegmentBufferRes
     }
     /** 需要基础库： `2.32.1`
      *
@@ -8255,6 +8642,15 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 静态图像OCR检测。当 wx.createVKSession 参数传入 {track: {OCR: {mode: 2} } } 时可用。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/ocr.html)。 */
         runOCR(option: RunOCROption): void
+        /** [VKSession.setDepthOccRange(number threshold)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.setDepthOccRange.html)
+         *
+         * 需要基础库： `3.0.0`
+         *
+         * 更新 深度遮挡 Occ范围，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时传入 {track: {depth: {mode: 2} } } */
+        setDepthOccRange(
+            /** 阈值 */
+            threshold: number
+        ): void
         /** [VKSession.start(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.start.html)
          *
          * 需要基础库： `2.32.1`
@@ -8270,15 +8666,18 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 停止会话。 */
         stop(): void
-        /** [VKSession.update3DMode(boolean open3d)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.update3DMode.html)
+        /** [VKSession.update3DMode(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.update3DMode.html)
          *
          * 需要基础库： `2.32.1`
          *
-         * 开启3D模式 */
-        update3DMode(
-            /** 是否开启 */
-            open3d: boolean
-        ): void
+         * 更新三维识别相关配置，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时使用 face / hand / body。 */
+        update3DMode(option: Update3DModeOption): void
+        /** [VKSession.updateMaskMode(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.updateMaskMode.html)
+         *
+         * 需要基础库： `3.2.1`
+         *
+         * 设置裁剪相关配置，要求调 [wx.createVKSession](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/wx.createVKSession.html) 时使用 shoe。 */
+        updateMaskMode(option: UpdateMaskModeOption): void
         /** [VKSession.updateOSDThreshold(number threshold)](https://developers.weixin.qq.com/minigame/dev/api/ai/visionkit/VKSession.updateOSDThreshold.html)
          *
          * 需要基础库： `2.32.1`
@@ -8764,7 +9163,9 @@ setTimeout(audioCtx.resume, 2000)
          *
          * 当前上下文的最终目标节点，一般是音频渲染设备。 */
         destination: WebAudioContextNode
-        /** 空间音频监听器。 */
+        /** [AudioListener](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioListener.html)
+         *
+         * 空间音频监听器。 */
         listener: AudioListener
         /** 可写属性，开发者可以对该属性设置一个监听函数，当WebAudio状态改变的时候，会触发开发者设置的监听函数。 */
         onstatechange: (...args: any[]) => any
@@ -8905,18 +9306,23 @@ audioCtx.close().then(() => {
             /** 线性音频样本的采样率，即每一秒包含的关键帧的个数 */
             sampleRate: number
         ): AudioBuffer
-        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.decodeAudioData()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)
+        /** [[AudioBuffer](https://developers.weixin.qq.com/minigame/dev/api/media/audio/AudioBuffer.html) WebAudioContext.decodeAudioData(ArrayBuffer audioData, function successCallback, function errorCallback)](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.decodeAudioData.html)
          *
          * 异步解码一段资源为AudioBuffer。 */
-        decodeAudioData(): AudioBuffer
+        decodeAudioData(
+            /** 一个包含音频文件数据的 ArrayBuffer */
+            audioData: ArrayBuffer,
+            /** 在音频数据解码成功时被调用，参数为解码后的AudioBuffer */
+            successCallback: (...args: any[]) => any,
+            /** 在音频数据解码失败时被调用 */
+            errorCallback: (...args: any[]) => any
+        ): AudioBuffer
         /** [[BufferSourceNode](https://developers.weixin.qq.com/minigame/dev/api/media/audio/BufferSourceNode.html) WebAudioContext.createBufferSource()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.createBufferSource.html)
          *
          * 创建一个BufferSourceNode实例，通过AudioBuffer对象来播放音频数据。 */
         createBufferSource(): BufferSourceNode
     }
-    /** 需要基础库： `2.19.0`
-     *
-     * 一类音频处理模块，不同的Node具备不同的功能，如GainNode(音量调整)等。一个WebAudioContextNode可以通过上下文来创建。
+    /** 一类音频处理模块，不同的Node具备不同的功能，如GainNode(音量调整)等。一个WebAudioContextNode可以通过上下文来创建。
      * 目前已经支持以下Node：
      * IIRFilterNode
      * WaveShaperNode
@@ -8934,32 +9340,7 @@ audioCtx.close().then(() => {
      * ScriptProcessorNode
      * PannerNode
      * AnalyserNode */
-    interface WebAudioContextNode {
-        /** 表示监听器的前向系统在同一笛卡尔坐标系中的水平位置，作为位置（位置x，位置和位置和位置）值。 */
-        forwardX: number
-        /** 表示听众的前向方向在同一笛卡尔坐标系中作为位置（位置x，位置和位置和位置）值的垂直位置。 */
-        forwardY: number
-        /** 表示与position (positionX、positionY和positionZ)值在同一笛卡尔坐标系下的听者前进方向的纵向(前后)位置。 */
-        forwardZ: number
-        /** 右手笛卡尔坐标系中X轴的位置。 */
-        positionX: number
-        /** 右手笛卡尔坐标系中Y轴的位置。 */
-        positionY: number
-        /** 右手笛卡尔坐标系中Z轴的位置。 */
-        positionZ: number
-        /** 设置监听器的方向 */
-        setOrientation: (...args: any[]) => any
-        /** 设置监听器的位置
-         *
-         * /** */
-        setPosition: (...args: any[]) => any
-        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向前方向的水平位置。 */
-        upX: number
-        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向上方向的水平位置。 */
-        upY: number
-        /** 表示在与position (positionX、positionY和positionZ)值相同的笛卡尔坐标系中侦听器向后方向的水平位置。 */
-        upZ: number
-    }
+    interface WebAudioContextNode {}
     interface WindowInfo {
         /** 设备像素比 */
         pixelRatio: number
@@ -9234,9 +9615,9 @@ setTimeout(() => {
             | 'latin1'
         /** 接口调用失败的回调函数 */
         fail?: WriteFailCallback
-        /** 只在 data 类型是 ArrayBuffer 时有效，指定要写入的字节数，默认为 arrayBuffer 从0开始偏移 offset 个字节后剩余的字节数 */
+        /** 只在 data 类型是 ArrayBuffer 时有效，指定要写入的字节数，默认为 ArrayBuffer 从0开始偏移 offset 个字节后剩余的字节数 */
         length?: number
-        /** 只在 data 类型是 ArrayBuffer 时有效，决定 arrayBuffe 中要被写入的部位，即 arrayBuffer 中的索引，默认0 */
+        /** 只在 data 类型是 ArrayBuffer 时有效，决定 ArrayBuffer 中要被写入的部位，即 ArrayBuffer 中的索引，默认0 */
         offset?: number
         /** 指定文件开头的偏移量，即数据要被写入的位置。当 position 不传或者传入非 Number 类型的值时，数据会被写入当前指针所在位置。 */
         position?: number
@@ -9284,9 +9665,9 @@ setTimeout(() => {
             | 'utf-8'
             | 'utf8'
             | 'latin1'
-        /** 只在 data 类型是 ArrayBuffer 时有效，指定要写入的字节数，默认为 arrayBuffer 从0开始偏移 offset 个字节后剩余的字节数 */
+        /** 只在 data 类型是 ArrayBuffer 时有效，指定要写入的字节数，默认为 ArrayBuffer 从0开始偏移 offset 个字节后剩余的字节数 */
         length?: number
-        /** 只在 data 类型是 ArrayBuffer 时有效，决定 arrayBuffe 中要被写入的部位，即 arrayBuffer 中的索引，默认0 */
+        /** 只在 data 类型是 ArrayBuffer 时有效，决定 ArrayBuffer 中要被写入的部位，即 ArrayBuffer 中的索引，默认0 */
         offset?: number
         /** 指定文件开头的偏移量，即数据要被写入的位置。当 position 不传或者传入非 Number 类型的值时，数据会被写入当前指针所在位置。 */
         position?: number
@@ -9435,7 +9816,7 @@ BLEPeripheralServer.offCharacteristicWriteRequest(listener) // 需传入与监�
          * **注意**
          *
          * - Android 8.0.9 开始，支持直接使用 16/32/128 位 UUID；
-         * - Android 8.0.9 以下版本只支持 128 位 UUID，使用 16/32 位的 UUID 时需要进行补位（系统会自动识别是否属于预分配区间），可以参考[蓝牙指南](#)；
+         * - Android 8.0.9 以下版本只支持 128 位 UUID，使用 16/32 位的 UUID 时需要进行补位（系统会自动识别是否属于预分配区间），可以参考[蓝牙指南](https://developers.weixin.qq.com/minigame/dev/guide/device/ble.html)；
          * - iOS 必须直接使用 16 位的 UUID，不能补位到 128 位，否则系统组包时仍会按照 128 位传输。iOS 暂不支持 32 位 UUID。
          * - iOS 同时只能发起一个广播，安卓支持同时发起多个广播。
          * - 传 beacon 参数时，不能同时传入 deviceName，serviceUuids，manufacturerData 参数。 */
@@ -10100,7 +10481,7 @@ fs.open({
 const fs = wx.getFileSystemManager()
 fs.mkdir({
   dirPath: `${wx.env.USER_DATA_PATH}/example`,
-  recursive: false
+  recursive: false,
   success(res) {
     console.log(res)
   },
@@ -10127,7 +10508,7 @@ try {
 const fs = wx.getFileSystemManager()
 fs.mkdir({
   dirPath: `${wx.env.USER_DATA_PATH}/example`,
-  recursive: false
+  recursive: false,
   success(res) {
     console.log(res)
   },
@@ -10197,7 +10578,9 @@ fs.open({
     })
   }
 })
-``` */
+```
+* ## 注意事项
+* - 小游戏 iOS 高性能模式（iOSHighPerformance）暂不支持 FileSystemManager.read 接口，请使用 FileSystemManager.readFile 接口代替 */
         read(option: ReadOption): void
         /** [FileSystemManager.readCompressedFile(Object object)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.readCompressedFile.html)
 *
@@ -10733,7 +11116,9 @@ const res = fs.readSync({
   length: 10
 })
 console.log(res)
-``` */
+```
+* ## 注意事项
+* - 小游戏 iOS 高性能模式（iOSHighPerformance）暂不支持 FileSystemManager.readSync 接口，请使用 FileSystemManager.readFileSync 接口代替 */
         readSync(option: ReadSyncOption): ReadResult
         /** [[Stats](https://developers.weixin.qq.com/minigame/dev/api/file/Stats.html) FileSystemManager.fstatSync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/file/FileSystemManager.fstatSync.html)
 *
@@ -11629,6 +12014,20 @@ GameServerManager.offSyncFrame(listener) // 需传入与监听时同一个的函
          * | 500005 |  | 无效的match_id |
          * | 500009 |  | 路由到错误的服务器 | */ errCode: number
     }
+    interface GetGroupEnterInfoError {
+        /** 错误信息
+         *
+         * | 错误码 | 错误信息 | 说明 |
+         * | - | - | - |
+         * | 40097 |  | 场景错误 |
+         * | 65206 |  | 用户已不在该群内 | */ errMsg: string
+        /** 错误码
+         *
+         * | 错误码 | 错误信息 | 说明 |
+         * | - | - | - |
+         * | 40097 |  | 场景错误 |
+         * | 65206 |  | 用户已不在该群内 | */ errCode: number
+    }
     interface InferenceSession {
         /** [InferenceSession.destroy()](https://developers.weixin.qq.com/minigame/dev/api/ai/inference/InferenceSession.destroy.html)
 *
@@ -11987,6 +12386,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | - | - | - |
          * | -1 |  | 系统失败 |
          * | -2 |  | 支付取消 |
+         * | -6 |  | 下单参数类型不对 |
          * | -15001 |  | 虚拟支付接口错误码，缺少参数 |
          * | -15002 |  | 虚拟支付接口错误码，参数不合法 |
          * | -15003 |  | 虚拟支付接口错误码，订单重复 |
@@ -11996,6 +12396,9 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | -15007 |  | 虚拟支付接口错误码，订单已支付 |
          * | -15009 |  | 虚拟支付接口错误码，由于健康系统限制，本次支付已超过限额（这种错误情况会有默认弹窗提示） |
          * | -15010 |  | 虚拟支付接口错误码，正式版小游戏不允许在沙箱环境支付 |
+         * | -15011 |  | 请求的数据类型错误 |
+         * | -15013 |  | 代币未发布 |
+         * | -15017 |  | 订单已关闭 |
          * | 1 |  | 虚拟支付接口错误码，用户取消支付 |
          * | 2 |  | 虚拟支付接口错误码，客户端错误,判断到小程序在用户处于支付中时,又发起了一笔支付请求 |
          * | 3 |  | 虚拟支付接口错误码，Android独有错误：用户使用GooglePlay支付，而手机未安装GooglePlay |
@@ -12005,13 +12408,16 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | 7 |  | 虚拟支付接口错误码，支付取消 |
          * | 1000 |  | 参数错误 |
          * | 1001 |  | 分区未发布 |
-         * | 1003 |  | 米大师Portal错误 | */ errMsg: string
+         * | 1003 |  | 代币/分区未发布或者对应商户号被封禁或者米大师Portal错误,请先确保虚拟支付2.0代币和分区已发布，然后自查商户号封禁情况https://kf.qq.com/faq/190523Mb6VRJ190523RV363E.html，对应的商户号可以在mp-虚拟支付2.0-基础配置-微信支付账号信息中查询 |
+         * | 3017/-15012 |  | 道具id非法 |
+         * | 701001 |  | ios禁止支付 | */ errMsg: string
         /** 错误码
          *
          * | 错误码 | 错误信息 | 说明 |
          * | - | - | - |
          * | -1 |  | 系统失败 |
          * | -2 |  | 支付取消 |
+         * | -6 |  | 下单参数类型不对 |
          * | -15001 |  | 虚拟支付接口错误码，缺少参数 |
          * | -15002 |  | 虚拟支付接口错误码，参数不合法 |
          * | -15003 |  | 虚拟支付接口错误码，订单重复 |
@@ -12021,6 +12427,9 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | -15007 |  | 虚拟支付接口错误码，订单已支付 |
          * | -15009 |  | 虚拟支付接口错误码，由于健康系统限制，本次支付已超过限额（这种错误情况会有默认弹窗提示） |
          * | -15010 |  | 虚拟支付接口错误码，正式版小游戏不允许在沙箱环境支付 |
+         * | -15011 |  | 请求的数据类型错误 |
+         * | -15013 |  | 代币未发布 |
+         * | -15017 |  | 订单已关闭 |
          * | 1 |  | 虚拟支付接口错误码，用户取消支付 |
          * | 2 |  | 虚拟支付接口错误码，客户端错误,判断到小程序在用户处于支付中时,又发起了一笔支付请求 |
          * | 3 |  | 虚拟支付接口错误码，Android独有错误：用户使用GooglePlay支付，而手机未安装GooglePlay |
@@ -12030,7 +12439,9 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | 7 |  | 虚拟支付接口错误码，支付取消 |
          * | 1000 |  | 参数错误 |
          * | 1001 |  | 分区未发布 |
-         * | 1003 |  | 米大师Portal错误 | */ errCode: number
+         * | 1003 |  | 代币/分区未发布或者对应商户号被封禁或者米大师Portal错误,请先确保虚拟支付2.0代币和分区已发布，然后自查商户号封禁情况https://kf.qq.com/faq/190523Mb6VRJ190523RV363E.html，对应的商户号可以在mp-虚拟支付2.0-基础配置-微信支付账号信息中查询 |
+         * | 3017/-15012 |  | 道具id非法 |
+         * | 701001 |  | ios禁止支付 | */ errCode: number
     }
     interface Performance {
         /** [number Performance.now()](https://developers.weixin.qq.com/minigame/dev/api/base/performance/Performance.now.html)
@@ -12674,12 +13085,12 @@ UDPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
             /** ttl 参数可以是 0 到 255 之间 */
             ttl: number
         ): void
-        /** [UDPSocket.write()](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.write.html)
+        /** [UDPSocket.write(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.write.html)
          *
          * 需要基础库： `2.15.0`
          *
          * 用法与 send 方法相同，如果没有预先调用 connect 则与 send 无差异（注意即使调用了 connect 也需要在本接口填入地址和端口参数） */
-        write(): void
+        write(option: UDPSocketSendOption): void
         /** [number UDPSocket.bind(number port)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.bind.html)
          *
          * 绑定一个系统随机分配的可用端口，或绑定一个指定的端口号 */
@@ -12827,7 +13238,7 @@ const userCryptoManager = wx.getUserCryptoManager()
 userCryptoManager.getRandomValues({
   length: 6 // 生成 6 个字节长度的随机数,
   success: res => {
-    console.log(wx.arrayBufferToBase64(res.randomValues)) // 转换为 base64 字符串后打印
+    // 转成 base64 字符串伪代码 arrayBufferToBase64(res.randomValues)
   }
 })
 ``` */
@@ -13164,6 +13575,8 @@ try {
         getStorageInfoSync(): GetStorageInfoSyncOption
         /** [Object wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html)
 *
+* @deprecated 基础库版本 [2.20.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.getSystemSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)、[wx.getAppAuthorizeSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppAuthorizeSetting.html)、[wx.getDeviceInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceInfo.html)、[wx.getWindowInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getWindowInfo.html)、[wx.getAppBaseInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppBaseInfo.html) 替换
+*
 * [wx.getSystemInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfo.html) 的同步版本
 *
 * **示例代码**
@@ -13197,7 +13610,13 @@ try {
 } catch (e) {
   // Do something when catch error
 }
-``` */
+```
+*
+* ****
+*
+* ## 注意事项
+* - 当 wx.getSystemInfoSync() 接口发生错误时可能会返回空对象
+* - wx.getSystemInfo 接口由于会获取系统权限，可能触发授权弹窗，请使用 [wx.getSystemSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)、[wx.getAppAuthorizeSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppAuthorizeSetting.html)、[wx.getDeviceInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceInfo.html)、[wx.getWindowInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getWindowInfo.html)、[wx.getAppBaseInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppBaseInfo.html) 替代 */
         getSystemInfoSync(): SystemInfo
         /** [Object wx.getSystemSetting()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)
 *
@@ -13330,12 +13749,24 @@ wx.downloadFile({
          *
          * 创建 grid(格子) 。每次调用该方法创建 grid(格子) 广告都会返回一个全新的实例。 */
         createGridAd(option: CreateGridAdOption): GridAd
-        /** [[ImageData](https://developers.weixin.qq.com/minigame/dev/api/render/image/ImageData.html) wx.createImageData()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImageData.html)
-         *
-         * 需要基础库： `2.24.6`
-         *
-         * 创建一个 ImageData 图片数据对象 */
-        createImageData(): ImageData
+        /** [[ImageData](https://developers.weixin.qq.com/minigame/dev/api/render/image/ImageData.html) wx.createImageData(number width, number height)](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImageData.html)
+*
+* 需要基础库： `3.4.10`
+*
+* 这里有两种使用方法, 一种是指定ImageData的宽和高, 另外一种是使用ImageData, 通过它本身的宽高尺寸来构建新的对象。
+*
+* **示例代码**
+*
+* ```js
+const imageData1 =  wx.createImageData(100, 100)
+const imageData2 =  wx.createImageData(imageData1)
+``` */
+        createImageData(
+            /** 使用像素描述 ImageData 的实际宽度 */
+            width: number,
+            /** 使用像素描述 ImageData 的实际高度 */
+            height: number
+        ): ImageData
         /** [[Image](https://developers.weixin.qq.com/minigame/dev/api/render/image/Image.html) wx.createImage()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImage.html)
          *
          * 创建一个图片对象 */
@@ -13413,6 +13844,8 @@ innerAudioContext.play() // 播放
 innerAudioContext.pause() // 暂停
 
 innerAudioContext.stop() // 停止
+
+innerAudioContext.destroy() // 释放音频资源
 ``` */
         createInnerAudioContext(
             option?: CreateInnerAudioContextOption
@@ -13514,7 +13947,7 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
 *
 * 触发分包预下载。
 *
-* **示例代码**
+* **worker 分包示例代码**
 *
 * ```js
 // 首先要在 app.json / game.json 中配置workers作为分包
@@ -13526,23 +13959,55 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
 }
 ```
 * ```js
-* // 然后调用 wx.preDownloadSubpackage 下载 worker 分包，下载成功后才可以创建 worker
-* var task = wx.preDownloadSubpackage({
-*   packageType: "workers",
-*   success(res) {
-*     console.log("load worker success", res)
-*     wx.createWorker("myWorkersFolder/request/index.js")   // 创建 worker。 如果 worker 分包没下载完就调 createWorker 的话将报错
-*   },
-*   fail(res) {
-*     console.log("load worker fail", res)
-*   }
-* })
+// 然后调用 wx.preDownloadSubpackage 下载 worker 分包，下载成功后才可以创建 worker
+var task = wx.preDownloadSubpackage({
+  packageType: "workers",
+  success(res) {
+    console.log("load worker success", res)
+    wx.createWorker("myWorkersFolder/request/index.js")   // 创建 worker。 如果 worker 分包没下载完就调 createWorker 的话将报错
+  },
+  fail(res) {
+    console.log("load worker fail", res)
+  }
+})
+
+task.onProgressUpdate(res => {
+  console.log(res.progress) // 可通过 onProgressUpdate 接口监听下载进度
+  console.log(res.totalBytesWritten)
+  console.log(res.totalBytesExpectedToWrite)
+})
+```
 *
-* task.onProgressUpdate(res => {
-*   console.log(res.progress) // 可通过 onProgressUpdate 接口监听下载进度
-*   console.log(res.totalBytesWritten)
-*   console.log(res.totalBytesExpectedToWrite)
-* }) */
+* **普通分包示例代码**
+*
+* ```js
+// 首先要在 app.json / game.json 中配置分包
+{
+    "subPackages": [
+      {
+        "name": "ModuleA",
+        "root": "/ModuleA/"
+      }
+    ]
+}
+```
+* ```js
+var task = wx.preDownloadSubpackage({
+  name: "ModuleA",
+  success(res) {
+    console.log("load subpackage success", res)
+  },
+  fail(res) {
+    console.log("load subpackage fail", res)
+  }
+})
+
+task.onProgressUpdate(res => {
+  console.log(res.progress) // 可通过 onProgressUpdate 接口监听下载进度
+  console.log(res.totalBytesWritten)
+  console.log(res.totalBytesExpectedToWrite)
+})
+``` */
         preDownloadSubpackage(
             option: PreDownloadSubpackageOption
         ): PreDownloadSubpackageTask
@@ -13585,6 +14050,15 @@ logger.warn('key3', 'value3')
 * - 对于 `GET` 方法的数据，会将数据转换成 query string（`encodeURIComponent(k)=encodeURIComponent(v)&encodeURIComponent(k)=encodeURIComponent(v)...`）
 * - 对于 `POST` 方法且 `header['content-type']` 为 `application/json` 的数据，会对数据进行 JSON 序列化
 * - 对于 `POST` 方法且 `header['content-type']` 为 `application/x-www-form-urlencoded` 的数据，会将数据转换成 query string `（encodeURIComponent(k)=encodeURIComponent(v)&encodeURIComponent(k)=encodeURIComponent(v)...）`
+*
+* **useHighPerformanceMode 高性能模式说明**
+*
+* 在该模式下，框架将会采用全新的网络请求模块，默认支持 HTTP3，可以提升小程序的网络请求性能。有以下注意事项：
+* - 除声明了 `enableChunked` 后会走 HTTP1 以外，均会自动开启 HTTP2/HTTP3 等优化能力，`enableQuic`、`enableHttp2` 参数将会强制开启。建议开发者在后台服务也开启对应能力以获得更好的效果。
+* - 暂仅支持 Android，iOS/PC 端设置该参数后会使用原 request 模块。iOS 会在后续支持该参数。
+* - 暂不支持 forceCellularNetwork 参数。
+* - 暂不支持 HttpDNS 能力。
+* - 开启 `enableProfile` 后，返回的 profile 字段部分信息缺失，会被缺省值代替。缺失部分包括 redirectStart、redirectEnd、rtt、estimate_nettype、httpRttEstimate、transportRttEstimate、downstreamThroughputKbpsEstimate、throughputKbps、peerIP、port。
 *
 * **示例代码**
 *
@@ -13868,8 +14342,37 @@ const isSupportV2 = wx.isVKSupport('v2')
             y?: number
         ): boolean
         /** [boolean wx.setMessageToFriendQuery(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.setMessageToFriendQuery.html)
-         *
-         * 设置 wx.shareMessageToFriend 接口 query 字段的值 */
+*
+* 设置 wx.shareMessageToFriend 接口 query 字段的值
+*
+* **提示</title>
+* 1. 此处的 query 参数与 wx.onShow 取到的启动查询参数 query 不是同一个概念，仅仅是启动查询参数会增加一个字段为 query。
+* 2. query 参数如涉及 "?"和"&" 等特殊符号，需自行进行 encodeURIComponent 和 decodeURIComponent 等操作。
+*
+* <title>示例代码</title>
+* ```js
+// 发送方
+wx.setMessageToFriendQuery({
+ shareMessageToFriendScene: 1,
+ query: 'testquery'
+})
+// 预期接收方可以通过以下方式拿到设置
+wx.getEnterOptionsSync().query.shareMessageToFriendScene // 1
+wx.getEnterOptionsSync().query.query // 'testquery'
+
+<title>示例代码-特殊字符query**
+
+```js
+* // 发送方
+* wx.setMessageToFriendQuery({
+*  query: encodeURIComponent('foo=1&bar=2') // 如果 query 涉及特殊符号，需要自行 encodeURIComponent
+* })
+*
+* // 接收方
+* // 预期可以通过以下方式拿到设置
+* wx.getEnterOptionsSync().query.query // 此处拿到的是 'foo%3D1%26bar%3D2'，需要 decodeURIComponent
+* decodeURIComponent(wx.getEnterOptionsSync().query.query) // 'foo=1&bar=2'
+* ``` */
         setMessageToFriendQuery(option: SetMessageToFriendQueryOption): boolean
         /** [number wx.getTextLineHeight(Object object)](https://developers.weixin.qq.com/minigame/dev/api/render/font/wx.getTextLineHeight.html)
          *
@@ -14011,10 +14514,15 @@ wx.getSetting({
         ): void
         /** [wx.checkSession(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.checkSession.html)
 *
-* 检查登录态是否过期。
-* 通过 wx.login 接口获得的用户登录态拥有一定的时效性。用户越久未使用小程序，用户登录态越有可能失效。反之如果用户一直在使用小程序，则用户登录态一直保持有效。具体时效逻辑由微信维护，对开发者透明。开发者只需要调用 wx.checkSession 接口检测当前用户登录态是否有效。
+* 检查登录态 session_key 是否过期。
 *
-* 登录态过期后开发者可以再调用 wx.login 获取新的用户登录态。调用成功说明当前 session_key 未过期，调用失败说明 session_key 已过期。
+* session_key 具有唯一性，在使用小程序时，同一用户在同一时刻仅有一个有效的 session_key。
+*
+* 通过 wx.login 接口获得的用户登录态拥有一定的时效性。用户越久未使用小程序，用户登录态越有可能过期。反之如果用户一直在使用小程序，则用户登录态一直保持有效。具体时效逻辑由微信维护，对开发者透明。除了过期失效外，触发获取临时登录凭证 code 的操作（[小程序登录](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/login.html) 和 [数据预拉取](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/pre-fetch.html)）可能会生成新的登录态session_key，从而使旧的 session_key 被顶替而失效。
+*
+* 开发者可以调用 wx.checkSession 接口检测用户登录态是否过期。**注意，wx.checkSession 的校验对象是最后一次获取 code 操作对应的登录态 session_key**，调用成功说明该 session_key 未过期，调用失败说明 session_key 已过期。如果要校验指定的 session_key 是否有效，可以在开发者服务器后台调用 [checkSessionKey](#)。
+*
+* 登录态失效后开发者可以再调用 wx.login 获取新的用户登录态。
 *
 * **示例代码**
 *
@@ -14070,8 +14578,8 @@ wx.chooseMedia({
   maxDuration: 30,
   camera: 'back',
   success(res) {
-    console.log(res.tempFiles.tempFilePath)
-    console.log(res.tempFiles.size)
+    console.log(res.tempFiles[0].tempFilePath)
+    console.log(res.tempFiles[0].size)
   }
 })
 ``` */
@@ -14213,7 +14721,7 @@ wx.onSocketClose(function(res) {
 *
 * 需要基础库： `3.0.1`
 *
-* 压缩图片接口，可选压缩质量
+* 压缩图片接口，可选压缩质量。iOS 仅支持压缩 JPG 格式图片。
 *
 * **示例代码**
 *
@@ -14402,7 +14910,7 @@ wx.getBLEMTU({
          * 需要基础库： `3.0.1`
          *
          * 拉取 backgroundFetch 客户端缓存数据。
-         * 当调用接口时，若当次请求未结束，会先返回本地的旧数据（之前打开小程序时请求的），如果本地没有旧数据，安卓上会返回fail，不会等待请求完成，iOS上会返回success但fetchedData为空，也不会等待请求完成。 */
+         * 当调用接口时，若当次请求未结束，会先返回本地的旧数据（之前打开小程序时请求的），如果本地没有旧数据，安卓上会返回fail，不会等待请求完成，iOS上会返回success但fetchedData为空，也不会等待请求完成。建议和 [wx.onBackgroundFetchData](https://developers.weixin.qq.com/minigame/dev/api/storage/background-fetch/wx.onBackgroundFetchData.html) 配合使用 */
         getBackgroundFetchData<
             T extends GetBackgroundFetchDataOption = GetBackgroundFetchDataOption
         >(
@@ -14420,7 +14928,7 @@ wx.getBLEMTU({
         ): PromisifySuccessResult<T, GetBackgroundFetchTokenOption>
         /** [wx.getBatteryInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfo.html)
          *
-         * 获取设备电量。同步 API [wx.getBatteryInfoSync](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfoSync.html) 在 iOS 上不可用。 */
+         * 获取设备电池信息。同步 API [wx.getBatteryInfoSync](https://developers.weixin.qq.com/minigame/dev/api/device/battery/wx.getBatteryInfoSync.html) 在 iOS 上不可用。 */
         getBatteryInfo<T extends GetBatteryInfoOption = GetBatteryInfoOption>(
             option?: T
         ): PromisifySuccessResult<T, GetBatteryInfoOption>
@@ -14546,6 +15054,23 @@ wx.getConnectedBluetoothDevices({
         >(
             option: T
         ): PromisifySuccessResult<T, GetConnectedBluetoothDevicesOption>
+        /** [wx.getDeviceBenchmarkInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceBenchmarkInfo.html)
+*
+* 需要基础库： `3.4.5`
+*
+* 获取设备性能得分和机型档位数据
+*
+* **示例代码**
+*
+* ```js
+wx.getDeviceBenchmarkInfo({
+  success (res) {
+    console.log(res.benchmarkLevel)
+    console.log(res.modelLevel)
+  }
+})
+``` */
+        getDeviceBenchmarkInfo(option?: GetDeviceBenchmarkInfoOption): void
         /** [wx.getExtConfig(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ext/wx.getExtConfig.html)
 *
 * 需要基础库： `2.8.3`
@@ -14574,7 +15099,7 @@ if (wx.getExtConfig) {
          *
          * 需要基础库： `1.9.92`
          *
-         * 拉取当前用户所有同玩好友的托管数据。该接口需要用户授权，且只在开放数据域下可用。 */
+         * 拉取当前用户所有同玩好友的托管数据。该接口需要用户授权，且只在开放数据域下可用。需要注意，添加新微信好友后的2小时内，getFriendCloudStorage 可能获取不到该新好友的数据。 */
         getFriendCloudStorage(option: GetFriendCloudStorageOption): void
         /** [wx.getFuzzyLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html)
 *
@@ -14959,6 +15484,8 @@ try {
         ): PromisifySuccessResult<T, GetStorageInfoOption>
         /** [wx.getSystemInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfo.html)
 *
+* @deprecated 基础库版本 [2.20.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.getSystemSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)、[wx.getAppAuthorizeSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppAuthorizeSetting.html)、[wx.getDeviceInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceInfo.html)、[wx.getWindowInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getWindowInfo.html)、[wx.getAppBaseInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppBaseInfo.html) 替换
+*
 * 获取系统信息。**由于历史原因，wx.getSystemInfo 是异步的调用格式，但是是同步返回，需要异步获取系统信息请使用 [wx.getSystemInfoAsync](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoAsync.html)。**
 *
 * **示例代码**
@@ -14992,13 +15519,20 @@ try {
 } catch (e) {
   // Do something when catch error
 }
-``` */
+```
+*
+* ****
+*
+* ## 注意事项
+* - 当 wx.getSystemInfoSync() 接口发生错误时可能会返回空对象
+* - wx.getSystemInfo 接口由于会获取系统权限，可能触发授权弹窗，请使用 [wx.getSystemSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)、[wx.getAppAuthorizeSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppAuthorizeSetting.html)、[wx.getDeviceInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceInfo.html)、[wx.getWindowInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getWindowInfo.html)、[wx.getAppBaseInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppBaseInfo.html) 替代 */
         getSystemInfo<T extends GetSystemInfoOption = GetSystemInfoOption>(
             option?: T
         ): PromisifySuccessResult<T, GetSystemInfoOption>
         /** [wx.getSystemInfoAsync(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoAsync.html)
 *
 * 需要基础库： `2.25.3`
+* @deprecated 基础库版本 [2.20.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.getSystemSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemSetting.html)、[wx.getAppAuthorizeSetting](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppAuthorizeSetting.html)、[wx.getDeviceInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getDeviceInfo.html)、[wx.getWindowInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getWindowInfo.html)、[wx.getAppBaseInfo](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getAppBaseInfo.html) 替换
 *
 * 异步获取系统信息。需要一定的微信客户端版本支持，在不支持的客户端上，会使用同步实现来返回。
 *
@@ -15826,6 +16360,24 @@ wx.offMemoryWarning(listener) // 需传入与监听时同一个的函数对象
             /** onMemoryWarning 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffMemoryWarningCallback
         ): void
+        /** [wx.offMenuButtonBoundingClientRectWeightChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ui/menu/wx.offMenuButtonBoundingClientRectWeightChange.html)
+*
+* 需要基础库： `3.4.3`
+*
+* 移除菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+wx.onMenuButtonBoundingClientRectWeightChange(listener)
+wx.offMenuButtonBoundingClientRectWeightChange(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offMenuButtonBoundingClientRectWeightChange(
+            /** onMenuButtonBoundingClientRectWeightChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffMenuButtonBoundingClientRectWeightChangeCallback
+        ): void
         /** [wx.offMouseDown(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/mouse-event/wx.offMouseDown.html)
 *
 * 移除鼠标按键按下事件的监听函数
@@ -16563,6 +17115,25 @@ wx.onKeyboardHeightChange(res => {
             /** 内存不足告警事件的监听函数 */
             listener: OnMemoryWarningCallback
         ): void
+        /** [wx.onMenuButtonBoundingClientRectWeightChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ui/menu/wx.onMenuButtonBoundingClientRectWeightChange.html)
+*
+* 需要基础库： `3.4.3`
+*
+* 监听菜单按钮（右上角胶囊按钮）的布局位置信息变化事件
+*
+* **示例代码**
+*
+* ```js
+const callback = res => console.log('menuButtonBoundingClientRectWeightChange', res)
+
+wx.onMenuButtonBoundingClientRectWeightChange(callback)
+// 取消监听
+wx.offMenuButtonBoundingClientRectWeightChange(callback)
+``` */
+        onMenuButtonBoundingClientRectWeightChange(
+            /** 菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数 */
+            listener: OnMenuButtonBoundingClientRectWeightChangeCallback
+        ): void
         /** [wx.onMessage(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/context/wx.onMessage.html)
          *
          * 监听主域发送的消息 */
@@ -16723,7 +17294,12 @@ wx.offNetworkWeakChange()
         ): void
         /** [wx.onShareAppMessage(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.onShareAppMessage.html)
          *
-         * 监听用户点击右上角菜单的「转发」按钮时触发的事件 */
+         * 监听用户点击右上角菜单的「转发」按钮时触发的事件
+         *
+         * ****
+         *
+         * ## 注意事项
+         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用游戏画面截图。 */
         onShareAppMessage(
             /** 用户点击右上角菜单的「转发」按钮时触发的事件的监听函数 */
             listener: OnShareAppMessageCallback
@@ -16741,7 +17317,12 @@ wx.offNetworkWeakChange()
          *
          * 需要基础库： `2.11.3`
          *
-         * 监听用户点击右上角菜单的「分享到朋友圈」按钮时触发的事件。本接口为 Beta 版本，暂只在 Android 平台支持。 */
+         * 监听用户点击右上角菜单的「分享到朋友圈」按钮时触发的事件。本接口为 Beta 版本，暂只在 Android 平台支持。
+         *
+         * ****
+         *
+         * ## 注意事项
+         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用当前游戏的icon。 */
         onShareTimeline(
             /** 用户点击右上角菜单的「分享到朋友圈」按钮时触发的事件的监听函数 */
             listener: OnShareTimelineCallback
@@ -16857,8 +17438,19 @@ wx.offNetworkWeakChange()
 *
 * ```js
 wx.onUserCaptureScreen(function (res) {
-  console.log('用户截屏了')
-})
+    console.log('用户截屏了')
+        return {
+            query: "parameter=test", // 通过截屏图片打开小程序的query参数
+            promise: new Promise((resolve) => { // 通过promise延时传递小程序的query参数
+                    setTimeout(() => {
+                        resolve({
+                            query: "parameter=test2",
+                        })
+                    }, 1000) // 在1秒内对query进行解析
+                })
+        }
+    }
+  )
 ``` */
         onUserCaptureScreen(
             /** 用户主动截屏事件的监听函数 */
@@ -17015,7 +17607,7 @@ wx.openCard({
          *
          * 需要基础库： `2.21.2`
          *
-         * 打开视频号主页 */
+         * 打开视频号主页。若为插件环境，只允许在插件页面中调用。 */
         openChannelsUserProfile(option: OpenChannelsUserProfileOption): void
         /** [wx.openCustomerServiceChat(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/service-chat/wx.openCustomerServiceChat.html)
 *
@@ -17280,6 +17872,7 @@ try {
         /** [wx.reportMonitor(string name, number value)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.reportMonitor.html)
 *
 * 需要基础库： `2.1.2`
+* @deprecated 基础库版本 [2.31.1](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.reportEvent](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.reportEvent.html) 替换
 *
 * 自定义业务数据监控上报接口。
 *
@@ -17434,7 +18027,11 @@ wx.requestMidasFriendPayment({
         requestMidasFriendPayment(option: RequestMidasFriendPaymentOption): void
         /** [wx.requestMidasPayment(Object object)](https://developers.weixin.qq.com/minigame/dev/api/midas-payment/wx.requestMidasPayment.html)
          *
-         * 发起米大师支付
+         * 需要基础库： `2.19.2`
+         *
+         * 发起购买游戏币支付请求，可参考[虚拟支付2.0游戏币](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/coins.html)
+         *
+         *  虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
          *
          * **buyQuantity 限制说明**
          *
@@ -17478,6 +18075,47 @@ wx.requestMidasFriendPayment({
         >(
             option: T
         ): PromisifySuccessResult<T, RequestMidasPaymentOption>
+        /** [wx.requestMidasPaymentGameItem(Object object)](https://developers.weixin.qq.com/minigame/dev/api/midas-payment/wx.requestMidasPaymentGameItem.html)
+*
+* 需要基础库： `2.19.2`
+*
+* 发起道具直购支付请求，可参考[虚拟支付2.0道具直购](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/goods.html )，虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
+*
+* **示例代码**
+*
+* ```js
+wx.requestMidasPaymentGameItem({
+ signData: '{"mode":"goods","offerId":"123","buyQuantity":1,"env":0,"currencyType":"CNY","platform":"android","zoneId":"1","productId":"testproductId","goodsPrice":10,"outTradeNo":"xxxxxx","attach":"testdata"}',
+ paySig: 'd0b8bbccbe34ed11549bcfd6602b08711f4acc0965253a949cd6a2b895152f9d',
+ signature: 'd0b8bbccbe34ed11549bcfd6602b08711f4acc0965253a949cd6a2b895152f9d',
+ success(res, errCode) {
+     console.log('pay', res, errCode);
+ },
+ fail({
+     errMsg,
+     errCode
+ }) {
+     console.error(errMsg, errCode)
+ }
+```
+* 支付签名代码实现
+* ```python
+*   import hmac
+*   import hashlib
+*   import urllib.parse
+*
+*   # sign_data 支付原串 注意这里sign_data需要和前端一致，原格式传递（包括空格和回车），建议后台下发，
+*   # appkey 米大师密钥
+*   # method 需要签名方法 requestMidasPaymentGameItem
+*   def gen_pay_sig(sign_data, appkey, method):
+*       need_encode_body = method + '&' + sign_data
+*       print(need_encode_body)
+*       return hmac.new(key=appkey.encode('utf-8'), msg=need_encode_body.encode('utf-8'),
+*               digestmod=hashlib.sha256).hexdigest()
+* ``` */
+        requestMidasPaymentGameItem(
+            option: RequestMidasPaymentGameItemOption
+        ): void
         /** [wx.requestPointerLock()](https://developers.weixin.qq.com/minigame/dev/api/render/cursor/wx.requestPointerLock.html)
 *
 * 需要基础库： `3.2.0`
@@ -17827,7 +18465,7 @@ wx.setEnableDebug({
          * ****
          *
          * ## 注意事项
-         * - 为保证微信整体体验，speakerOn 为 true 时，客户端会忽略 mixWithOthers 参数的内容，强制与其它音频互斥
+         * - 为保证微信整体体验，speakerOn 为 true 时，客户端会忽略 mixWithOther 参数的内容，强制与其它音频互斥
          * - 不支持在播放音频的过程中切换为扬声器播放，开发者如需切换可以先暂停当前播放的音频并记录下当前暂停的时间点，然后切换后重新从原来暂停的时间点开始播放音频
          * - 目前 wx.setInnerAudioOption 接口不兼容 wx.createWebAudioContext 接口，也不兼容 wx.createInnerAudioContext 开启 useWebAudioImplement 的情况，将在后续版本中支持 */
         setInnerAudioOption<
@@ -17878,7 +18516,7 @@ wx.setKeepScreenOn({
         ): PromisifySuccessResult<T, SetScreenBrightnessOption>
         /** [wx.setStatusBarStyle(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/statusbar/wx.setStatusBarStyle.html)
          *
-         * 当在配置中设置 showStatusBarStyle 时，屏幕顶部会显示状态栏。此接口可以修改状态栏的样式。 */
+         * 当在配置中设置 showStatusBar 时，屏幕顶部会显示状态栏。此接口可以修改状态栏的样式。 */
         setStatusBarStyle<
             T extends SetStatusBarStyleOption = SetStatusBarStyleOption
         >(
@@ -17961,7 +18599,12 @@ try {
          *
          * 需要基础库： `3.1.4`
          *
-         * 设置截屏/录屏时屏幕表现，仅支持在 Android 端调用 */
+         * 设置截屏/录屏时屏幕表现
+         *
+         * **Bug & Tip**
+         *
+         * 1. `tip`：iOS 要求基础库版本为 3.3.0 以上，且系统版本为 iOS 16 以上
+         * 2. `tip`：iOS 目前只支持处理录屏时的表现 */
         setVisualEffectOnCapture(option: SetVisualEffectOnCaptureOption): void
         /** [wx.setWindowSize(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/window/wx.setWindowSize.html)
          *
@@ -17972,7 +18615,12 @@ try {
         setWindowSize(option: SetWindowSizeOption): void
         /** [wx.shareAppMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.shareAppMessage.html)
          *
-         * 主动拉起转发，进入选择通讯录界面。 */
+         * 主动拉起转发，进入选择通讯录界面。
+         *
+         * ****
+         *
+         * ## 注意事项
+         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用游戏画面截图。 */
         shareAppMessage(option: ShareAppMessageOption): void
         /** [wx.shareMessageToFriend(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.shareMessageToFriend.html)
          *
@@ -17982,8 +18630,10 @@ try {
          *
          * ****
          *
-         * 定向分享不允许直接在开放数据域设置 query 参数
-         * 需要设置请参见游戏域 `wx.setMessageToFriendQuery` 接口 */
+         * ## 注意事项
+         * - 定向分享不允许直接在开放数据域设置 query 参数
+         * - 需要设置请参见游戏域 `wx.setMessageToFriendQuery` 接口
+         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填或错填网络图片时使用游戏画面截图。 */
         shareMessageToFriend(option: ShareMessageToFriendOption): void
         /** [wx.showActionSheet(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ui/interaction/wx.showActionSheet.html)
 *
@@ -18075,7 +18725,12 @@ wx.showModal({
          *
          * 需要基础库： `2.14.3`
          *
-         * 打开分享图片弹窗，可以将图片发送给朋友、收藏或下载 */
+         * 打开分享图片弹窗，可以将图片发送给朋友、收藏或下载
+         *
+         * **Bug & Tip**
+         *
+         * 1. `tip`: `needShowEntrance`分享的图片消息是否要带小程序入口，支持申明类目：商家自营、电商平台、餐饮服务(餐饮服务场所/餐饮服务管理企业、点餐平台、外卖平台)、旅游服务(住宿服务、景区服务、OTA、旅游管理单位)、生活服务(家政服务、丽人服务、宠物(非医院类)、婚庆服务、洗浴保健、休闲娱乐、百货/超市/便利店、开锁服务、营业性演出票务、其他宠物健康服务、洗浴保健平台、共享服务、跑腿、寄存、求职/招聘)
+         * 2. `tip`: `needShowEntrance`小游戏所有类目都支持 */
         showShareImageMenu<
             T extends ShowShareImageMenuOption = ShowShareImageMenuOption
         >(
@@ -18869,6 +19524,18 @@ wx.writeBLECharacteristicValue({
         result: GetConnectedBluetoothDevicesSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetDeviceBenchmarkInfoCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetDeviceBenchmarkInfoFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetDeviceBenchmarkInfoSuccessCallback = (
+        result: GetDeviceBenchmarkInfoSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetExtConfigCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetExtConfigFailCallback = (res: GeneralCallbackResult) => void
@@ -18934,10 +19601,10 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetGroupEnterInfoCompleteCallback = (
-        res: GeneralCallbackResult
+        res: GetGroupEnterInfoError
     ) => void
     /** 接口调用失败的回调函数 */
-    type GetGroupEnterInfoFailCallback = (res: GeneralCallbackResult) => void
+    type GetGroupEnterInfoFailCallback = (res: GetGroupEnterInfoError) => void
     /** 接口调用成功的回调函数 */
     type GetGroupEnterInfoSuccessCallback = (
         result: GetGroupEnterInfoSuccessCallbackResult
@@ -19394,7 +20061,7 @@ wx.writeBLECharacteristicValue({
     /** onCompassChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffCompassChangeCallback = (res: GeneralCallbackResult) => void
     /** onConnect 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffConnectCallback = (res: GeneralCallbackResult) => void
+    type OffConnectCallback = (result: OnConnectListenerResult) => void
     /** onDeviceMotionChange 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffDeviceMotionChangeCallback = (res: GeneralCallbackResult) => void
     /** onDeviceOrientationChange 传入的监听函数。不传此参数则移除所有监听函数。 */
@@ -19454,6 +20121,10 @@ wx.writeBLECharacteristicValue({
     /** onMemoryWarning 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffMemoryWarningCallback = (
         result: OnMemoryWarningListenerResult
+    ) => void
+    /** onMenuButtonBoundingClientRectWeightChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffMenuButtonBoundingClientRectWeightChangeCallback = (
+        result: OnMenuButtonBoundingClientRectWeightChangeListenerResult
     ) => void
     /** onMouseDown 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffMouseDownCallback = (result: OnMouseDownListenerResult) => void
@@ -19624,7 +20295,7 @@ wx.writeBLECharacteristicValue({
         result: OnCompassChangeListenerResult
     ) => void
     /** 当一个 socket 连接成功建立的时候触发该事件的监听函数 */
-    type OnConnectCallback = (res: GeneralCallbackResult) => void
+    type OnConnectCallback = (result: OnConnectListenerResult) => void
     /** 用户点击右上角菜单的「复制链接」按钮时触发的事件的监听函数 */
     type OnCopyUrlCallback = (result: OnCopyUrlListenerResult) => void
     /** 设备方向变化事件的监听函数 */
@@ -19697,6 +20368,10 @@ wx.writeBLECharacteristicValue({
     /** 内存不足告警事件的监听函数 */
     type OnMemoryWarningCallback = (
         result: OnMemoryWarningListenerResult
+    ) => void
+    /** 菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数 */
+    type OnMenuButtonBoundingClientRectWeightChangeCallback = (
+        result: OnMenuButtonBoundingClientRectWeightChangeListenerResult
     ) => void
     /** 鼠标按键按下事件的监听函数 */
     type OnMouseDownCallback = (result: OnMouseDownListenerResult) => void
@@ -19790,7 +20465,9 @@ wx.writeBLECharacteristicValue({
     /** 小程序有版本更新事件的监听函数 */
     type OnUpdateReadyCallback = (res: GeneralCallbackResult) => void
     /** 用户主动截屏事件的监听函数 */
-    type OnUserCaptureScreenCallback = (res: GeneralCallbackResult) => void
+    type OnUserCaptureScreenCallback = (
+        result: OnUserCaptureScreenListenerResult
+    ) => void
     /** 被动断开实时语音通话事件的监听函数 */
     type OnVoIPChatInterruptedCallback = (
         result: OnVoIPChatInterruptedListenerResult
@@ -20067,6 +20744,18 @@ wx.writeBLECharacteristicValue({
     /** 接口调用失败的回调函数 */
     type RequestMidasPaymentFailCallback = (
         err: RequestMidasPaymentFailCallbackErr
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type RequestMidasPaymentGameItemCompleteCallback = (
+        res: MidasPaymentError
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type RequestMidasPaymentGameItemFailCallback = (
+        res: MidasPaymentError
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type RequestMidasPaymentGameItemSuccessCallback = (
+        res: MidasPaymentError
     ) => void
     /** 接口调用成功的回调函数 */
     type RequestMidasPaymentSuccessCallback = (

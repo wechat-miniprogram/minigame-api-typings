@@ -307,6 +307,7 @@ wx.updateShareMenu({
   isUpdatableMessage: true,
   activityId: '', // 活动 ID
   templateInfo: {
+    templateId: '',
     parameterList: [
       {
         name: 'member_count',
