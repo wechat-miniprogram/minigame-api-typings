@@ -1,6 +1,6 @@
 {
   "name": "minigame-api-typings",
-  "version": "3.8.4",
+  "version": "3.8.5",
   "description": "Type definitions for APIs of Wechat MiniGame in TypeScript",
   "main": "./index.d.ts",
   "types": "./index.d.ts",
