@@ -99,7 +99,7 @@ declare namespace WechatMinigame {
     interface AppAuthorizeSetting {
         /** 允许微信使用相册的开关（仅 iOS 有效） */
         albumAuthorized: 'authorized' | 'denied' | 'not determined'
-        /** 允许微信使用蓝牙的开关（仅 iOS 有效） */
+        /** 允许微信使用蓝牙的开关（安卓基础库 3.5.0 以上有效） */
         bluetoothAuthorized: 'authorized' | 'denied' | 'not determined'
         /** 允许微信使用摄像头的开关 */
         cameraAuthorized: 'authorized' | 'denied' | 'not determined'
@@ -1057,7 +1057,7 @@ source.start()
          * 超时时间，单位为毫秒 */
         timeout?: number
     }
-    /** 一个字典对象，它指定是否应该禁用规范化(默认启用规范化) */
+    /** 一个字典对象，用于指定是否禁用规范化(默认启用规范化) */
     interface Constraints {
         /** 如果指定为true则禁用标准化，默认为false */
         disableNormalization?: boolean
@@ -1199,7 +1199,7 @@ source.start()
         hasRedDot?: boolean
         /** 需要基础库： `2.30.3`
          *
-         * 设置后可以跳到对应的活动页面，具体进入mp设置-游戏设置-开始管理-游戏圈管理-由帖子的"游戏内跳转ID"生成 */
+         * 设置后可以跳到对应的活动页面，具体进入「MP后台-能力地图-游戏圈」-由帖子的"游戏内跳转ID"生成 */
         openlink?: string
         /** 按钮上的文本，仅当 type 为 `text` 时有效 */
         text?: string
@@ -2644,9 +2644,11 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         /** 直播状态
          *
          * 可选值：
+         * - 1: 直播状态不存在（针对未开过直播的主播）;
          * - 2: 直播中;
-         * - 3: 直播结束; */
-        status: 2 | 3
+         * - 3: 直播已结束;
+         * - 4: 直播准备中（未开播）; */
+        status: 1 | 2 | 3 | 4
         errMsg: string
     }
     interface GetChannelsLiveNoticeInfoOption {
@@ -3047,7 +3049,17 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         networkType: 'wifi' | '2g' | '3g' | '4g' | '5g' | 'unknown' | 'none'
         /** 信号强弱，单位 dbm */
         signalStrength: number
+        /** 需要基础库： `3.5.3`
+         *
+         * 是否处于弱网环境 */
+        weakNet: boolean
         errMsg: string
+    }
+    interface GetPhoneNumberOption {
+        /** 手机号实时验证，向用户申请，并在用户同意后，快速填写和实时验证手机号 [具体说明](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/getRealtimePhoneNumber.html)。 */
+        isRealtime?: boolean
+        /** 当手机号快速验证或手机号实时验证额度用尽时，是否对用户展示“申请获取你的手机号，但该功能使用次数已达当前小程序上限，暂时无法使用”的提示，默认展示。 */
+        phoneNumberNoQuotaToast?: boolean
     }
     interface GetPotentialFriendListOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -3071,7 +3083,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         success?: GetPrivacySettingSuccessCallback
     }
     interface GetPrivacySettingSuccessCallbackResult {
-        /** 是否需要用户授权隐私协议（如果开发者没有在[mp后台-设置-服务内容声明-用户隐私保护指引]中声明隐私收集类型则会返回false；如果开发者声明了隐私收集，且用户之前同意过隐私协议则会返回false；如果开发者声明了隐私收集，且用户还没同意过则返回true；如果用户之前同意过、但后来小程序又新增了隐私收集类型也会返回true） */
+        /** 是否需要用户授权隐私协议（如果开发者没有在「MP后台-设置-服务内容声明-用户隐私保护指引」中声明隐私收集类型则会返回false；如果开发者声明了隐私收集，且用户之前同意过隐私协议则会返回false；如果开发者声明了隐私收集，且用户还没同意过则返回true；如果用户之前同意过、但后来小程序又新增了隐私收集类型也会返回true） */
         needAuthorization: boolean
         /** 隐私授权协议的名称 */
         privacyContractName: string
@@ -4420,6 +4432,16 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         muteEarphone?: boolean
         /** 是否静音麦克风 */
         muteMicrophone?: boolean
+    }
+    interface NavigateBackMiniProgramOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: NavigateBackMiniProgramCompleteCallback
+        /** 需要返回给上一个小程序的数据，上一个小程序可在 `App.onShow` 中获取到这份数据。 [详情](#)。 */
+        extraData?: IAnyObject
+        /** 接口调用失败的回调函数 */
+        fail?: NavigateBackMiniProgramFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: NavigateBackMiniProgramSuccessCallback
     }
     interface NavigateToMiniProgramOption {
         /** 要打开的小程序 appId */
@@ -6994,7 +7016,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         needShowEntrance?: boolean
         /** 需要基础库： `3.2.0`
          *
-         * 分享样式，可选 v2 */
+         * 分享样式，小程序可选 v2 */
         style?: string
         /** 接口调用成功的回调函数 */
         success?: ShowShareImageMenuSuccessCallback
@@ -9251,11 +9273,11 @@ imag[1] = 0
 const waveNode = audioContext.createPeriodicWave(real, imag, {disableNormalization: true})
 ``` */
         createPeriodicWave(
-            /** 一组余弦项(传统上是A项) */
+            /** 一系列余弦术语(传统上的A项) */
             real: Float32Array,
-            /** 一组余弦项(传统上是A项) */
+            /** 一系列正弦项(传统上的B项) */
             imag: Float32Array,
-            /** 一个字典对象，它指定是否应该禁用规范化(默认启用规范化) */
+            /** 一个字典对象，用于指定是否禁用规范化(默认启用规范化) */
             constraints: Constraints
         ): PeriodicWaveNode
         /** [Promise WebAudioContext.close()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/WebAudioContext.close.html)
@@ -12397,7 +12419,11 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | -15009 |  | 虚拟支付接口错误码，由于健康系统限制，本次支付已超过限额（这种错误情况会有默认弹窗提示） |
          * | -15010 |  | 虚拟支付接口错误码，正式版小游戏不允许在沙箱环境支付 |
          * | -15011 |  | 请求的数据类型错误 |
+         * | -15012 |  | SIGNATURE错误 |
          * | -15013 |  | 代币未发布 |
+         * | -15014 |  | paysig错误 |
+         * | -15015 |  | sessionkey过期 |
+         * | -15016 |  | 道具价格错误 |
          * | -15017 |  | 订单已关闭 |
          * | 1 |  | 虚拟支付接口错误码，用户取消支付 |
          * | 2 |  | 虚拟支付接口错误码，客户端错误,判断到小程序在用户处于支付中时,又发起了一笔支付请求 |
@@ -12428,7 +12454,11 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | -15009 |  | 虚拟支付接口错误码，由于健康系统限制，本次支付已超过限额（这种错误情况会有默认弹窗提示） |
          * | -15010 |  | 虚拟支付接口错误码，正式版小游戏不允许在沙箱环境支付 |
          * | -15011 |  | 请求的数据类型错误 |
+         * | -15012 |  | SIGNATURE错误 |
          * | -15013 |  | 代币未发布 |
+         * | -15014 |  | paysig错误 |
+         * | -15015 |  | sessionkey过期 |
+         * | -15016 |  | 道具价格错误 |
          * | -15017 |  | 订单已关闭 |
          * | 1 |  | 虚拟支付接口错误码，用户取消支付 |
          * | 2 |  | 虚拟支付接口错误码，客户端错误,判断到小程序在用户处于支付中时,又发起了一笔支付请求 |
@@ -15278,12 +15308,22 @@ wx.getLocalIPAddress({
 wx.getNetworkType({
   success (res) {
     const networkType = res.networkType
+    const weakNet = res.weakNet
   }
 })
 ``` */
         getNetworkType<T extends GetNetworkTypeOption = GetNetworkTypeOption>(
             option?: T
         ): PromisifySuccessResult<T, GetNetworkTypeOption>
+        /** [wx.getPhoneNumber(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/user-info/wx.getPhoneNumber.html)
+         *
+         * 手机号快速验证，向用户申请，并在用户同意后，快速填写和验证手机 [具体说明](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/getPhoneNumber.html)
+         *
+         * ****
+         *
+         * ## 注意事项
+         * - 用户点击后才可进行调用 */
+        getPhoneNumber(option: GetPhoneNumberOption): void
         /** [wx.getPotentialFriendList(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getPotentialFriendList.html)
          *
          * 需要基础库： `2.9.0`
@@ -15861,6 +15901,31 @@ wx.login({
         modifyFriendInteractiveStorage(
             option: ModifyFriendInteractiveStorageOption
         ): void
+        /** [wx.navigateBackMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.navigateBackMiniProgram.html)
+*
+* 需要基础库： `3.5.6`
+*
+* 返回到上一个小程序。只有在当前小程序是被其他小程序打开时可以调用成功。
+*
+* 注意：**微信客户端 iOS 6.5.9，Android 6.5.10 及以上版本支持**
+*
+* **示例代码**
+*
+* ```js
+wx.navigateBackMiniProgram({
+  extraData: {
+    foo: 'bar'
+  },
+  success(res) {
+    // 返回成功
+  }
+})
+``` */
+        navigateBackMiniProgram<
+            T extends NavigateBackMiniProgramOption = NavigateBackMiniProgramOption
+        >(
+            option: T
+        ): PromisifySuccessResult<T, NavigateBackMiniProgramOption>
         /** [wx.navigateToMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.navigateToMiniProgram.html)
 *
 * 需要基础库： `2.2.0`
@@ -16495,6 +16560,24 @@ wx.offShareAppMessage(listener) // 需传入与监听时同一个的函数对象
         offShareAppMessage(
             /** onShareAppMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffShareAppMessageCallback
+        ): void
+        /** [wx.offShareMessageToFriend(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offShareMessageToFriend.html)
+*
+* 需要基础库： `2.9.4`
+*
+* 移除主域接收`wx.shareMessageToFriend`接口的成功失败通知事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+wx.onShareMessageToFriend(listener)
+wx.offShareMessageToFriend(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offShareMessageToFriend(
+            /** onShareMessageToFriend 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffShareMessageToFriendCallback
         ): void
         /** [wx.offShareTimeline(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offShareTimeline.html)
 *
@@ -17724,11 +17807,11 @@ wx.openSystemBluetoothSetting({
 * | 类型 | 说明 | 最低版本 |
 * |------|------| -------|
 * | 小程序码 |    |
-* | 微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
-* | 企业微信个人码 | 不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
-* | 普通群码 | 指仅包含微信用户的群，不支持小游戏   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
-* | 互通群码 |  指既有微信用户也有企业微信用户的群，不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
-* | 公众号二维码 | 不支持小游戏  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 微信个人码 |    | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 企业微信个人码 |    | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 普通群码 | 指仅包含微信用户的群  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 互通群码 |  指既有微信用户也有企业微信用户的群  | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
+* | 公众号二维码 |   | [2.18.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) |
 *
 * **示例代码**
 *
@@ -18029,9 +18112,7 @@ wx.requestMidasFriendPayment({
          *
          * 需要基础库： `2.19.2`
          *
-         * 发起购买游戏币支付请求，可参考[虚拟支付2.0游戏币](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/coins.html)
-         *
-         *  虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
+         * 发起购买游戏币支付请求，可参考[虚拟支付2.0游戏币](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/coins.html)，虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
          *
          * **buyQuantity 限制说明**
          *
@@ -18079,7 +18160,7 @@ wx.requestMidasFriendPayment({
 *
 * 需要基础库： `2.19.2`
 *
-* 发起道具直购支付请求，可参考[虚拟支付2.0道具直购](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/goods.html )，虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
+* 发起道具直购支付请求，可参考[虚拟支付2.0道具直购](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/goods.html)，虚拟支付全流程可参考[技术手册-虚拟支付篇](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/virtual-payment/guide.html)
 *
 * **示例代码**
 *
@@ -19987,6 +20068,18 @@ wx.writeBLECharacteristicValue({
         res: GeneralCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type NavigateBackMiniProgramCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type NavigateBackMiniProgramFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type NavigateBackMiniProgramSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type NavigateToMiniProgramCompleteCallback = (
         res: GeneralCallbackResult
     ) => void
@@ -20161,6 +20254,10 @@ wx.writeBLECharacteristicValue({
     /** onShareAppMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffShareAppMessageCallback = (
         result: OnShareAppMessageListenerResult
+    ) => void
+    /** onShareMessageToFriend 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffShareMessageToFriendCallback = (
+        result: OnShareMessageToFriendListenerResult
     ) => void
     /** onShareTimeline 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffShareTimelineCallback = (
