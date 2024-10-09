@@ -3056,10 +3056,16 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         errMsg: string
     }
     interface GetPhoneNumberOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetPhoneNumberCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetPhoneNumberFailCallback
         /** 手机号实时验证，向用户申请，并在用户同意后，快速填写和实时验证手机号 [具体说明](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/getRealtimePhoneNumber.html)。 */
         isRealtime?: boolean
         /** 当手机号快速验证或手机号实时验证额度用尽时，是否对用户展示“申请获取你的手机号，但该功能使用次数已达当前小程序上限，暂时无法使用”的提示，默认展示。 */
         phoneNumberNoQuotaToast?: boolean
+        /** 接口调用成功的回调函数 */
+        success?: GetPhoneNumberSuccessCallback
     }
     interface GetPotentialFriendListOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -15034,7 +15040,14 @@ wx.getBluetoothDevices({
          *
          * 需要基础库： `2.15.0`
          *
-         * 获取视频号直播信息 */
+         * 获取视频号直播信息
+         *
+         * **常见错误码说明**
+         *
+         * 100008  视频号需要认证
+         * 40097 入参异常
+         * 1416104  视频号获取到的数据为空
+         * 1416100  非法的视频号id */
         getChannelsLiveInfo(option: GetChannelsLiveInfoOption): void
         /** [wx.getChannelsLiveNoticeInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/channels/wx.getChannelsLiveNoticeInfo.html)
          *
@@ -17382,7 +17395,7 @@ wx.offNetworkWeakChange()
          * ****
          *
          * ## 注意事项
-         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用游戏画面截图。 */
+         * - 转发图片说明：imageUrl，imageUrlId 都存在时，优先使用 imageUrl。 imageUrl，imageUrlId 都不填时使用游戏画面截图。 */
         onShareAppMessage(
             /** 用户点击右上角菜单的「转发」按钮时触发的事件的监听函数 */
             listener: OnShareAppMessageCallback
@@ -17405,7 +17418,7 @@ wx.offNetworkWeakChange()
          * ****
          *
          * ## 注意事项
-         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用当前游戏的icon。 */
+         * - 转发图片说明：imageUrl，imageUrlId 都存在时，优先使用 imageUrl。  imageUrl，imageUrlId 都不填时使用当前游戏的icon。 */
         onShareTimeline(
             /** 用户点击右上角菜单的「分享到朋友圈」按钮时触发的事件的监听函数 */
             listener: OnShareTimelineCallback
@@ -18701,7 +18714,7 @@ try {
          * ****
          *
          * ## 注意事项
-         * - 转发图片说明：仅当自定义分享图片权限被封禁时用 imageUrlId，其他情况都会用 imageUrl。 imageUrl 不填时使用游戏画面截图。 */
+         * - 转发图片说明：imageUrl，imageUrlId 都存在时，优先使用 imageUrl。 imageUrl，imageUrlId 都不填时使用游戏画面截图。 */
         shareAppMessage(option: ShareAppMessageOption): void
         /** [wx.shareMessageToFriend(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.shareMessageToFriend.html)
          *
@@ -19758,6 +19771,12 @@ wx.writeBLECharacteristicValue({
     type GetNetworkTypeSuccessCallback = (
         result: GetNetworkTypeSuccessCallbackResult
     ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetPhoneNumberCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type GetPhoneNumberFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type GetPhoneNumberSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetPotentialFriendListCompleteCallback = (
         res: GeneralCallbackResult
