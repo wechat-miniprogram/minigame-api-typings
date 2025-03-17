@@ -1,4 +1,4 @@
-# From: https://github.com/wechat-miniprogram/api-typings/blob/2222854ee4d122206d722ccb8672d5cc11a73239/.github/workflows/test.yml
+# From: https://github.com/wechat-miniprogram/api-typings/blob/9c691dd47158d9a029a68105c2378a3668874cf4/.github/workflows/test.yml
 # Author: Mr.Hope <zhangbowang1998@gmail.com>
 name: Test
 
@@ -11,12 +11,12 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
               with:
                   persist-credentials: false
 
             - name: restore node modules
-              uses: actions/cache@v2
+              uses: actions/cache@v4
               id: node-modules-cache
               with:
                   path: node_modules
@@ -24,7 +24,7 @@ jobs:
 
             - name: Install Deps
               if: steps.node-modules-cache.outputs.cache-hit != 'true'
-              run: npm install
+              run: npm ci
 
             - name: Run test
               run: npm run test
