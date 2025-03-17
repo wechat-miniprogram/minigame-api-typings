@@ -1266,7 +1266,7 @@ source.start()
         allowNPU?: boolean
         /** 是否生成量化模型推理 */
         allowQuantize?: boolean
-        /** 推理精度，有效值为 0 - 4。一般来说，使用的precesionLevel等级越低，推理速度越快，但可能会损失精度。推荐开发者在开发时，在效果满足需求时优先使用更低精度以提高推理速度，节约能耗。
+        /** 推理精度，有效值为 0 - 4。一般来说，使用的precisionLevel等级越低，推理速度越快，但可能会损失精度。推荐开发者在开发时，在效果满足需求时优先使用更低精度以提高推理速度，节约能耗。
          *
          * 可选值：
          * - 0: 使用fp16 存储浮点，fp16计算，Winograd 算法也采取fp16 计算，开启近似math计算;
@@ -1274,7 +1274,7 @@ source.start()
          * - 2: 使用fp16 存储浮点，fp32计算，开启 Winograd，开启近似math计算;
          * - 3: 使用fp32 存储浮点，fp32计算，开启 Winograd，开启近似math计算;
          * - 4: 使用fp32 存储浮点，fp32计算，开启 Winograd，关闭近似math计算; */
-        precesionLevel?: 0 | 1 | 2 | 3 | 4
+        precisionLevel?: 0 | 1 | 2 | 3 | 4
         /** 输入典型分辨率 */
         typicalShape?: IAnyObject
     }
@@ -1356,8 +1356,12 @@ source.start()
     interface CreateTCPSocketOption {
         /** 需要基础库： `3.6.4`
          *
-         * 套接字族，必须是 IPv4 或者 IPv6，默认是 IPv4 */
-        type: string
+         * 套接字族，必须是 IPv4 或者 IPv6，默认是 IPv4
+         *
+         * 可选值：
+         * - 'ipv4': IPv4;
+         * - 'ipv6': IPv6; */
+        type?: 'ipv4' | 'ipv6'
     }
     interface CreateUserInfoButtonOption {
         /** 按钮的样式 */
@@ -2573,9 +2577,9 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetBatteryInfoSuccessCallbackResult {
         /** 是否正在充电中 */
         isCharging: boolean
-        /** 需要基础库： `3.4.3`
+        /** 需要基础库： `3.5.0`
          *
-         * 是否处于省电模式，目前仅 iOS 端支持 */
+         * 是否处于省电模式 */
         isLowPowerModeEnabled: boolean
         /** 设备电量，范围 1 - 100 */
         level: number
@@ -2584,9 +2588,9 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetBatteryInfoSyncResult {
         /** 是否正在充电中 */
         isCharging: boolean
-        /** 需要基础库： `3.4.3`
+        /** 需要基础库： `3.5.0`
          *
-         * 是否处于省电模式，目前仅 iOS 端支持 */
+         * 是否处于省电模式 */
         isLowPowerModeEnabled: boolean
         /** 设备电量，范围 1 - 100 */
         level: number
@@ -3272,6 +3276,33 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
          *
          * 超时时间，单位 ms */
         timeout?: number
+    }
+    interface GetShowSplashAdStatusOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetShowSplashAdStatusCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetShowSplashAdStatusFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetShowSplashAdStatusSuccessCallback
+    }
+    interface GetShowSplashAdStatusSuccessCallbackResult {
+        /** 封面广告组件展示状态码
+         *
+         * 可选值：
+         * - -1: 初始值，状态未知;
+         * - 1: 展示成功;
+         * - 2: 主动拦截过滤，不展示广告;
+         * - 3: 展示超时; */
+        code: -1 | 1 | 2 | 3
+        /** 封面广告组件展示状态
+         *
+         * 可选值：
+         * - 'unknown': 初始值，状态未知;
+         * - 'pending': 进行展示中;
+         * - 'success': 展示成功;
+         * - 'fail': 展示失败; */
+        status: 'unknown' | 'pending' | 'success' | 'fail'
+        errMsg: string
     }
     interface GetStorageInfoOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -4277,6 +4308,14 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 分包加载成功回调事件 */
         success: (...args: any[]) => any
     }
+    interface LoadSubpackageTaskOnProgressUpdateListenerResult {
+        /** 分包下载进度百分比 */
+        progress: number
+        /** 预期需要下载的数据总长度，单位 Bytes */
+        totalBytesExpectedToWrite: number
+        /** 已经下载的数据长度，单位 Bytes */
+        totalBytesWritten: number
+    }
     /** 日志上报的参数对象。 */
     interface LogParam {
         /** 日志标签，用于日志分类（如 登录、战斗……）。key 只能是 string 类型，且能够通过 JSON.stringify 序列化。若不传入 key 参数，上报使用默认 key 'default'。 */
@@ -4305,7 +4344,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         timeout?: number
     }
     interface LoginSuccessCallbackResult {
-        /** 用户登录凭证（有效期五分钟）。开发者需要在开发者服务器后台调用 [code2Session](#)，使用 code 换取 openid、unionid、session_key 等信息 */
+        /** 用户登录凭证（有效期五分钟）。开发者需要在开发者服务器后台调用 [code2Session](https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-login/code2Session.html)，使用 code 换取 openid、unionid、session_key 等信息 */
         code: string
         errMsg: string
     }
@@ -4493,7 +4532,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         imageUrl?: string
         /** 需要基础库： `2.9.0`
          *
-         * 分享图片 ID，详见 wx.shareMessageToFriend 同名参数（需要配置模板规则） */
+         * 分享图片编号，详见 wx.shareMessageToFriend 同名参数（需要配置模板规则） */
         imageUrlId?: string
         /** 需要基础库： `2.9.0`
          *
@@ -4882,20 +4921,6 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * - 15: TRIM_MEMORY_RUNNING_CRITICAL; */
         level: 5 | 10 | 15
     }
-    interface OnMenuButtonBoundingClientRectWeightChangeListenerResult {
-        /** 下边界坐标，单位：px */
-        bottom: number
-        /** 高度，单位：px */
-        height: number
-        /** 左边界坐标，单位：px */
-        left: number
-        /** 右边界坐标，单位：px */
-        right: number
-        /** 上边界坐标，单位：px */
-        top: number
-        /** 宽度，单位：px */
-        width: number
-    }
     interface OnMessageListenerResultLocalInfo {
         /** 接收消息的 socket 的地址 */
         address: string
@@ -5021,7 +5046,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         title: string
         /** 需要基础库： `2.4.3`
          *
-         * 审核通过的图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
+         * 审核通过的图片编号，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imageUrlId?: string
         /** 需要基础库： `2.12.2`
          *
@@ -5051,9 +5076,9 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         imagePreviewUrl?: string
         /** 需要基础库： `2.14.3`
          *
-         * 审核通过的朋友圈预览图图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
+         * 审核通过的朋友圈预览图图片编号，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imagePreviewUrlId?: string
-        /** 审核通过的图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
+        /** 审核通过的图片编号，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imageUrlId?: string
         /** 需要基础库： `2.12.2`
          *
@@ -5638,14 +5663,6 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          * - 'workers': worker 分包;
          * - 'normal': 普通分包, [3.4.9](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html)及以上版本支持。下载普通分包，必须再传入 name 参数。; */
         packageType?: 'workers' | 'normal'
-    }
-    interface PreDownloadSubpackageTaskOnProgressUpdateListenerResult {
-        /** 分包下载进度百分比 */
-        progress: number
-        /** 预期需要下载的数据总长度，单位 Bytes */
-        totalBytesExpectedToWrite: number
-        /** 已经下载的数据长度，单位 Bytes */
-        totalBytesWritten: number
     }
     interface PreviewImageOption {
         /** 需要预览的图片链接列表。[2.2.3](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起支持云文件ID。 */
@@ -6463,6 +6480,12 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
     interface ReserveChannelsLiveOption {
         /** 预告 id，通过 getChannelsLiveNoticeInfo 接口获取 */
         noticeId: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: ReserveChannelsLiveCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: ReserveChannelsLiveFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: ReserveChannelsLiveSuccessCallback
     }
     interface RestartMiniProgramOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -6642,9 +6665,12 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          * 可选值：
          * - 'barCode': 一维码;
          * - 'qrCode': 二维码;
+         * - 'wxCode': 小程序码;
          * - 'datamatrix': Data Matrix 码;
          * - 'pdf417': PDF417 条码; */
-        scanType?: Array<'barCode' | 'qrCode' | 'datamatrix' | 'pdf417'>
+        scanType?: Array<
+            'barCode' | 'qrCode' | 'wxCode' | 'datamatrix' | 'pdf417'
+        >
         /** 接口调用成功的回调函数 */
         success?: ScanCodeSuccessCallback
     }
@@ -6932,7 +6958,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         imageUrl?: string
         /** 需要基础库： `2.4.3`
          *
-         * 审核通过的图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
+         * 审核通过的图片编号，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imageUrlId?: string
         /** 需要基础库： `2.12.2`
          *
@@ -6956,7 +6982,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: ShareMessageToFriendFailCallback
         /** 转发显示图片的链接，可使用本地图片文件路径或相对代码包根目录的图片文件路径，不可使用网络图片。如需使用网络图片，可先在游戏域调用 wx.downloadFile 下载到本地后，调用 OpenDataContext.postMessage 发送本地图片路径到开放数据域使用。显示图片长宽比是 5:4 */
         imageUrl?: string
-        /** 审核通过的图片 ID，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
+        /** 审核通过的图片编号，详见 [使用审核通过的转发图片](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html#使用审核通过的转发图片) */
         imageUrlId?: string
         /** 接口调用成功的回调函数 */
         success?: ShareMessageToFriendSuccessCallback
@@ -7826,7 +7852,7 @@ session.run({
         /** [Tensor](https://developers.weixin.qq.com/minigame/dev/api/ai/inference/Tensor.html)
          *
          * Tensor，每个 Tensor 包含 shape、data、type 字段。 */
-        key: Tensor
+        [key: string]: Tensor
     }
     interface ToTempFilePathOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -12087,7 +12113,7 @@ GameServerManager.offSyncFrame(listener) // 需传入与监听时同一个的函
         getLastRoomInfo(option?: GetLastRoomInfoOption): Promise<any>
         /** [Promise GameServerManager.getLostFrames(object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.getLostFrames.html)
          *
-         * 补帧，补帧区间为 &#91;beginFrameId, endFrameId)，即左闭右合。 */
+         * 补帧，补帧区间为 [beginFrameId, endFrameId)，即左闭右合。 */
         getLostFrames(option: GetLostFramesOption): Promise<any>
         /** [Promise GameServerManager.getRoomInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-server-manager/GameServerManager.getRoomInfo.html)
          *
@@ -12537,7 +12563,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听分包加载进度变化事件 */
         onProgressUpdate(
             /** 分包加载进度变化事件的监听函数 */
-            listener: PreDownloadSubpackageTaskOnProgressUpdateCallback
+            listener: LoadSubpackageTaskOnProgressUpdateCallback
         ): void
     }
     interface LogManager {
@@ -12682,7 +12708,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听分包加载进度变化事件 */
         onProgressUpdate(
             /** 分包加载进度变化事件的监听函数 */
-            listener: PreDownloadSubpackageTaskOnProgressUpdateCallback
+            listener: LoadSubpackageTaskOnProgressUpdateCallback
         ): void
     }
     interface RealtimeLogManager {
@@ -13990,19 +14016,19 @@ if (wx.getGameLogManager) {
 }
 export const gameLogAdaptor = {
   log() {
-    if (!logger) return;
+    if (!logger) console.log.apply(logger, arguments); // 防止低版本基础库调用报错
     logger.log.apply(logger, arguments);
   },
   tag() {
-    if (!logger) return;
-    logger.tag.apply(logger, arguments);
+    if (!logger) return console;
+    return logger.tag.apply(logger, arguments);
   },
   getCommonInfo() {
-    if (!logger) return;
-    logger.getCommonInfo.apply(logger, arguments);
+    if (!logger) return {};
+    return logger.getCommonInfo.apply(logger, arguments);
   },
   updateCommonInfo() {
-    if (!logger) return;
+    if (!logger) console.log.apply(logger, arguments);
     logger.updateCommonInfo.apply(logger, arguments);
   }
 };
@@ -14011,15 +14037,16 @@ export const gameLogAdaptor = {
 * ```js
 import { gameLogAdaptor } from "./gamelog.js"; // 引用上面的gamelog.js文件，具体路径以游戏实现为准
 
+// 使用tag后的上报方法上报日志
+const cacheLogger = gameLogAdaptor.tag("cache"); // 用于缓存相关日志上报
+cacheLogger.warn("cache not found", { key: "tableCache" }); // 上报 warn 级别的日志
+
 // 直接使用log方法上报日志
-logger.log({
+gameLogAdaptor.log({
   level: "info",
   key: "login",
   value: { loginTime: "1731915939" }
 });
-// 使用tag后的上报方法上报日志
-const cacheLogger = logger.tag("cache"); // 用于缓存相关日志上报
-cacheLogger.warn("cache not found", { key: "tableCache" }); // 上报 warn 级别的日志
 ``` */
         getGameLogManager(param: GetGameLogManagerParam): GameLogManager
         /** [[GameRecorderShareButton](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/GameRecorderShareButton.html) wx.createGameRecorderShareButton(Object object)](https://developers.weixin.qq.com/minigame/dev/api/game-recorder/wx.createGameRecorderShareButton.html)
@@ -14433,7 +14460,7 @@ wx.connectSocket({
          * - 允许与配置过的服务器域名通信，详见[相关说明](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/network.html)
          * - 禁止与以下端口号连接：`1024 以下` `1099` `1433` `1521` `1719` `1720` `1723` `2049` `2375` `3128` `3306` `3389` `3659` `4045` `5060` `5061` `5432` `5984` `6379` `6000` `6566` `7001` `7002` `8000-8100` `8443` `8888` `9200` `9300` `10051` `10080` `11211` `27017` `27018` `27019`
          * - 每 5 分钟内最多创建 20 个 TCPSocket */
-        createTCPSocket(option: CreateTCPSocketOption): TCPSocket
+        createTCPSocket(option?: CreateTCPSocketOption): TCPSocket
         /** [[UDPSocket](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.html) wx.createUDPSocket(string type)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/wx.createUDPSocket.html)
          *
          * 需要基础库： `2.7.0`
@@ -15742,6 +15769,23 @@ wx.getSetting({
         getShareInfo<T extends GetShareInfoOption = GetShareInfoOption>(
             option: T
         ): PromisifySuccessResult<T, GetShareInfoOption>
+        /** [wx.getShowSplashAdStatus(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.getShowSplashAdStatus.html)
+*
+* 需要基础库： `3.7.8`
+*
+* 获取封面广告组件展示状态。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号后再使用该 API（小游戏端要求 >= 3.7.8， 小程序端要求 >= 3.7.8）。
+*
+* **示例代码**
+*
+* ```js
+// 获取封面广告展示状态
+wx.getShowSplashAdStatus({
+  success: res => {
+    console.log('getShowSplashAdStatus res', res.status, res.code)
+  },
+})
+``` */
+        getShowSplashAdStatus(option?: GetShowSplashAdStatusOption): void
         /** [wx.getStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/storage/wx.getStorage.html)
 *
 * 从本地缓存中异步获取指定 key 的内容。
@@ -16712,24 +16756,6 @@ wx.offMemoryWarning(listener) // 需传入与监听时同一个的函数对象
             /** onMemoryWarning 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffMemoryWarningCallback
         ): void
-        /** [wx.offMenuButtonBoundingClientRectWeightChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ui/menu/wx.offMenuButtonBoundingClientRectWeightChange.html)
-*
-* 需要基础库： `3.4.3`
-*
-* 移除菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数
-*
-* **示例代码**
-*
-* ```js
-const listener = function (res) { console.log(res) }
-
-wx.onMenuButtonBoundingClientRectWeightChange(listener)
-wx.offMenuButtonBoundingClientRectWeightChange(listener) // 需传入与监听时同一个的函数对象
-``` */
-        offMenuButtonBoundingClientRectWeightChange(
-            /** onMenuButtonBoundingClientRectWeightChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: OffMenuButtonBoundingClientRectWeightChangeCallback
-        ): void
         /** [wx.offMouseDown(function listener)](https://developers.weixin.qq.com/minigame/dev/api/device/mouse-event/wx.offMouseDown.html)
 *
 * 移除鼠标按键按下事件的监听函数
@@ -17502,25 +17528,6 @@ wx.onMemoryWarning(function () {
         onMemoryWarning(
             /** 内存不足告警事件的监听函数 */
             listener: OnMemoryWarningCallback
-        ): void
-        /** [wx.onMenuButtonBoundingClientRectWeightChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ui/menu/wx.onMenuButtonBoundingClientRectWeightChange.html)
-*
-* 需要基础库： `3.4.3`
-*
-* 监听菜单按钮（右上角胶囊按钮）的布局位置信息变化事件
-*
-* **示例代码**
-*
-* ```js
-const callback = res => console.log('menuButtonBoundingClientRectWeightChange', res)
-
-wx.onMenuButtonBoundingClientRectWeightChange(callback)
-// 取消监听
-wx.offMenuButtonBoundingClientRectWeightChange(callback)
-``` */
-        onMenuButtonBoundingClientRectWeightChange(
-            /** 菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数 */
-            listener: OnMenuButtonBoundingClientRectWeightChangeCallback
         ): void
         /** [wx.onMessage(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/context/wx.onMessage.html)
          *
@@ -20156,6 +20163,18 @@ wx.writeBLECharacteristicValue({
         result: GetGroupEnterInfoSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetShowSplashAdStatusCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetShowSplashAdStatusFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetShowSplashAdStatusSuccessCallback = (
+        result: GetShowSplashAdStatusSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetStorageCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetStorageFailCallback = (res: GeneralCallbackResult) => void
@@ -20342,6 +20361,10 @@ wx.writeBLECharacteristicValue({
     type KickoutMemberFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type KickoutMemberSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 分包加载进度变化事件的监听函数 */
+    type LoadSubpackageTaskOnProgressUpdateCallback = (
+        result: LoadSubpackageTaskOnProgressUpdateListenerResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type LoginCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -20527,10 +20550,6 @@ wx.writeBLECharacteristicValue({
     /** onMemoryWarning 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffMemoryWarningCallback = (
         result: OnMemoryWarningListenerResult
-    ) => void
-    /** onMenuButtonBoundingClientRectWeightChange 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type OffMenuButtonBoundingClientRectWeightChangeCallback = (
-        result: OnMenuButtonBoundingClientRectWeightChangeListenerResult
     ) => void
     /** onMouseDown 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffMouseDownCallback = (result: OnMouseDownListenerResult) => void
@@ -20787,10 +20806,6 @@ wx.writeBLECharacteristicValue({
     type OnMemoryWarningCallback = (
         result: OnMemoryWarningListenerResult
     ) => void
-    /** 菜单按钮（右上角胶囊按钮）的布局位置信息变化事件的监听函数 */
-    type OnMenuButtonBoundingClientRectWeightChangeCallback = (
-        result: OnMenuButtonBoundingClientRectWeightChangeListenerResult
-    ) => void
     /** 鼠标按键按下事件的监听函数 */
     type OnMouseDownCallback = (result: OnMouseDownListenerResult) => void
     /** 鼠标移动事件的监听函数 */
@@ -21046,10 +21061,6 @@ wx.writeBLECharacteristicValue({
     type OwnerLeaveRoomFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type OwnerLeaveRoomSuccessCallback = (res: GeneralCallbackResult) => void
-    /** 分包加载进度变化事件的监听函数 */
-    type PreDownloadSubpackageTaskOnProgressUpdateCallback = (
-        result: PreDownloadSubpackageTaskOnProgressUpdateListenerResult
-    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type PreviewImageCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -21241,6 +21252,16 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用成功的回调函数 */
     type RequirePrivacyAuthorizeSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type ReserveChannelsLiveCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type ReserveChannelsLiveFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type ReserveChannelsLiveSuccessCallback = (
         res: GeneralCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
