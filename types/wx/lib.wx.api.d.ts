@@ -1458,7 +1458,7 @@ source.start()
          * 是否使用实验worker。在iOS下，实验worker的JS运行效率比非实验worker提升数倍，如需在worker内进行重度计算的建议开启此选项。同时，实验worker存在极小概率会在系统资源紧张时被系统回收，因此建议配合 worker.onProcessKilled 事件使用，在worker被回收后可重新创建一个。 */
         useExperimentalWorker?: boolean
     }
-    /** 原生模板广告组件。原生模板广告组件是一个原生组件，层级比普通组件高。原生模板广告组件默认是隐藏的，需要调用 CustomAd.show() 将其显示。如果宽度可配置，原生模板广告会根据开发者设置的宽度进行等比缩放。 */
+    /** 原生模板广告组件。原生模板广告组件是一个原生组件，层级比普通组件高。原生模板广告组件默认是隐藏的，需要调用 CustomAd.show() 将其显示。如果宽度可配置，原生模板广告会根据开发者设置的宽度进行等比缩放，部分模板缩放后的尺寸会通过 CustomAd.onResize() 事件中提供。 */
     interface CustomAd {
         /** 原生模板广告组件的样式 */
         style: CustomAdStyle
@@ -1532,6 +1532,22 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffLoadCallback
         ): void
+        /** [CustomAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offResize.html)
+*
+* 移除原生模板广告宽高回调事件的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+CustomAd.onResize(listener)
+CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offResize(
+            /** onResize 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffResizeCallback
+        ): void
         /** [CustomAd.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onClose.html)
          *
          * 监听原生模板广告关闭事件。 */
@@ -1582,6 +1598,13 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
         onLoad(
             /** 原生模板广告加载事件的监听函数 */
             listener: OnLoadCallback
+        ): void
+        /** [CustomAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onResize.html)
+         *
+         * 监听原生模板广告宽高回调事件（部分横幅模板支持）。 */
+        onResize(
+            /** 原生模板广告宽高回调事件的监听函数 */
+            listener: OnResizeCallback
         ): void
         /** [Promise CustomAd.hide()](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.hide.html)
          *
@@ -2902,10 +2925,18 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         errMsg: string
     }
     interface GetGroupEnterInfoOption {
+        /** 需要基础库： `3.7.8`
+         *
+         * 开启后单聊下返回 open_single_roomid */
+        allowSingleChat?: boolean
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetGroupEnterInfoCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: GetGroupEnterInfoFailCallback
+        /** 需要基础库： `3.7.8`
+         *
+         * 开启后返回用户在群(含单聊)下的 group_openid */
+        needGroupOpenID?: boolean
         /** 接口调用成功的回调函数 */
         success?: GetGroupEnterInfoSuccessCallback
     }
@@ -4297,6 +4328,12 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         height: number
         /** 腿部分割纹理宽 */
         width: number
+    }
+    interface LoadOption {
+        /** 从不同渠道获得的OPENLINK字符串 */
+        openlink: string
+        /** 选填，部分活动、功能允许接收自定义query参数，请参阅渠道说明，默认可不填 */
+        query?: IAnyObject
     }
     interface LoadSubpackageOption {
         /** 分包加载结束回调事件(加载成功、失败都会执行） */
@@ -7125,6 +7162,13 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         content: string
         errMsg: string
     }
+    /** 选填，如果已经执行 `.load({ ... })` 无需填写，也允许使用 `.show({ ... })` 连贯执行 */
+    interface ShowOption {
+        /** 从不同渠道获得的OPENLINK字符串 */
+        openlink?: string
+        /** 选填，部分活动、功能允许接收自定义query参数，请参阅渠道说明，默认可不填 */
+        query?: IAnyObject
+    }
     interface ShowShareImageMenuOption {
         /** 要分享的图片地址，必须为本地路径或临时路径 */
         path: string
@@ -7140,10 +7184,6 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          *
          * 分享的图片消息是否要带小程序入口 (仅部分小程序类目可用) */
         needShowEntrance?: boolean
-        /** 需要基础库： `3.2.0`
-         *
-         * 分享样式，小程序可选 v2 */
-        style?: string
         /** 接口调用成功的回调函数 */
         success?: ShowShareImageMenuSuccessCallback
     }
@@ -8099,6 +8139,10 @@ session.run({
          *
          * 动态消息的 activityId。通过 [updatableMessage.createActivityId](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.createActivityId.html) 接口获取 */
         activityId?: string
+        /** 需要基础库： `3.7.8`
+         *
+         * 指定成员的方式 */
+        chooseType?: number
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: UpdateShareMenuCompleteCallback
         /** 接口调用失败的回调函数 */
@@ -8111,6 +8155,8 @@ session.run({
          *
          * 是否是动态消息，详见[动态消息](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/updatable-message.html) */
         isUpdatableMessage?: boolean
+        /** 参与用户此聊天室下的 group_openid 列表 */
+        participant?: string[]
         /** 接口调用成功的回调函数 */
         success?: UpdateShareMenuSuccessCallback
         /** 需要基础库： `2.4.0`
@@ -8121,6 +8167,10 @@ session.run({
          *
          * 群待办消息的id，通过toDoActivityId可以把多个群待办消息聚合为同一个。通过 [updatableMessage.createActivityId](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.createActivityId.html) 接口获取。详见[群待办消息](#) */
         toDoActivityId?: string
+        /** 需要基础库： `3.7.8`
+         *
+         * 聊天工具模式特殊动态消息 */
+        useForChatTool?: boolean
         /** 是否使用带 shareTicket 的转发[详情](#) */
         withShareTicket?: boolean
     }
@@ -9516,7 +9566,7 @@ audioCtx.close().then(() => {
 *
 * **示例代码**
 *
-* 运行以下代码需先进行基础配置，详细请查阅 [多线程 Worker](#) 文档了解基础知识和配置方法。
+* 运行以下代码需先进行基础配置，详细请查阅 [多线程 Worker](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/workers.html) 文档了解基础知识和配置方法。
 *
 * ```js
 const worker = wx.createWorker('workers/request/index.js') // 文件名指定 worker 的入口文件路径，绝对路径
@@ -12694,6 +12744,51 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * | 3017/-15012 |  | 道具id非法 |
          * | 701001 |  | ios禁止支付 | */ errCode: number
     }
+    interface PageManager {
+        /** [PageManager.destroy()](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.destroy.html)
+         *
+         * 需要基础库： `3.6.7`
+         *
+         * 销毁开放页面实例。 */
+        destroy(): void
+        /** [PageManager.off(string eventName, function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.off.html)
+         *
+         * 需要基础库： `3.6.7`
+         *
+         * 取消监听来自活动、功能向开发者产生的某些事件。 */
+        off(
+            /** 取消的事件名称，如果仅填写事件名称则注销该名称下所有的监听 */
+            eventName: string,
+            /** 取消的事件名称及其对应的回调函数指针，可缺省，若填写则仅注销该事件名称下的单个回调函数 */
+            callback?: (...args: any[]) => any
+        ): void
+        /** [PageManager.on(string eventName, function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.on.html)
+         *
+         * 需要基础库： `3.6.7`
+         *
+         * 监听来自活动、功能向开发者产生的某些事件。 */
+        on(
+            /** 事件名称，由渠道获得需要监听的事件名称 */
+            eventName: string,
+            /** 发生某种事件时的回调函数指针 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [Promise PageManager.load(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.load.html)
+         *
+         * 需要基础库： `3.6.7`
+         *
+         * 提供OPENLINK加载活动、功能信息。 */
+        load(option: LoadOption): Promise<any>
+        /** [Promise PageManager.show(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.show.html)
+         *
+         * 需要基础库： `3.6.7`
+         *
+         * 显示已经成功加载信息的开放页面活动、功能。如果调用前未执行 `.load({ ... })` 将自动调用1次并返回加载信息结果。 */
+        show(
+            /** 选填，如果已经执行 `.load({ ... })` 无需填写，也允许使用 `.show({ ... })` 连贯执行 */
+            option?: ShowOption
+        ): Promise<any>
+    }
     interface Performance {
         /** [number Performance.now()](https://developers.weixin.qq.com/minigame/dev/api/base/performance/Performance.now.html)
          *
@@ -13926,6 +14021,7 @@ console.log(windowInfo.screenTop)
         /** [[BannerAd](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) wx.createBannerAd(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createBannerAd.html)
          *
          * 需要基础库： `2.0.4`
+         * @deprecated 基础库版本 [3.5.5](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃，请使用 [wx.createCustomAd](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createCustomAd.html) 替换
          *
          * 创建 banner 广告组件。请通过 [wx.getSystemInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/base/system/wx.getSystemInfoSync.html) 返回对象的 SDKVersion 判断基础库版本号 >= 2.0.4 后再使用该 API。每次调用该方法创建 banner 广告都会返回一个全新的实例。 */
         createBannerAd(option: CreateBannerAdOption): BannerAd
@@ -14156,7 +14252,7 @@ session.destroy()
 *
 * 需要基础库： `1.6.0`
 *
-* 创建内部 [audio](#) 上下文 [InnerAudioContext](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.html) 对象。
+* 创建内部 [audio](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/audio.html) 上下文 [InnerAudioContext](https://developers.weixin.qq.com/minigame/dev/api/media/audio/InnerAudioContext.html) 对象。
 *
 * **示例代码**
 *
@@ -14258,6 +14354,33 @@ logger.warn({str: 'hello world'}, 'warn log', 100, [1, 2, 3])
         createOpenSettingButton(
             option: CreateOpenSettingButtonOption
         ): OpenSettingButton
+        /** [[PageManager](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/PageManager.html) wx.createPageManager()](https://developers.weixin.qq.com/minigame/dev/api/open-api/openlink/wx.createPageManager.html)
+*
+* 需要基础库： `3.6.7`
+*
+* 小游戏开放页面管理器，用于启动微信内置的各种小游戏活动、功能页面。具体OPENLINK值由不同的能力渠道获得。
+*
+* **示例代码**
+*
+* ```js
+const pageManager = wx.createPageManager();
+
+pageManager.load({
+  openlink: 'xxxxxxx-xxxxxx', // 由不同渠道获得的OPENLINK值
+}).then((res) => {
+  // 加载成功，res 可能携带不同活动、功能返回的特殊回包信息（具体请参阅渠道说明）
+  console.log(res);
+
+  // 加载成功后按需显示
+  pageManager.show();
+
+}).catch((err) => {
+  // 加载失败，请查阅 err 给出的错误信息
+  console.error(err);
+})
+
+``` */
+        createPageManager(): PageManager
         /** [[Path2D](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Path2D.html) wx.createPath2D()](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/wx.createPath2D.html)
          *
          * 需要基础库： `2.24.6`
@@ -15514,6 +15637,7 @@ if (wx.getExtConfig) {
 * ## 注意事项
 *  - 基础库 v2.10.4 开始支持获取群工具小程序启动信息
 *  - 基础库 v2.17.3 开始支持获取群聊小程序消息卡片、群待办小程序启动信息
+*  - 基础库 v3.7.8 支持获取单聊群启动信息，获取的群(含单聊)唯一标识，可用于[聊天工具模式](https://developers.weixin.qq.com/minigame/dev/api/chattool/wx.openChatTool.html)。
 *
 * **示例代码**
 *
@@ -15538,7 +15662,10 @@ wx.getGroupEnterInfo({
 *
 * ```json
 {
- "opengid": "OPENGID"
+ "opengid": "OPENGID",       // 多聊群下返回的群唯一标识
+ "open_single_roomid": "",   // 单聊群下返回的群唯一标识
+ "group_openid": "",         // 用户在当前群的唯一标识
+ "chat_type": 3,             // 聊天室类型
 }
 ```
 *
@@ -18024,7 +18151,7 @@ wx.openCustomerServiceChat({
          *
          * 需要基础库： `2.0.3`
          *
-         * 进入客服会话。要求在用户发生过至少一次 touch 事件后才能调用。后台接入方式与小程序一致，详见 [客服消息接入](#)
+         * 进入客服会话。要求在用户发生过至少一次 touch 事件后才能调用。后台接入方式与小程序一致，详见 [客服消息接入](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/customer-message/customer-message.html)
          *
          * **注意事项**
          *
@@ -19118,12 +19245,7 @@ wx.showModal({
          *
          * 需要基础库： `2.14.3`
          *
-         * 打开分享图片弹窗，可以将图片发送给朋友、收藏或下载
-         *
-         * **Bug & Tip**
-         *
-         * 1. `tip`: `needShowEntrance`分享的图片消息是否要带小程序入口，支持申明类目：商家自营、电商平台、餐饮服务(餐饮服务场所/餐饮服务管理企业、点餐平台、外卖平台)、旅游服务(住宿服务、景区服务、OTA、旅游管理单位)、生活服务(家政服务、丽人服务、宠物(非医院类)、婚庆服务、洗浴保健、休闲娱乐、百货/超市/便利店、开锁服务、营业性演出票务、其他宠物健康服务、洗浴保健平台、共享服务、跑腿、寄存、求职/招聘)
-         * 2. `tip`: `needShowEntrance`小游戏所有类目都支持 */
+         * 打开分享图片弹窗，可以将图片发送给朋友、收藏或下载 */
         showShareImageMenu<
             T extends ShowShareImageMenuOption = ShowShareImageMenuOption
         >(
