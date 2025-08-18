@@ -1,5 +1,6 @@
-# From: https://github.com/wechat-miniprogram/api-typings/blob/9c691dd47158d9a029a68105c2378a3668874cf4/.github/workflows/test.yml
-# Author: Mr.Hope <zhangbowang1998@gmail.com>
+# From: https://github.com/wechat-miniprogram/api-typings/blob/8a4dc47a5226dd1a6f2632aa542b7b926afd3c93/.github/workflows/test.yml
+# Follow the link above to checkout original authors.
+
 name: Test
 
 on:
@@ -12,19 +13,21 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  persist-credentials: false
 
-            - name: restore node modules
-              uses: actions/cache@v4
-              id: node-modules-cache
+            - uses: pnpm/action-setup@v4
+              name: Install pnpm
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+                version: latest
+                run_install: false
 
-            - name: Install Deps
-              if: steps.node-modules-cache.outputs.cache-hit != 'true'
-              run: npm ci
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: lts/*
+                cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
             - name: Run test
               run: npm run test
