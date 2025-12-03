@@ -677,6 +677,12 @@ source.start()
             /** 事件发生时的回调函数 */
             callback: (...args: any[]) => any
         ): void
+        /** [Promise Camera.setZoom(Object args)](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.setZoom.html)
+         *
+         * 需要基础库： `3.9.2`
+         *
+         * 设置缩放比例 */
+        setZoom(args: SetZoomOption): Promise<any>
         /** [Promise Camera.startRecord()](https://developers.weixin.qq.com/minigame/dev/api/media/camera/Camera.startRecord.html)
          *
          * 需要基础库： `2.9.0`
@@ -1067,7 +1073,7 @@ source.start()
         /** 需要基础库： `2.11.0`
          *
          * 是否开启透明通道，仅当 contextType 为 webgl 时有效。（开启后，配合wx.createVideo({underGameView: true}) 即可在video组件之上渲染主屏画布） */
-        alpha?: number
+        alpha?: boolean
         /** 表示是否抗锯齿 */
         antialias?: boolean
         /** 抗锯齿样本数。最小值为 2，最大不超过系统限制数量，仅 iOS 支持 */
@@ -1836,6 +1842,13 @@ CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** 操作系统及版本 */
         system: string
     }
+    /** 直玩广告状态信息 */
+    interface DirectAdStatusInfo {
+        /** 当前是否处于直接广告中 */
+        isInDirectGameAd: boolean
+        /** 当前是否处于蒙层阶段 */
+        isInMask: boolean
+    }
     interface DownloadFileOption {
         /** 下载资源的 url */
         url: string
@@ -2228,6 +2241,25 @@ FeedbackButton.offTap(listener) // 需传入与监听时同一个的函数对象
         /** 用户的微信昵称 */
         nickname: string
         /** 用户 openid */
+        openid: string
+    }
+    /** 用户送礼状态信息
+     *
+     * ****
+     *
+     * ### blockCode 枚举
+     *   | 值  | 含义       |
+     *   | --- | --------- |
+     *   | 151066168 | 当前时间周期已经赠送，目前支持一天赠送一次    |
+     *   | 151066169 |  注册天数不足 首次注册时间必须大于 24 小时才能赠礼   | */
+    interface FriendSendGiftStatus {
+        /** 禁止送礼原因枚举，该字段在 blockSend 为 false 的时候不会返回 */
+        blockCode: number
+        /** 禁止送礼原因描述，该字段在 blockSend 为 false 的时候不会返回 */
+        blockReason: string
+        /** 是否禁止送礼，false 代表当前可以发起赠送 */
+        blockSend: boolean
+        /** 用户的 openid */
         openid: string
     }
     interface FstatOption {
@@ -2753,16 +2785,6 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         /** 接口调用成功的回调函数 */
         success?: GetChatToolInfoSuccessCallback
     }
-    interface GetChatToolInfoSuccessCallbackResult {
-        /** 敏感数据对应的云 ID，开通[云开发](https://developers.weixin.qq.com/minigame/dev/wxcloud/basis/getting-started.html)的小程序才会返回，可通过云调用直接获取开放数据，详细见[云调用直接获取开放数据](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#method-cloud) */
-        cloudID: string
-        /** 包括敏感数据在内的完整转发信息的加密数据，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
-        encryptedData: string
-        /** 错误信息 */
-        errMsg: string
-        /** 加密算法的初始向量，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
-        iv: string
-    }
     interface GetClipboardDataOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetClipboardDataCompleteCallback
@@ -2860,6 +2882,23 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     interface GetFriendCloudStorageSuccessCallbackResult {
         /** 同玩好友的托管数据 */
         data: UserGameData[]
+        errMsg: string
+    }
+    interface GetFriendSendGiftStatusOption {
+        /** 礼包 id */
+        giftId: string
+        /** 要查询的 openid 列表 */
+        openidList: string[]
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetFriendSendGiftStatusCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetFriendSendGiftStatusFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetFriendSendGiftStatusSuccessCallback
+    }
+    interface GetFriendSendGiftStatusSuccessCallbackResult {
+        /** 好友送礼状态信息列表 */
+        data: FriendSendGiftStatus[]
         errMsg: string
     }
     interface GetFriendsStateDataOption {
@@ -3827,6 +3866,11 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         /** 包含位置、旋转、放缩信息的矩阵，以列为主序 */
         transform: Float32Array
     }
+    /** 宿主传递的数据，第三方 app 中运行小游戏时返回 */
+    interface HostExtraData {
+        /** 宿主app对应的场景值 */
+        host_scene: string
+    }
     /** 需要基础库： `3.3.0`
      *
      * 身份证检测配置。用法详情[指南文档](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/visionkit/idcard.html)。 */
@@ -4376,6 +4420,8 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     }
     /** 启动参数 */
     interface LaunchOptionsGame {
+        /** 宿主传递的数据，第三方 app 中运行小游戏时返回 */
+        hostExtraData: HostExtraData
         /** 启动小游戏的 query 参数 */
         query: Record<string, string>
         /** 来源信息。从另一个小程序、公众号或 App 进入小程序时返回。否则返回 `{}`。(参见后文注意) */
@@ -4600,7 +4646,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * 小程序版本
          *
          * 可选值：
-         * - 'develop': 开发版;
+         * - 'develop': 开发版，提交代码审核时默认使用开发版进行审核。;
          * - 'trial': 体验版;
          * - 'release': 正式版; */
         envVersion: 'develop' | 'trial' | 'release'
@@ -4993,6 +5039,12 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * - 'landscape': 横屏正方向，以 HOME 键在屏幕右侧为正方向;
          * - 'landscapeReverse': 横屏反方向，以 HOME 键在屏幕左侧为反方向; */
         value: 'landscape' | 'landscapeReverse'
+    }
+    interface OnDirectAdStatusChangeListenerResult {
+        /** 当前是否处于直接广告中 */
+        isInDirectGameAd: boolean
+        /** 当前是否处于蒙层阶段 */
+        isInMask: boolean
     }
     interface OnDisconnectListenerResult {
         /** 可选值：
@@ -5489,7 +5541,7 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         success?: OpenChannelsLiveSuccessCallback
     }
     interface OpenChannelsUserProfileOption {
-        /** 视频号 id */
+        /** 视频号id（参考格式为：sphcqO59YEPCvoe；查看路径为：微信客户端->我tab->视频号->右上角.-＞视频号名字-视频号ID） */
         finderUserName: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: OpenChannelsUserProfileCompleteCallback
@@ -6307,6 +6359,14 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 本次请求底层重试次数 */
         retryCount: number
     }
+    interface RequestFacialRecognitionOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: RequestFacialRecognitionCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: RequestFacialRecognitionFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: RequestFacialRecognitionSuccessCallback
+    }
     interface RequestFailCallbackErr {
         /** 错误信息 */
         errMsg: string
@@ -6365,6 +6425,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: RequestMidasFriendPaymentFailCallback
         /** 接口调用成功的回调函数 */
         success?: RequestMidasFriendPaymentSuccessCallback
+    }
+    interface RequestMidasFriendPaymentSuccessCallbackResult {
+        /** 敏感数据对应的云 ID，开通[云开发](https://developers.weixin.qq.com/minigame/dev/wxcloud/basis/getting-started.html)的小程序才会返回，可通过云调用直接获取开放数据，详细见[云调用直接获取开放数据](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#method-cloud) */
+        cloudID: string
+        /** 包括敏感数据在内的完整转发信息的加密数据，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
+        encryptedData: string
+        /** 错误信息 */
+        errMsg: string
+        /** 加密算法的初始向量，详细见[加密数据解密算法](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html) */
+        iv: string
     }
     interface RequestMidasPaymentFailCallbackErr {
         /** 错误码 */
@@ -6991,6 +7061,30 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 接口调用成功的回调函数 */
         success?: SelectGroupMembersSuccessCallback
     }
+    interface SendGiftToFriendFailCallbackResult {
+        /** 错误信息 */
+        errMsg: string
+        /** 错误码
+         *
+         * 可选值：
+         * - 151066169: 注册天数不足 首次注册时间必须大于 24 小时才能赠礼;
+         * - 151066170: 风险用户;
+         * - 151066168: 当前时间周期已经赠送，目前支持一天赠送一次;
+         * - 151066172: 非好友关系; */
+        errno: 151066169 | 151066170 | 151066168 | 151066172
+    }
+    interface SendGiftToFriendOption {
+        /** 礼包 id */
+        giftId: string
+        /** 好友的 openid */
+        openid: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: SendGiftToFriendCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: SendGiftToFriendFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: SendGiftToFriendSuccessCallback
+    }
     interface SendSocketMessageOption {
         /** 需要发送的内容 */
         data: string | ArrayBuffer
@@ -7191,6 +7285,10 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: SetWindowSizeFailCallback
         /** 接口调用成功的回调函数 */
         success?: SetWindowSizeSuccessCallback
+    }
+    interface SetZoomOption {
+        /** 缩放级别，范围 [1, maxZoom]。zoom 可取小数，精确到小数后一位。maxZoom 可在 bindinitdone 返回值中获取。 */
+        zoom: number
     }
     /** 对局回放的分享参数。 */
     interface Share {
@@ -10549,6 +10647,28 @@ DownloadTask.offProgressUpdate(listener) // 需传入与监听时同一个的函
             listener: DownloadTaskOnProgressUpdateCallback
         ): void
     }
+    interface FacialRecognitionError {
+        /** 错误信息
+         *
+         * | 错误码 | 错误信息 | 说明 |
+         * | - | - | - |
+         * | 0 | 人脸识别成功 |  |
+         * | 2002004 | 人脸识别失败 |  |
+         * | 2002006 | 用户取消/超时/不同意，导致未完成人脸识别 |  |
+         * | 2002007 | 本用户7天内人脸识别已通过，通过日期为XX |  |
+         * | 2002008 | 本日已调起过人脸识别 | or本月调用次数已达上限 |
+         * | 2002009 | 无权限发起人脸识别 |  | */ errMsg: string
+        /** 错误码
+         *
+         * | 错误码 | 错误信息 | 说明 |
+         * | - | - | - |
+         * | 0 | 人脸识别成功 |  |
+         * | 2002004 | 人脸识别失败 |  |
+         * | 2002006 | 用户取消/超时/不同意，导致未完成人脸识别 |  |
+         * | 2002007 | 本用户7天内人脸识别已通过，通过日期为XX |  |
+         * | 2002008 | 本日已调起过人脸识别 | or本月调用次数已达上限 |
+         * | 2002009 | 无权限发起人脸识别 |  | */ errCode: number
+    }
     interface FileError {
         /** 错误信息
          *
@@ -13084,20 +13204,44 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
 * **示例代码**
 *
 * eventID是必填字段，支持自定义参数，key可以为任意字符串如 levelID，value为（string，number，boolean），注意：value不能为NaN。透传上报的数据。
+* 下面只展示关卡事件上报的示例代码。我们还为开发者们提供了道具获取、道具使用、广告观看等多种协议。关于其他协议的使用说明和示例代码，可以在[收入诊断调优指引](https://developers.weixin.qq.com/minigame/analysis/income-diagnosis.html#%E4%BA%8C%E3%80%81%E5%88%86%E6%9E%90%E8%B0%83%E4%BC%98)查看。
 *
 * ```js
-const logger = wx.getMiniReportManager({ debug: true, eventList: ['1234566789'] });
+let logger = null;
+if (wx.getMiniReportManager) {
+  logger = wx.getMiniReportManager({
+    debug: true,
+    eventList: ['10000003'],
+  });
+}
 
+// 关卡事件上报
 logger.report({
-  eventID: '1234566789',
-  levelID: '2',
-  levelName: '第一关',
-  levelAction: 1,
-  levelResult: 2,
-  levelTime: 30,
-  levelItem: 0,
-  levelAd: 0,
-  levelShare: 0,
+  eventID: '10000003',          // 事件ID
+  levelID: 1,                   // 关卡ID
+  levelName: '第三关',           // 关卡名称
+  levelAction: 1,               // 关卡类型
+  levelResult: 2,               // 关卡动作
+  levelTime: 40,                // 关卡用时
+  levelProgress: 75,            // 关卡进度
+  externInfo: JSON.stringify({
+    "fail_reason": 1,           // 失败原因类型
+    "resources_remaining": {    // 剩余资源
+      "health": 30,             // 生命值
+      "ammo": 12,               // 弹药
+    }
+  }),                           // 自定义属性
+  gameVersion: 3,               // 版本号
+  loginCount: 1,                // 关卡进入次数
+  success(res) {
+    console.log('success', res)
+  },
+  fail(res) {
+    console.log('fail', res)
+  },
+  complete(res) {
+    console.log('complete', res)
+  }
 });
 ``` */
         report(
@@ -14231,6 +14375,20 @@ console.log(deviceInfo.platform)
 console.log(deviceInfo.system)
 ``` */
         getDeviceInfo(): DeviceInfo
+        /** [Object wx.getDirectAdStatusSync()](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.getDirectAdStatusSync.html)
+*
+* 需要基础库： `3.11.2`
+*
+* 获取直玩广告组件展示状态。
+*
+* **示例代码**
+*
+* ```js
+const statusInfo = wx.getDirectAdStatusSync();
+console.log(statusInfo.isInMask) // 当前是否在蒙层阶段
+console.log(statusInfo.isInDirectGameAd) // 当前是否在直玩广告中
+``` */
+        getDirectAdStatusSync(): DirectAdStatusInfo
         /** [Object wx.getEnterOptionsSync()](https://developers.weixin.qq.com/minigame/dev/api/base/app/life-cycle/wx.getEnterOptionsSync.html)
          *
          * 需要基础库： `2.13.2`
@@ -14807,20 +14965,21 @@ let logger = null;
 if (wx.getMiniReportManager) {
   logger = wx.getMiniReportManager({
     debug: true,
-    eventList: ['12345'],
+    eventList: ['10000003'],
   });
 }
 
 logger.report({
-    eventID: '12345',
-    levelID: 100,
-    levelName: '第一关',
-    levelAction: 2,
-    levelResult: 2,
-    levelTime: 30000,
-    levelItem: 0,
-    levelAd: 0,
-    levelShare: 0,
+    eventID: '10000003', // 事件ID
+    levelID: 1, // 关卡ID
+    levelName: '第三关', // 关卡名称
+    levelAction: 1, // 关卡类型
+    levelResult: 2, // 关卡动作
+    levelTime: 40, // 关卡用时
+    levelProgress: 75, // 关卡进度
+    externInfo: '{ fail_reason: 1 }', // 自定义属性
+    gameVersion: 3, // 版本号
+    loginCount: 1, // 关卡进入次数
     success(res) {
       console.log('success', res)
     },
@@ -15792,7 +15951,7 @@ wx.createBLEConnection({
          *
          * 需要基础库： `3.7.12`
          *
-         * 退出聊天工具模式 */
+         * 退出聊天工具开放能力模式 */
         exitChatTool(option?: ExitChatToolOption): void
         /** [wx.exitMiniProgram(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.exitMiniProgram.html)
          *
@@ -16174,6 +16333,12 @@ if (wx.getExtConfig) {
          *
          * 拉取当前用户所有同玩好友的托管数据。该接口需要用户授权，且只在开放数据域下可用。需要注意，添加新微信好友后的2小时内，getFriendCloudStorage 可能获取不到该新好友的数据。 */
         getFriendCloudStorage(option: GetFriendCloudStorageOption): void
+        /** [wx.getFriendSendGiftStatus(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getFriendSendGiftStatus.html)
+         *
+         * 需要基础库： `3.11.2`
+         *
+         * 指定一批 openid 查询好友送礼状态，该接口只在开放数据域下可用。 */
+        getFriendSendGiftStatus(option: GetFriendSendGiftStatusOption): void
         /** [wx.getFuzzyLocation(Object object)](https://developers.weixin.qq.com/minigame/dev/api/location/wx.getFuzzyLocation.html)
 *
 * 需要基础库： `2.25.0`
@@ -16211,6 +16376,7 @@ if (wx.getExtConfig) {
          * | 8   | 当天(自然日)赞官方贴子数                      | 无需传入  |  |
          * | 9   | 当天(自然日)评论官方贴子数                     | 无需传入  |  |
          * | 10   | 当天(自然日)发表到本圈子话题的贴子数           | 传入话题id，从mp-游戏圈话题管理处获取  |  |
+         * | 11  | 用户最近一次推荐游戏时间                      | 无需传入  | 秒级时间戳 |  |
          *
          * **encryptedData 解密后得到的 GameClubData 的结构**
          *
@@ -17013,13 +17179,10 @@ wx.navigateBackMiniProgram({
 *
 * **使用限制**
 *
-*  ##### 需要用户触发跳转
-*  从 2.3.0 版本开始，若用户未点击小程序页面任意位置，则开发者将无法调用此接口自动跳转至其他小程序。
-*  ##### 需要用户确认跳转
-*  从 2.3.0 版本开始，在跳转至其他小程序前，将统一增加弹窗，询问是否跳转，用户确认后才可以跳转其他小程序。如果用户点击取消，则回调 `fail cancel`。
-*  ##### 无需声明跳转名单，不限跳转数量（众测中）
-* 1. 从2020年4月24日起，使用跳转其他小程序功能将无需在全局配置中声明跳转名单，调用此接口时将不再校验所跳转的 AppID 是否在 navigateToMiniProgramAppIdList 中。
-* 2. 从2020年4月24日起，跳转其他小程序将不再受数量限制，使用此功能时请注意遵守运营规范。
+* ##### 需要用户触发跳转
+* 从 2.3.0 版本开始，若用户未点击小程序页面任意位置，则开发者将无法调用此接口自动跳转至其他小程序。
+* ##### 需要用户确认跳转
+* 从 2.3.0 版本开始，在跳转至其他小程序前，将统一增加弹窗，询问是否跳转，用户确认后才可以跳转其他小程序。如果用户点击取消，则回调 `fail cancel`。
 *
 * **运营规范**
 *
@@ -17328,6 +17491,24 @@ wx.offDeviceOrientationChange(listener) // 需传入与监听时同一个的函�
         offDeviceOrientationChange(
             /** onDeviceOrientationChange 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffDeviceOrientationChangeCallback
+        ): void
+        /** [wx.offDirectAdStatusChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.offDirectAdStatusChange.html)
+*
+* 需要基础库： `3.11.2`
+*
+* 移除监听直玩广告状态变化的监听函数
+*
+* **示例代码**
+*
+* ```js
+const listener = function (res) { console.log(res) }
+
+wx.onDirectAdStatusChange(listener)
+wx.offDirectAdStatusChange(listener) // 需传入与监听时同一个的函数对象
+``` */
+        offDirectAdStatusChange(
+            /** onDirectAdStatusChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+            listener?: OffDirectAdStatusChangeCallback
         ): void
         /** [wx.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.offError.html)
 *
@@ -17784,15 +17965,12 @@ wx.offUnhandledRejection(listener) // 需传入与监听时同一个的函数对
             /** onUnhandledRejection 传入的监听函数。不传此参数则移除所有监听函数。 */
             listener?: OffUnhandledRejectionCallback
         ): void
-        /** [wx.offUserCaptureScreen(function callback)](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.offUserCaptureScreen.html)
+        /** [wx.offUserCaptureScreen()](https://developers.weixin.qq.com/minigame/dev/api/device/screen/wx.offUserCaptureScreen.html)
          *
          * 需要基础库： `2.9.3`
          *
          * 用户主动截屏事件。取消事件监听。 */
-        offUserCaptureScreen(
-            /** 用户主动截屏事件的回调函数 */
-            callback?: (...args: any[]) => any
-        ): void
+        offUserCaptureScreen(): void
         /** [wx.offVoIPChatInterrupted(function listener)](https://developers.weixin.qq.com/minigame/dev/api/media/voip/wx.offVoIPChatInterrupted.html)
 *
 * 需要基础库： `2.9.0`
@@ -18188,6 +18366,24 @@ wx.onBluetoothDeviceFound(function(res) {
         onDeviceOrientationChange(
             /** 屏幕转向切换事件的监听函数 */
             listener: OnDeviceOrientationChangeCallback
+        ): void
+        /** [wx.onDirectAdStatusChange(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.onDirectAdStatusChange.html)
+*
+* 需要基础库： `3.11.2`
+*
+* 监听监听直玩广告状态变化
+*
+* **示例代码**
+*
+* ```js
+wx.ondDirectAdStatusChange(res => {
+  console.log(res.isInMask)
+  console.log(res.isInDirectGameAd)
+})
+``` */
+        onDirectAdStatusChange(
+            /** 的监听函数 */
+            listener: OnDirectAdStatusChangeCallback
         ): void
         /** [wx.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.onError.html)
          *
@@ -18644,21 +18840,21 @@ wx.offOfficialComponentsInfoChange(callback)
 *
 * **示例代码**
 *
+* 页面要先调用wx.showShareMenu()来允许调用
 * ```js
 wx.onUserCaptureScreen(function (res) {
-    console.log('用户截屏了')
-        return {
-            query: "parameter=test", // 通过截屏图片打开小程序的query参数
-            promise: new Promise((resolve) => { // 通过promise延时传递小程序的query参数
-                    setTimeout(() => {
-                        resolve({
-                            query: "parameter=test2",
-                        })
-                    }, 1000) // 在1秒内对query进行解析
-                })
-        }
-    }
-  )
+  console.log('用户截屏了')
+  return {
+    query: "parameter=test", // 通过截屏图片打开小程序的query参数
+    promise: new Promise((resolve) => { // 通过promise延时传递小程序的query参数
+      setTimeout(() => {
+        resolve({
+          query: "parameter=test2",
+        })
+      }, 1000) // 在1秒内对query进行解析
+    })
+  }
+})
 ``` */
         onUserCaptureScreen(
             /** 用户主动截屏事件的监听函数 */
@@ -19177,6 +19373,45 @@ wx.reportScene({
         reportUserBehaviorBranchAnalytics(
             option: ReportUserBehaviorBranchAnalyticsOption
         ): void
+        /** [wx.requestFacialRecognition(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/account-info/wx.requestFacialRecognition.html)
+*
+* 需要基础库： `3.11.2`
+*
+* 发起人脸识别验证，用于对可疑用户进行身份验证和防沉迷检查。该接口会调起微信的人脸识别系统，验证用户身份以确保游戏安全和合规性。
+*
+* **处理流程**
+*
+* 1. 开发者调用 `wx.requestFacialRecognition` 发起人脸识别。
+* 2. 系统根据策略判定是否需要展示授权弹窗。
+*    - 若判定为"不展示弹窗"：立即回调结果，示例：`{ errCode: 0, errMsg: '本用户7天内人脸识别已通过' }`
+*    - 若判定为"需展示弹窗"：进入步骤 3。
+* 3. 系统展示授权弹窗。
+*    - 玩家拒绝：立即回调 `fail`，`errCode = 2002006`
+*    - 玩家同意：进入步骤 4。
+* 4. 系统开始进行人脸识别验证
+*    - 玩家在跳转页面中完成活体/人脸识别；关闭页面返回游戏。
+* 5. 系统回调最终识别结果返回
+*
+* **示例代码**
+*
+* ```js
+wx.requestFacialRecognition({
+  success(res) {
+    // 人脸识别通过或 7 天内已通过
+    // 形如：{ errCode: 0, errMsg: 'ok' }
+    console.log('requestFacialRecognition success:', res)
+  },
+  fail(err) {
+    // 失败或受限等场景
+    console.log('requestFacialRecognition fail:', err)
+  },
+  complete(res) {
+    // 无论成功失败均会触发
+    console.log('requestFacialRecognition complete:', res)
+  }
+})
+``` */
+        requestFacialRecognition(option?: RequestFacialRecognitionOption): void
         /** [wx.requestMidasFriendPayment(Object object)](https://developers.weixin.qq.com/minigame/dev/api/midas-payment/wx.requestMidasFriendPayment.html)
 *
 * 需要基础库： `2.11.0`
@@ -19591,6 +19826,12 @@ wx.scanCode({
         >(
             option: T
         ): PromisifySuccessResult<T, SelectGroupMembersOption>
+        /** [wx.sendGiftToFriend(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.sendGiftToFriend.html)
+         *
+         * 需要基础库： `3.11.2`
+         *
+         * 指定 openid 给他好友送礼，该接口只在开放数据域下可用。 */
+        sendGiftToFriend(option: SendGiftToFriendOption): void
         /** [wx.sendSocketMessage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.sendSocketMessage.html)
 *
 * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
@@ -19676,7 +19917,11 @@ wx.setClipboardData({
          *
          * 需要基础库： `2.26.0`
          *
-         * 切换横竖屏。接口调用成功后会触发 wx.onDeviceOrientationChange 事件 */
+         * 切换横竖屏。接口调用成功后会触发 wx.onDeviceOrientationChange 事件
+         *
+         * **注意**
+         *
+         * - PC小程序处于全屏时，无法切换横竖屏。 */
         setDeviceOrientation(option: SetDeviceOrientationOption): void
         /** [wx.setEnableDebug(Object object)](https://developers.weixin.qq.com/minigame/dev/api/base/debug/wx.setEnableDebug.html)
 *
@@ -20804,7 +21049,7 @@ wx.writeBLECharacteristicValue({
     type GetChatToolInfoFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type GetChatToolInfoSuccessCallback = (
-        result: GetChatToolInfoSuccessCallbackResult
+        result: RequestMidasFriendPaymentSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetClipboardDataCompleteCallback = (res: GeneralCallbackResult) => void
@@ -20865,6 +21110,18 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type GetFriendCloudStorageSuccessCallback = (
         result: GetFriendCloudStorageSuccessCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetFriendSendGiftStatusCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetFriendSendGiftStatusFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetFriendSendGiftStatusSuccessCallback = (
+        result: GetFriendSendGiftStatusSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetFriendsStateDataCompleteCallback = (
@@ -21445,6 +21702,10 @@ wx.writeBLECharacteristicValue({
     type OffDeviceOrientationChangeCallback = (
         result: OnDeviceOrientationChangeListenerResult
     ) => void
+    /** onDirectAdStatusChange 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffDirectAdStatusChangeCallback = (
+        result: OnDirectAdStatusChangeListenerResult
+    ) => void
     /** onDisconnect 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffDisconnectCallback = (
         result: GameServerManagerOnDisconnectListenerResult
@@ -21690,6 +21951,10 @@ wx.writeBLECharacteristicValue({
     /** 屏幕转向切换事件的监听函数 */
     type OnDeviceOrientationChangeCallback = (
         result: OnDeviceOrientationChangeListenerResult
+    ) => void
+    /** 的监听函数 */
+    type OnDirectAdStatusChangeCallback = (
+        result: OnDirectAdStatusChangeListenerResult
     ) => void
     /** 断开连接，收到此事件的监听函数 */
     type OnDisconnectCallback = (
@@ -22143,6 +22408,18 @@ wx.writeBLECharacteristicValue({
     type ReportSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type RequestFacialRecognitionCompleteCallback = (
+        res: FacialRecognitionError
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type RequestFacialRecognitionFailCallback = (
+        res: FacialRecognitionError
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type RequestFacialRecognitionSuccessCallback = (
+        res: FacialRecognitionError
+    ) => void
     /** 接口调用失败的回调函数 */
     type RequestFailCallback = (err: RequestFailCallbackErr) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -22155,7 +22432,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用成功的回调函数 */
     type RequestMidasFriendPaymentSuccessCallback = (
-        result: GetChatToolInfoSuccessCallbackResult
+        result: RequestMidasFriendPaymentSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RequestMidasPaymentCompleteCallback = (res: MidasPaymentError) => void
@@ -22316,6 +22593,14 @@ wx.writeBLECharacteristicValue({
     type SendCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type SendFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type SendGiftToFriendCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type SendGiftToFriendFailCallback = (
+        result: SendGiftToFriendFailCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type SendGiftToFriendSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type SendSocketMessageCompleteCallback = (
         res: GeneralCallbackResult
