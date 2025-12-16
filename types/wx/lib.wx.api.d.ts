@@ -18338,7 +18338,7 @@ wx.onBluetoothDeviceFound(function(res) {
          *
          * 需要基础库： `2.14.3`
          *
-         * 监听用户点击右上角菜单的「复制链接」按钮时触发的事件。本接口为 Beta 版本，暂只在 Android 平台支持。 */
+         * 监听用户点击右上角菜单的「复制链接」按钮时触发的事件。 */
         onCopyUrl(
             /** 用户点击右上角菜单的「复制链接」按钮时触发的事件的监听函数 */
             listener: OnCopyUrlCallback
@@ -18376,7 +18376,7 @@ wx.onBluetoothDeviceFound(function(res) {
 * **示例代码**
 *
 * ```js
-wx.ondDirectAdStatusChange(res => {
+wx.onDirectAdStatusChange(res => {
   console.log(res.isInMask)
   console.log(res.isInDirectGameAd)
 })
