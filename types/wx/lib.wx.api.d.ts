@@ -1,5 +1,5 @@
 /*! *****************************************************************************
-Copyright (c) 2025 Tencent, Inc. All rights reserved.
+Copyright (c) 2026 Tencent, Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,6 +21,15 @@ SOFTWARE.
 ***************************************************************************** */
 
 declare namespace WechatMinigame {
+    /** 入参对象（可选） */
+    interface AbortParams {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: AbortCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: AbortFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: AbortSuccessCallback
+    }
     interface AccessOption {
         /** 要判断是否存在的文件/目录路径 (本地路径) */
         path: string
@@ -1161,6 +1170,19 @@ source.start()
         /** 相机的左上角纵坐标 */
         y?: number
     }
+    /** 入参对象 */
+    interface CreateChallengeParams {
+        /** 玩法唯一标识，用于区分不同的擂台赛玩法。可以在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置 */
+        scoreKey: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: CreateChallengeCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: CreateChallengeFailCallback
+        /** 可选子 key，正整数，取值范围1-1000。该参数可用于游戏同一玩法的关卡区分，从基础库版本3.12.1开始支持 */
+        subScoreKey?: number
+        /** 接口调用成功的回调函数 */
+        success?: CreateChallengeSuccessCallback
+    }
     interface CreateCustomAdOption {
         /** 广告自动刷新的间隔时间，单位为秒，参数值必须大于等于30（仅对支持自动刷新的模板生效） */
         adIntervals: number
@@ -1837,8 +1859,24 @@ CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
         memorySize: string
         /** 设备型号。新机型刚推出一段时间会显示unknown，微信会尽快进行适配。 */
         model: string
-        /** 客户端平台 */
-        platform: string
+        /** 客户端平台
+         *
+         * 可选值：
+         * - 'ios': iOS微信（包含 iPhone、iPad）;
+         * - 'android': Android微信;
+         * - 'ohos': HarmonyOS 手机端微信;
+         * - 'ohos_pc': HarmonyOS PC微信;
+         * - 'windows': Windows微信;
+         * - 'mac': macOS微信;
+         * - 'devtools': 微信开发者工具; */
+        platform:
+            | 'ios'
+            | 'android'
+            | 'ohos'
+            | 'ohos_pc'
+            | 'windows'
+            | 'mac'
+            | 'devtools'
         /** 操作系统及版本 */
         system: string
     }
@@ -2358,6 +2396,15 @@ GameClubButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 显示游戏圈按钮 */
         show(): void
+    }
+    /** 结果对象，各项为实验的相关信息 */
+    interface GameExptInfo {
+        /** 实验ID，标识实验 */
+        expt_id: number
+        /** 参数名称 */
+        param_name: string
+        /** 参数值 */
+        param_value: string
     }
     /** 需要基础库： `2.8.0`
      *
@@ -2956,6 +3003,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         signature: string
         errMsg: string
     }
+    /** 配置参数对象 */
     interface GetGameExptInfoOption {
         /** 实验参数数组，不填则获取所有实验参数 */
         keyList: string[]
@@ -2968,7 +3016,7 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     }
     interface GetGameExptInfoSuccessCallbackResult {
         /** 结果对象，各项为实验的相关信息 */
-        list: IAnyObject
+        list: GameExptInfo[]
         errMsg: string
     }
     interface GetGameLogManagerParam {
@@ -3341,6 +3389,21 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         /** 文件数组 */
         fileList: FileItem[]
         errMsg: string
+    }
+    /** 入参对象 */
+    interface GetScoreParams {
+        /** 查询的周期：1: 自然日；2: 自然周；3: 自然月；4: 永久 */
+        periodType: number
+        /** 玩法唯一标识数组 */
+        scoreKeys: string[]
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetScoreCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: GetScoreFailCallback
+        /** 可选子 key 数组，从基础库版本3.12.1开始支持 */
+        subScoreKeys?: number[]
+        /** 接口调用成功的回调函数 */
+        success?: GetScoreSuccessCallback
     }
     interface GetScreenBrightnessOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -4637,6 +4700,21 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 接口调用成功的回调函数 */
         success?: MemberLeaveRoomSuccessCallback
     }
+    /** 入参对象 */
+    interface MiddleUpdateParams {
+        /** 用户得分 */
+        score: number
+        /** 玩法唯一标识，用于区分不同的擂台赛玩法。可以在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置 */
+        scoreKey: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: MiddleUpdateCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: MiddleUpdateFailCallback
+        /** 可选子 key，正整数，取值范围1-1000。该参数可用于游戏同一玩法的关卡区分，从基础库版本3.12.1开始支持 */
+        subScoreKey?: number
+        /** 接口调用成功的回调函数 */
+        success?: MiddleUpdateSuccessCallback
+    }
     /** 小程序账号信息 */
     interface MiniProgram {
         /** 小程序 appId */
@@ -4928,6 +5006,12 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 图像数据矩形的宽度 */
         width: number
     }
+    interface OnChallengeStartCallbackResult {
+        /** 玩法唯一标识 */
+        scoreKey: string
+        /** 可选子 key */
+        subScoreKey?: number
+    }
     interface OnCharacteristicReadRequestListenerResult {
         /** 唯一标识码，调用 [writeCharacteristicValue](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-peripheral/BLEPeripheralServer.writeCharacteristicValue.html) 时使用 */
         callbackId: number
@@ -5041,6 +5125,8 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         value: 'landscape' | 'landscapeReverse'
     }
     interface OnDirectAdStatusChangeListenerResult {
+        /** 当前直玩广告是否由于异常流程而结束（如 下拉/搜索 进入正在直玩广告流程中的游戏） */
+        isEndByAbnormal: boolean
         /** 当前是否处于直接广告中 */
         isInDirectGameAd: boolean
         /** 当前是否处于蒙层阶段 */
@@ -7117,7 +7203,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         errMsg: string
     }
     interface SetBackgroundFetchTokenOption {
-        /** 自定义的登录态 */
+        /** 自定义的登录态。上限 1024 字符。 */
         token: string
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: SetBackgroundFetchTokenCompleteCallback
@@ -8124,11 +8210,19 @@ wx.getSetting({
          * 可选值：
          * - 'ios': iOS微信（包含 iPhone、iPad）;
          * - 'android': Android微信;
-         * - 'ohos': HarmonyOS微信;
+         * - 'ohos': HarmonyOS 手机端微信;
+         * - 'ohos_pc': HarmonyOS PC微信;
          * - 'windows': Windows微信;
          * - 'mac': macOS微信;
          * - 'devtools': 微信开发者工具; */
-        platform: 'ios' | 'android' | 'ohos' | 'windows' | 'mac' | 'devtools'
+        platform:
+            | 'ios'
+            | 'android'
+            | 'ohos'
+            | 'ohos_pc'
+            | 'windows'
+            | 'mac'
+            | 'devtools'
         /** 需要基础库： `2.7.0`
          *
          * 在竖屏正方向下的安全区域。部分机型没有安全区域概念，也不会返回 safeArea 字段，开发者需自行兼容。 */
@@ -8526,6 +8620,21 @@ session.run({
     interface UpdateMaskModeOption {
         /** 设置是否开启试鞋，返回腿部遮挡纹理 */
         useMask: boolean
+    }
+    /** 入参对象 */
+    interface UpdateParams {
+        /** 分数值 */
+        score: number
+        /** 玩法唯一标识，用于区分不同的擂台赛玩法。可以在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置 */
+        scoreKey: string
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: UpdateCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: UpdateFailCallback
+        /** 可选子 key，正整数，取值范围1-1000。该参数可用于游戏同一玩法的关卡区分，从基础库版本3.12.1开始支持 */
+        subScoreKey?: number
+        /** 接口调用成功的回调函数 */
+        success?: UpdateSuccessCallback
     }
     interface UpdateReadyStatusOption {
         /** 游戏房间访问凭证 */
@@ -13311,6 +13420,182 @@ logger.report({
             listener: LoadSubpackageTaskOnProgressUpdateCallback
         ): void
     }
+    interface RankManager {
+        /** [RankManager.abort(Object params)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.abort.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 中途退出擂台赛。若擂台赛进行中则关闭所有相关组件。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+rankManager.abort({
+  success: () => {
+    console.log('已退出游戏')
+  }
+})
+``` */
+        abort(
+            /** 入参对象（可选） */
+            params?: AbortParams
+        ): void
+        /** [RankManager.createChallenge(Object params)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.createChallenge.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 创建擂台赛，唤起擂台赛起始页。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+rankManager.createChallenge({
+  scoreKey: 'gameplayone', // 在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置
+  success: () => {
+    console.log('擂台赛创建成功')
+  }
+})
+```
+*
+* 注意事项：
+* - subScoreKey 参数从基础库版本3.12.1开始支持 */
+        createChallenge(
+            /** 入参对象 */
+            params: CreateChallengeParams
+        ): void
+        /** [RankManager.getScore(Object params)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.getScore.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 查询当前用户在指定scoreKey下的得分历史。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+rankManager.getScore({
+  scoreKeys: ['level_1', 'level_2'],
+  periodType: 1, // 查询日榜
+  success: (res) => {
+    console.log('分数信息', res.scores)
+    // res.scores 格式: { 'level_1': { score: 100, timestamp: 1234567890 } }
+  }
+})
+```
+*
+* 注意事项：
+* - subScoreKey 参数从基础库版本3.12.1开始支持 */
+        getScore(
+            /** 入参对象 */
+            params: GetScoreParams
+        ): void
+        /** [RankManager.middleUpdate(Object params)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.middleUpdate.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 游戏中途更新分数信息。用于在游戏进行过程中实时上报分数，不会唤起结束页。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+rankManager.middleUpdate({
+  scoreKey: 'gameplayone', // 在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置
+  score: 100,
+  success: () => {
+    console.log('分数更新成功')
+  },
+  fail: (err) => {
+    console.error('分数更新失败', err)
+  }
+})
+```
+*
+* 注意事项：
+* - subScoreKey 参数从基础库版本3.12.1开始支持 */
+        middleUpdate(
+            /** 入参对象 */
+            params: MiddleUpdateParams
+        ): void
+        /** [RankManager.offChallengeStart(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.offChallengeStart.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 取消监听擂台赛开始事件。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+const handleChallengeStart = (res) => {
+  console.log('擂台赛开始', res.scoreKey)
+}
+rankManager.onChallengeStart(handleChallengeStart)
+// 取消监听
+rankManager.offChallengeStart(handleChallengeStart)
+``` */
+        offChallengeStart(
+            /** 回调函数，不传则取消所有监听 */
+            callback?: ChallengeStartCallback
+        ): void
+        /** [RankManager.onChallengeStart(function callback)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.onChallengeStart.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 监听擂台赛开始事件。由擂台赛卡片进入后，用户点击擂台赛页上的“立即挑战”时触发。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+rankManager.onChallengeStart((res) => {
+  console.log('擂台赛开始', res.scoreKey)
+  if (res.subScoreKey) {
+    console.log('关卡数', res.subScoreKey)
+  }
+  // 开始游戏逻辑
+})
+```
+*
+* 注意事项：
+* - 应尽早监听 onChallengeStart，推荐在游戏初始化或 onLaunch 生命周期里监听。由于用户点击“立即挑战”事件会等到onChallengeStart成功注册后再派发，过晚监听可能出现用户点了立即挑战，游戏没有及时开始擂台赛的情况。
+* - subScoreKey 参数从基础库版本3.12.1开始支持 */
+        onChallengeStart(
+            /** 回调函数 */
+            callback: ChallengeStartCallback
+        ): void
+        /** [RankManager.update(Object params)](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.update.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 更新分数信息。在发起擂台赛前上报，上报的分数将作为发起擂台赛的擂主分数。在擂台赛中上报，上报的分数将作为擂台赛者的分数，并结束擂台赛弹出结果页。
+*
+* **示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+// 上报用户分数
+rankManager.update({
+  scoreKey: 'gameplayone', // 在 MP后台-运营功能管理-基础配置-游戏玩法ID 中配置
+  score: 100, // 具体分数值
+  success: res => {
+  console.log('分数上报成功', res);
+  },
+  fail: err => {
+  console.error('分数上报失败', err);
+  },
+});
+```
+*
+* 注意事项：
+* - subScoreKey 参数从基础库版本3.12.1开始支持 */
+        update(
+            /** 入参对象 */
+            params: UpdateParams
+        ): void
+    }
     interface RealtimeLogManager {
         /** [RealtimeLogManager.addFilterMsg(string msg)](https://developers.weixin.qq.com/minigame/dev/api/base/debug/RealtimeLogManager.addFilterMsg.html)
          *
@@ -14229,6 +14514,7 @@ userCryptoManager.getRandomValues({
         /** [WebGLRenderingContext.wxBindCanvasTexture(number texture, [Canvas](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.html) canvas)](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/WebGLRenderingContext.wxBindCanvasTexture.html)
 *
 * 需要基础库： `2.0.0`
+* @deprecated 基础库版本 [3.13.0](https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html) 起已废弃
 *
 * 将一个 Canvas 对应的 Texture 绑定到 WebGL 上下文。
 * - 仅 iOS 支持 wxBindCanvasTexture 接口，其他平台可使用示例代码中的替代方法
@@ -14779,23 +15065,25 @@ gameLogAdaptor.log({
          *
          * 创建 grid(格子) 。每次调用该方法创建 grid(格子) 广告都会返回一个全新的实例。 */
         createGridAd(option: CreateGridAdOption): GridAd
-        /** [[ImageData](https://developers.weixin.qq.com/minigame/dev/api/render/image/ImageData.html) wx.createImageData(number width, number height)](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImageData.html)
+        /** [[ImageData](https://developers.weixin.qq.com/minigame/dev/api/render/image/ImageData.html) wx.createImageData(number width, number height, Uint8ClampedArray data)](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImageData.html)
 *
 * 需要基础库： `3.4.10`
 *
-* 这里有两种使用方法, 一种是指定ImageData的宽和高, 另外一种是使用ImageData, 通过它本身的宽高尺寸来构建新的对象。
+* 这里有两种使用方法, 一种是指定ImageData的宽和高, 另外一种使用已有的ImageData的图像二进制数据，来构建新的对象。
 *
 * **示例代码**
 *
 * ```js
-const imageData1 =  wx.createImageData(100, 100)
-const imageData2 =  wx.createImageData(imageData1)
+const imageData1 = wx.createImageData(100, 100)
+const imageData2 = wx.createImageData(imageData1.data, 100, 100)
 ``` */
         createImageData(
             /** 使用像素描述 ImageData 的实际宽度 */
             width: number,
             /** 使用像素描述 ImageData 的实际高度 */
-            height: number
+            height: number,
+            /** 一维数组，包含以 RGBA 顺序的数据，数据使用 0 至 255（包含）的整数表示 */
+            data: Uint8ClampedArray
         ): ImageData
         /** [[Image](https://developers.weixin.qq.com/minigame/dev/api/render/image/Image.html) wx.createImage()](https://developers.weixin.qq.com/minigame/dev/api/render/image/wx.createImage.html)
          *
@@ -15139,6 +15427,131 @@ task.onProgressUpdate(res => {
         preDownloadSubpackage(
             option: PreDownloadSubpackageOption
         ): PreDownloadSubpackageTask
+        /** [[RankManager](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/RankManager.html) wx.getRankManager()](https://developers.weixin.qq.com/minigame/dev/api/open-api/game-component/wx.getRankManager.html)
+*
+* 需要基础库： `3.10.1`
+*
+* 初始化并返回一个擂台赛管理器实例，用于管理游戏擂台赛功能。关于小游戏擂台赛的功能介绍详见[小游戏擂台赛指南文档](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/tournament.html)。
+*
+* **示例代码**
+*
+* **1 发起擂台赛**
+*
+* **1.1 接入前准备**
+*
+* 擂台赛组件的分享和动态消息功能依赖[聊天工具模式](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/chat-tool.html)。
+*
+* 聊天工具的分享功能要求小游戏具备有效的登录态。为确保用户分享擂台赛时游戏已建立登录态，需要在擂台赛开始前调用[wx.login](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)接口完成登录流程。
+*
+* **1.2 上报擂主分数**
+*
+* 发起擂台赛前，需要先上报玩家发起擂台赛的基准分数。使用 `update` 方法进行分数上报。
+* ```js
+// 获取擂台赛管理器实例
+const rankManager = wx.getRankManager();
+// 上报用户分数
+rankManager.update({
+  scoreKey: 'score_key', // 在MP配置的scoreKey
+  score: 100, // 具体分数值
+  success: res => {
+    console.log('分数上报成功', res);
+  },
+  fail: err => {
+    console.error('分数上报失败', err);
+  },
+});
+```
+*
+* **1.3 创建擂台赛**
+*
+* 分数上报成功后，使用 `createChallenge` 方法发起擂台赛。
+* ```js
+// 发起擂台赛
+wx.getRankManager().createChallenge({
+  scoreKey: 'score_key',
+  success: res => {
+    console.log('擂台赛创建成功', res);
+  },
+  fail: err => {
+    console.error('擂台赛创建失败', err);
+  },
+});
+```
+*
+* 注意事项：
+* - 一次 `update` 上报的分数只能创建一个擂台赛。
+* - 针对同一次上报多次调用 `createChallenge` 将返回已创建的擂台赛。
+*
+* **2 加入擂台赛**
+*
+* **2.1 监听挑战开始事件**
+*
+* 用户从他人分享的擂台赛卡片进入小游戏，小游戏会在 onShow 时弹起加入擂台赛半屏。用户点击半屏上的"立即挑战"按钮，擂台赛挑战开始。
+* 通过 `rankManager.onChallengeStart(callback)` 监听onChallengeStart事件，在onChallengeStart事件的回调中处理挑战开始逻辑。
+* ```js
+// 监听擂台赛开始事件
+wx.getRankManager().onChallengeStart((challengeInfo) => {
+  // 处理挑战开始逻辑
+  console.log('擂台赛开始', challengeInfo.scoreKey);
+});
+```
+*
+* 注意事项：
+* - 应尽早监听 onChallengeStart，推荐在游戏初始化或 onLaunch 生命周期里监听。由于用户点击“立即挑战”事件会等到onChallengeStart成功注册后再派发，过晚监听可能出现用户点了立即挑战，游戏没有及时开始擂台赛的情况。
+*
+* **2.2 中途操作**
+*
+* 擂台赛进行过程中，支持以下操作：
+*
+* 中途上报分数。擂台赛的最终分数将取中途上报分数和最终上报分数中最高的一次。中途上报不会结束擂台赛。
+* ```js
+// 游戏过程中上报中间分数
+wx.getRankManager().middleUpdate({
+  scoreKey: 'score_key',
+  score: gameState.score, // 当前分数
+  success: res => {
+    console.log('中途分数上报成功', res);
+  },
+  fail: err => {
+    console.error('中途分数上报失败', err);
+  },
+});
+```
+*
+* 中途退出挑战，并拉起擂台赛结果页。中途退出的擂台赛，本次挑战为0分。
+* ```js
+// 中途退出擂台赛
+wx.getRankManager().abort({
+  success: (res) => {
+    console.log('擂台赛退出成功', res);
+  },
+  fail: (err) => {
+    console.error('擂台赛退出失败', err);
+  },
+});
+```
+*
+* **2.3 结束擂台赛**
+*
+* 在擂台赛进行过程中调用 `update` 方法上报最终分数，系统将自动结束擂台赛并拉起结束界面。
+* ```js
+// 结束擂台赛并上报最终分数
+wx.getRankManager().update({
+  scoreKey: 'score_key',
+  score: 150, // 最终分数
+  success: res => {
+    console.log('擂台赛结束', res);
+  },
+  fail: err => {
+    console.error('擂台赛结束异常', err);
+  },
+});
+```
+*
+* **2.4 奖励领取**
+*
+* 挑战者战胜擂主，或者擂主守擂成功时，可以在擂台赛组件结果页领取道具奖励。 */
+        getRankManager(): RankManager
         /** [[RealtimeLogManager](https://developers.weixin.qq.com/minigame/dev/api/base/debug/RealtimeLogManager.html) wx.getRealtimeLogManager()](https://developers.weixin.qq.com/minigame/dev/api/base/debug/wx.getRealtimeLogManager.html)
 *
 * 需要基础库： `2.14.4`
@@ -16391,12 +16804,30 @@ if (wx.getExtConfig) {
          * |  dataType   | number | 与输入的 dataType 一致          |
          * |  value   | number | 不同type返回的value含义不同，见type表格说明           | */
         getGameClubData(option: GetGameClubDataOption): void
-        /** [wx.getGameExptInfo(Object object)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.getGameExptInfo.html)
-         *
-         * 需要基础库： `3.8.8`
-         *
-         * 给定实验参数数组，获取对应的实验参数值 */
-        getGameExptInfo(option: GetGameExptInfoOption): void
+        /** [wx.getGameExptInfo(Object options)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.getGameExptInfo.html)
+*
+* 需要基础库： `3.8.8`
+*
+* 给定实验参数数组，获取对应的实验参数值
+*
+* **示例代码**
+*
+* ```js
+wx.getGameExptInfo({
+  keyList: ['experiment_key1', 'experiment_key2'],
+  success(res) {
+    res.list.forEach((expParam) => {
+      console.log('实验ID:', expParam.expt_id);
+      console.log('参数名:', expParam.param_name);
+      console.log('参数值:', expParam.param_value);
+    })
+  }
+});
+``` */
+        getGameExptInfo(
+            /** 配置参数对象 */
+            options: GetGameExptInfoOption
+        ): void
         /** [wx.getGroupCloudStorage(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/data/wx.getGroupCloudStorage.html)
          *
          * 需要基础库： `1.9.92`
@@ -18377,8 +18808,14 @@ wx.onBluetoothDeviceFound(function(res) {
 *
 * ```js
 wx.onDirectAdStatusChange(res => {
+  // 会有如下的几种状态值组合
+  // a) { isInMask: true, isInDirectGameAd: true } -> 表示当前正在直玩广告 且 未戳破蒙层
+  // b) { isInMask: false, isInDirectGameAd: true } -> 表示当前正在直玩广告 且 戳破了蒙层
+  // c) { isInMask: false, isInDirectGameAd: false, isEndByAbnormal: false }, -> 表示倒计时结束了，并且选择了继续玩
+  // d) { isInMask: false, isInDirectGameAd: false, isEndByAbnormal: true }, -> 表示由于异常流程而结束
   console.log(res.isInMask)
   console.log(res.isInDirectGameAd)
+  console.log(res.isEndByAbnormal)
 })
 ``` */
         onDirectAdStatusChange(
@@ -20639,6 +21076,12 @@ wx.writeBLECharacteristicValue({
     }
 
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type AbortCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type AbortFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type AbortSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type AccessCompleteCallback = (res: FileError) => void
     /** 接口调用失败的回调函数 */
     type AccessFailCallback = (res: FileError) => void
@@ -20690,6 +21133,9 @@ wx.writeBLECharacteristicValue({
     type CancelMatchFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type CancelMatchSuccessCallback = (res: GeneralCallbackResult) => void
+    type ChallengeStartCallback = (
+        result: OnChallengeStartCallbackResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type ChangeSeatCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -20818,6 +21264,12 @@ wx.writeBLECharacteristicValue({
     type CreateCameraFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type CreateCameraSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type CreateChallengeCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type CreateChallengeFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type CreateChallengeSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type CreateRoomCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -21320,6 +21772,12 @@ wx.writeBLECharacteristicValue({
         result: GetSavedFileListSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetScoreCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type GetScoreFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type GetScoreSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetScreenBrightnessCompleteCallback = (
         res: GeneralCallbackResult
     ) => void
@@ -21580,6 +22038,12 @@ wx.writeBLECharacteristicValue({
     type MemberLeaveRoomFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type MemberLeaveRoomSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type MiddleUpdateCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type MiddleUpdateFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type MiddleUpdateSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type MkdirCompleteCallback = (res: FileError) => void
     /** 接口调用失败的回调函数 */
@@ -23050,6 +23514,10 @@ wx.writeBLECharacteristicValue({
     /** 接口调用成功的回调函数 */
     type UnzipSuccessCallback = (res: FileError) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type UpdateCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type UpdateFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type UpdateKeyboardCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type UpdateKeyboardFailCallback = (res: GeneralCallbackResult) => void
@@ -23069,6 +23537,8 @@ wx.writeBLECharacteristicValue({
     type UpdateShareMenuFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type UpdateShareMenuSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type UpdateSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type UpdateVoIPChatMuteConfigCompleteCallback = (
         res: GeneralCallbackResult
