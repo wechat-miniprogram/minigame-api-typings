@@ -130,6 +130,8 @@ declare namespace WechatMinigame {
         phoneCalendarAuthorized: 'authorized' | 'denied' | 'not determined'
     }
     interface AppBaseInfo {
+        /** PC 内核版本号，仅在 PC 端存在该值 */
+        PCKernelVersion: string
         /** 客户端基础库版本 */
         SDKVersion: string
         /** 是否已打开调试。可通过右上角菜单或 [wx.setEnableDebug](https://developers.weixin.qq.com/minigame/dev/api/base/debug/wx.setEnableDebug.html) 打开调试。 */
@@ -4908,6 +4910,8 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     interface OfficialComponentsInfo {
         /** 通知组件信息 */
         notificationComponentInfo: OfficialComponentInfo
+        /** 福利组件信息 */
+        rewardsComponentInfo: RewardsComponentInfo
     }
     interface OnAccelerometerChangeListenerResult {
         /** X 轴 */
@@ -6242,6 +6246,17 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         files: string[]
         errMsg: string
     }
+    /** 领取事件详情（只在onOfficialComponentsInfoChange回调中返回） */
+    interface ReceiveDetail {
+        /** 礼包描述，只有 gift 类型才有 */
+        desc: string
+        /** 礼包图标，只有 gift 类型才有 */
+        icon: string
+        /** 礼包名称，只有 gift 类型才有 */
+        name: string
+        /** gift: 礼包, friendGift: 好友礼包 */
+        type: string
+    }
     interface ReconnectOption {
         /** 需要重连的对局房间唯一标识 */
         accessInfo: string
@@ -6613,12 +6628,8 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         complete?: RequestCompleteCallback
         /** 请求的参数 */
         data?: string | IAnyObject | ArrayBuffer
-        /** 返回的数据格式
-         *
-         * 可选值：
-         * - 'json': 返回的数据为 JSON，返回后会对返回的数据进行一次 JSON.parse;
-         * - '其他': 不对返回的内容进行 JSON.parse; */
-        dataType?: 'json' | '其他'
+        /** 返回的数据格式。值为 `json` 时，返回的数据为 JSON，返回后会对返回的数据进行一次 `JSON.parse`；其他值则不对返回的内容进行 `JSON.parse` */
+        dataType?: string
         /** 需要基础库： `2.10.4`
          *
          * 开启 Http 缓存 */
@@ -6927,6 +6938,17 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
          *
          * 视频是否是在用户完整观看的情况下被关闭的 */
         isEnded: boolean
+    }
+    /** 福利组件信息 */
+    interface RewardsComponentInfo {
+        /** 可领取的好友礼包数量 */
+        canReceiveFriendGiftCount: number
+        /** 可领取的礼包数量 */
+        canReceiveGiftCount: number
+        /** 组件的名称 */
+        name: string
+        /** 领取事件详情（只在onOfficialComponentsInfoChange回调中返回） */
+        receiveDetail: ReceiveDetail
     }
     interface RmdirOption {
         /** 要删除的目录路径 (本地路径) */
@@ -18710,6 +18732,7 @@ wx.onBluetoothAdapterStateChange(function (res) {
 * **注意**
 *
 * - 若在 [wx.onBluetoothDeviceFound](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.onBluetoothDeviceFound.html) 回调了某个设备，则此设备会添加到 [wx.getBluetoothDevices](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth/wx.getBluetoothDevices.html) 接口获取到的数组中。
+* - 地址变化这个是鸿蒙系统特性，小程序可以不缓存地址，重新搜索连接。
 *
 * **示例代码**
 *
