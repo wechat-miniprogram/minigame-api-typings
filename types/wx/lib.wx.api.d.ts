@@ -762,6 +762,22 @@ source.start()
          * [Canvas.toTempFilePath](https://developers.weixin.qq.com/minigame/dev/api/render/canvas/Canvas.toTempFilePath.html) 的同步版本 */
         toTempFilePathSync(option: ToTempFilePathSyncOption): string
     }
+    /** 领取事件详情（只在onOfficialComponentsInfoChange回调中返回） */
+    interface ChallengeReceiveDetail {
+        /** 奖励领取结果：1-全部成功, 2-部分成功（礼物达到领取上限）, 3-领奖失败 */
+        awardResult: number
+        /** 是否收到了稀有奖励 */
+        receivedRareReward: boolean
+        /** 用户领取的奖励列表 */
+        userSourceList: UserSource[]
+    }
+    /** 擂台赛组件领奖信息 */
+    interface ChallengeRewardsComponentInfo {
+        /** 组件的名称 */
+        name: string
+        /** 领取事件详情（只在onOfficialComponentsInfoChange回调中返回） */
+        receiveDetail: ChallengeReceiveDetail
+    }
     interface ChangeSeatOption {
         /** 座位号，从 0 开始 */
         posNum: number
@@ -3394,16 +3410,16 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
     }
     /** 入参对象 */
     interface GetScoreParams {
-        /** 查询的周期：1: 自然日；2: 自然周；3: 自然月；4: 永久 */
+        /** 查询的周期：1：自然日最高分；2：自然周最高分；3：自然月最高分；4：历史最高分；5 最新得分 */
         periodType: number
         /** 玩法唯一标识数组 */
-        scoreKeys: string[]
+        scoreKeys: any[]
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: GetScoreCompleteCallback
         /** 接口调用失败的回调函数 */
         fail?: GetScoreFailCallback
         /** 可选子 key 数组，从基础库版本3.12.1开始支持 */
-        subScoreKeys?: number[]
+        subScoreKeys?: any[]
         /** 接口调用成功的回调函数 */
         success?: GetScoreSuccessCallback
     }
@@ -4908,6 +4924,8 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     }
     /** 全部组件的信息 */
     interface OfficialComponentsInfo {
+        /** 擂台赛组件领奖信息 */
+        challengeRewardsComponentInfo: ChallengeRewardsComponentInfo
         /** 通知组件信息 */
         notificationComponentInfo: OfficialComponentInfo
         /** 福利组件信息 */
@@ -6051,6 +6069,13 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         showmenu?: boolean
         /** 接口调用成功的回调函数 */
         success?: PreviewMediaSuccessCallback
+    }
+    /** 道具列表 */
+    interface PropInfo {
+        /** 道具名称 */
+        propName: string
+        /** 道具数量 */
+        propNum: number
     }
     interface ReadBLECharacteristicValueOption {
         /** 蓝牙特征的 UUID */
@@ -7848,6 +7873,15 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         /** 接口调用成功的回调函数 */
         success?: SendSuccessCallback
     }
+    /** 奖励来源信息 */
+    interface SourceInfo {
+        /** 道具列表 */
+        propList: PropInfo[]
+        /** 奖励类型：1-普通奖励, 2-稀有奖励 */
+        type: number
+        /** 礼包名称 */
+        sourceName?: string
+    }
     interface StartAccelerometerOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: StartAccelerometerCompleteCallback
@@ -8880,6 +8914,15 @@ UserInfoButton.offTap(listener) // 需传入与监听时同一个的函数对象
          *
          * 显示用户信息按钮 */
         show(): void
+    }
+    /** 用户领取的奖励列表 */
+    interface UserSource {
+        /** 奖励类型：0-道具礼包, 1-微信蓝包, 2-h5商家券, 3-现金红包, 4-小程序券, 5-盲盒 */
+        sourceType: number
+        /** 奖励来源信息 */
+        source?: SourceInfo
+        /** 获取的奖励数量 */
+        sourceNum?: number
     }
     /** 需要基础库： `2.32.1`
      *
@@ -13491,7 +13534,7 @@ rankManager.createChallenge({
 *
 * 需要基础库： `3.10.1`
 *
-* 查询当前用户在指定scoreKey下的得分历史。
+* 查询当前用户得分数据。
 *
 * **示例代码**
 *
@@ -13499,7 +13542,7 @@ rankManager.createChallenge({
 const rankManager = wx.getRankManager()
 rankManager.getScore({
   scoreKeys: ['level_1', 'level_2'],
-  periodType: 1, // 查询日榜
+  periodType: 1, // 自然日最高分
   success: (res) => {
     console.log('分数信息', res.scores)
     // res.scores 格式: { 'level_1': { score: 100, timestamp: 1234567890 } }
@@ -13517,7 +13560,7 @@ rankManager.getScore({
 *
 * 需要基础库： `3.10.1`
 *
-* 游戏中途更新分数信息。用于在游戏进行过程中实时上报分数，不会唤起结束页。
+* 游戏中途更新分数信息，用于在游戏进行过程中实时上报分数。如果接入擂台赛组件，该 api不会触发擂台赛组件结算页，但会触发擂台赛分数超越播报和排行榜更新。
 *
 * **示例代码**
 *
@@ -13592,7 +13635,7 @@ rankManager.onChallengeStart((res) => {
 *
 * 需要基础库： `3.10.1`
 *
-* 更新分数信息。在发起擂台赛前上报，上报的分数将作为发起擂台赛的擂主分数。在擂台赛中上报，上报的分数将作为擂台赛者的分数，并结束擂台赛弹出结果页。
+* 上报用户分数信息。如果接入擂台赛组件，使用此 api在发起擂台赛前上报，上报的分数将作为发起擂台赛的擂主分数。在擂台赛中上报，上报的分数将作为擂台赛者的分数，并结束擂台赛弹出结果页。
 *
 * **示例代码**
 *
@@ -15453,21 +15496,13 @@ task.onProgressUpdate(res => {
 *
 * 需要基础库： `3.10.1`
 *
-* 初始化并返回一个擂台赛管理器实例，用于管理游戏擂台赛功能。关于小游戏擂台赛的功能介绍详见[小游戏擂台赛指南文档](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/tournament.html)。
+* 初始化并返回一个擂台赛管理器实例，用于管理游戏得分存取、得分排行榜（开发中）以及擂台赛功能。小游戏擂台赛功能介绍详见[小游戏擂台赛指南文档](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/tournament.html)。
 *
-* **示例代码**
+* **示例代码</title>
 *
-* **1 发起擂台赛**
+* **1 存取用户得分**
 *
-* **1.1 接入前准备**
-*
-* 擂台赛组件的分享和动态消息功能依赖[聊天工具模式](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/chat-tool.html)。
-*
-* 聊天工具的分享功能要求小游戏具备有效的登录态。为确保用户分享擂台赛时游戏已建立登录态，需要在擂台赛开始前调用[wx.login](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)接口完成登录流程。
-*
-* **1.2 上报擂主分数**
-*
-* 发起擂台赛前，需要先上报玩家发起擂台赛的基准分数。使用 `update` 方法进行分数上报。
+* **1.1 上报用户分数**
 * ```js
 // 获取擂台赛管理器实例
 const rankManager = wx.getRankManager();
@@ -15484,7 +15519,50 @@ rankManager.update({
 });
 ```
 *
-* **1.3 创建擂台赛**
+* **1.2 查询用户最新得分**
+*
+* <title>示例代码**
+*
+* ```js
+const rankManager = wx.getRankManager()
+const rankManager = wx.getRankManager()
+rankManager.getScore({
+  scoreKeys: ['score_key'],
+  periodType: 1, // 自然日最高分
+  success: (res) => {
+    console.log('分数信息', res.scores)
+    // res.scores 格式: { 'score_key': { score: 100, timestamp: 1234567890 } }
+  }
+})
+
+**2 发起擂台赛**
+
+**2.1 接入前准备**
+
+擂台赛组件的分享和动态消息功能依赖[聊天工具模式](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/chat-tool.html)。
+
+聊天工具的分享功能要求小游戏具备有效的登录态。为确保用户分享擂台赛时游戏已建立登录态，需要在擂台赛开始前调用[wx.login](https://developers.weixin.qq.com/minigame/dev/api/open-api/login/wx.login.html)接口完成登录流程。
+
+**2.2 上报擂主分数**
+
+发起擂台赛前，需要先上报玩家发起擂台赛的基准分数。使用 `update` 方法进行分数上报。
+```js
+* // 获取擂台赛管理器实例
+* const rankManager = wx.getRankManager();
+* // 上报用户分数
+* rankManager.update({
+*   scoreKey: 'score_key', // 在MP配置的scoreKey
+*   score: 100, // 具体分数值
+*   success: res => {
+*     console.log('分数上报成功', res);
+*   },
+*   fail: err => {
+*     console.error('分数上报失败', err);
+*   },
+* });
+* ```
+*
+* **2.3 创建擂台赛**
 *
 * 分数上报成功后，使用 `createChallenge` 方法发起擂台赛。
 * ```js
@@ -15504,9 +15582,9 @@ wx.getRankManager().createChallenge({
 * - 一次 `update` 上报的分数只能创建一个擂台赛。
 * - 针对同一次上报多次调用 `createChallenge` 将返回已创建的擂台赛。
 *
-* **2 加入擂台赛**
+* **3 加入擂台赛**
 *
-* **2.1 监听挑战开始事件**
+* **3.1 监听挑战开始事件**
 *
 * 用户从他人分享的擂台赛卡片进入小游戏，小游戏会在 onShow 时弹起加入擂台赛半屏。用户点击半屏上的"立即挑战"按钮，擂台赛挑战开始。
 * 通过 `rankManager.onChallengeStart(callback)` 监听onChallengeStart事件，在onChallengeStart事件的回调中处理挑战开始逻辑。
@@ -15521,7 +15599,7 @@ wx.getRankManager().onChallengeStart((challengeInfo) => {
 * 注意事项：
 * - 应尽早监听 onChallengeStart，推荐在游戏初始化或 onLaunch 生命周期里监听。由于用户点击“立即挑战”事件会等到onChallengeStart成功注册后再派发，过晚监听可能出现用户点了立即挑战，游戏没有及时开始擂台赛的情况。
 *
-* **2.2 中途操作**
+* **3.2 中途操作**
 *
 * 擂台赛进行过程中，支持以下操作：
 *
@@ -15553,7 +15631,7 @@ wx.getRankManager().abort({
 });
 ```
 *
-* **2.3 结束擂台赛**
+* **3.3 结束擂台赛**
 *
 * 在擂台赛进行过程中调用 `update` 方法上报最终分数，系统将自动结束擂台赛并拉起结束界面。
 * ```js
@@ -15570,7 +15648,7 @@ wx.getRankManager().update({
 });
 ```
 *
-* **2.4 奖励领取**
+* **3.4 奖励领取**
 *
 * 挑战者战胜擂主，或者擂主守擂成功时，可以在擂台赛组件结果页领取道具奖励。 */
         getRankManager(): RankManager
