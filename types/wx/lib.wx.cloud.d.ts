@@ -95,9 +95,9 @@ interface WxCloud {
     init: (config?: ICloudConfig) => void
 
     callFunction(param: OQ<ICloud.CallFunctionParam>): void
-    callFunction(
+    callFunction<CallFunctionResultData>(
         param: RQ<ICloud.CallFunctionParam>
-    ): Promise<ICloud.CallFunctionResult>
+    ): Promise<ICloud.CallFunctionResult<CallFunctionResultData>>
 
     uploadFile(param: OQ<ICloud.UploadFileParam>): WechatMinigame.UploadTask
     uploadFile(
@@ -145,8 +145,8 @@ declare namespace ICloud {
     // === API: callFunction ===
     type CallFunctionData = AnyObject
 
-    interface CallFunctionResult extends IAPISuccessParam {
-        result: AnyObject | string | undefined
+    interface CallFunctionResult<T = AnyObject | string | undefined> extends IAPISuccessParam {
+        result: T;
     }
 
     interface CallFunctionParam extends ICloudAPIParam<CallFunctionResult> {
