@@ -61,6 +61,7 @@ declare namespace WechatMinigame {
     type PannerNode = any
     type AnalyserNode = any
     type WebGLTexture = any
+    type GPU = any
 }
 
 declare const console: WechatMinigame.Console

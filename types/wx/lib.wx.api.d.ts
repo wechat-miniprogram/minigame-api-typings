@@ -402,7 +402,7 @@ BannerAd.offLoad(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offLoad(
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffLoadCallback
+            listener?: OffLoadCallback
         ): void
         /** [BannerAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.offResize.html)
 *
@@ -448,7 +448,7 @@ BannerAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听 banner 广告加载事件。 */
         onLoad(
             /** banner 广告加载事件的监听函数 */
-            listener: CustomAdOnLoadCallback
+            listener: OnLoadCallback
         ): void
         /** [BannerAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.onResize.html)
          *
@@ -1387,7 +1387,7 @@ source.start()
     interface CreateRewardedVideoAdOption {
         /** 广告单元 id */
         adUnitId: string
-        /** 需要基础库： `3.7.7`
+        /** 需要基础库： `3.7.1`
          *
          * 是否禁用分享页，默认为false */
         disableFallbackSharePage?: boolean
@@ -1568,7 +1568,7 @@ CustomAd.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffCloseCallback
+            listener?: UDPSocketOffCloseCallback
         ): void
         /** [CustomAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offError.html)
 *
@@ -1618,7 +1618,7 @@ CustomAd.offLoad(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offLoad(
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffLoadCallback
+            listener?: OffLoadCallback
         ): void
         /** [CustomAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offResize.html)
 *
@@ -1641,7 +1641,7 @@ CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听原生模板广告关闭事件（仅部分可被用户关闭的模板支持）。 */
         onClose(
             /** 原生模板广告关闭事件的监听函数 */
-            listener: CustomAdOnCloseCallback
+            listener: UDPSocketOnCloseCallback
         ): void
         /** [CustomAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onError.html)
          *
@@ -1685,7 +1685,7 @@ CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听原生模板广告加载事件。 */
         onLoad(
             /** 原生模板广告加载事件的监听函数 */
-            listener: CustomAdOnLoadCallback
+            listener: OnLoadCallback
         ): void
         /** [CustomAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onResize.html)
          *
@@ -3517,6 +3517,19 @@ GameRecorderShareButton.offTap(listener) // 需传入与监听时同一个的函
         fileList: FileItem[]
         errMsg: string
     }
+    /** 初始化参数对象，可选。 */
+    interface GetScenePerformanceManagerParam {
+        /** 通用信息设置的参数对象，每次执行 setData 时都会带上这些信息。数据类型为 object，且能够通过 JSON.stringify 序列化。 */
+        commonInfo?: IAnyObject
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: GetScenePerformanceManagerCompleteCallback
+        /** 是否开启调试模式。开启后，调用 `setData` 时会在控制台打印本次上报的 `sceneId` 及合并后的附加信息，便于开发阶段核对上报内容。**仅在开发版（develop）和体验版（trial）下生效**，正式版下即使传入 `true` 也不会输出日志。 */
+        debug?: boolean
+        /** 接口调用失败的回调函数 */
+        fail?: GetScenePerformanceManagerFailCallback
+        /** 接口调用成功的回调函数 */
+        success?: GetScenePerformanceManagerSuccessCallback
+    }
     /** 入参对象 */
     interface GetScoreParams {
         /** 查询的周期：1：自然日最高分；2：自然周最高分；3：自然月最高分；4：历史最高分；5 最新得分 */
@@ -3885,7 +3898,7 @@ GridAd.offLoad(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offLoad(
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffLoadCallback
+            listener?: OffLoadCallback
         ): void
         /** [GridAd.offResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.offResize.html)
 *
@@ -3937,7 +3950,7 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听 grid(格子) 广告加载事件。 */
         onLoad(
             /** grid(格子) 广告加载事件的监听函数 */
-            listener: CustomAdOnLoadCallback
+            listener: OnLoadCallback
         ): void
         /** [GridAd.onResize(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/GridAd.onResize.html)
          *
@@ -5053,6 +5066,14 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 收藏标题，不传则默认使用当前小游戏的昵称。 */
         title: string
     }
+    interface OnAddToScheduleListenerResult {
+        /** 页面路径 */
+        path: string
+        /** 查询字符串，必须是 key1=val1&key2=val2 的格式。从提醒进入后，可通过 wx.getLaunchOptionsSync() 或 wx.onShow() 获取启动参数中的 query。 */
+        query: string
+        /** 提醒标题，不传则默认使用当前小游戏的昵称。 */
+        title: string
+    }
     interface OnBLECharacteristicValueChangeListenerResult {
         /** 蓝牙特征的 UUID */
         characteristicId: string
@@ -5170,6 +5191,10 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 返回的chunk buffer */
         data: ArrayBuffer
     }
+    interface OnCloseCallbackResult {
+        /** 关闭结果：'close' 未点击购买直接关闭 / 'pay_cancel' 点了购买按钮但未支付成功 / 'pay_success' 支付成功 */
+        result: string
+    }
     interface OnCompassChangeListenerResult {
         /** 需要基础库： `2.4.0`
          *
@@ -5272,6 +5297,12 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
          * - 'game': 游戏服务断开连接，只有在游戏开始后有机会收到。游戏服务断开连接后，将无法收发帧。; */
         type: 'room' | 'game'
     }
+    interface OnErrorCallbackResult {
+        /** 错误码 */
+        errCode: number
+        /** 错误信息 */
+        errMsg: string
+    }
     interface OnFrameRecordedListenerResult {
         /** 录音分片数据 */
         frameBuffer: ArrayBuffer
@@ -5324,12 +5355,6 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
     interface OnKeyboardInputListenerResult {
         /** 键盘输入的当前值 */
         value: string
-    }
-    interface OnLoadListenerResult {
-        /** 需要基础库： `3.7.7`
-         *
-         * 仅小游戏支持，本次展示使用激励广告分享页 */
-        useFallbackSharePage: boolean
     }
     interface OnLockStepErrorListenerResult {
         /** 错误码 */
@@ -5616,6 +5641,10 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 拒绝原因，一般是一个 Error 对象 */
         reason: string
     }
+    interface OnUseCallbackResult {
+        /** 今日已使用次数 */
+        usedCount: number
+    }
     interface OnUserCaptureScreenListenerResult {
         /** 需要基础库： `3.3.0`
          *
@@ -5898,6 +5927,23 @@ InnerAudioContext.offWaiting(listener) // 需传入与监听时同一个的函�
         /** 接口调用成功的回调函数 */
         success?: OpenSuccessCallback
     }
+    interface OpenPhotoTopicViewOption {
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: OpenPhotoTopicViewCompleteCallback
+        /** 传递给贴图话题发布页参数，halfscreen表示是否以半屏打开。 */
+        extraData?: IAnyObject
+        /** 接口调用失败的回调函数 */
+        fail?: OpenPhotoTopicViewFailCallback
+        /** 附加的查询字符串，必须是 key1=val1&key2=val2 的格式。 */
+        queryString?: string
+        /** 接口调用成功的回调函数 */
+        success?: OpenPhotoTopicViewSuccessCallback
+    }
+    interface OpenPhotoTopicViewSuccessCallbackResult {
+        /** 贴图话题发布页返回的业务数据（结构由微信官方业务约定） */
+        extraData: IAnyObject
+        errMsg: string
+    }
     interface OpenPrivacyContractOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
         complete?: OpenPrivacyContractCompleteCallback
@@ -6175,10 +6221,18 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         current?: number
         /** 接口调用失败的回调函数 */
         fail?: PreviewMediaFailCallback
+        /** 需要基础库： `3.17.6`
+         *
+         * 是否默认静音。`true`：视频默认静音，显示静音图标；`false`：保持现有逻辑，默认有声 */
+        muted?: boolean
         /** 需要基础库： `2.13.0`
          *
          * `origin`: 发送完整的referrer; `no-referrer`: 不发送。格式固定为 `https://servicewechat.com/{appid}/{version}/page-frame.html`，其中 {appid} 为小程序的 appid，{version} 为小程序的版本号，版本号为 0 表示为开发版、体验版以及审核版本，版本号为 devtools 表示为开发者工具，其余为正式版本； */
         referrerPolicy?: string
+        /** 需要基础库： `3.17.6`
+         *
+         * 是否展示底部操作栏。`true`：右下角展示操作图标，包含转发、下载、更多；`false`：隐藏操作菜单 */
+        showBottomActionBar?: boolean
         /** 需要基础库： `2.13.0`
          *
          * 是否显示长按菜单。 */
@@ -6410,6 +6464,16 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         data: DataOption
     }
     interface RecorderManagerStartOption {
+        /** 需要基础库： `3.17.3`
+         *
+         * 录音场景模式，与 audioSource 解耦，描述录音场景意图。当 audioMode 与 audioSource 同时指定时，audioMode 生效
+         *
+         * 可选值：
+         * - 'default': 默认模式，无特殊处理;
+         * - 'voiceChat': 语音通话场景，启用回声消除(AEC)、噪声抑制(NS)和自动增益(AGC);
+         * - 'voiceRecognition': 语音识别场景，启用噪声抑制和自动增益;
+         * - 'recording': 高保真录音场景; */
+        audioMode?: 'default' | 'voiceChat' | 'voiceRecognition' | 'recording'
         /** 需要基础库： `2.1.0`
          *
          * 指定录音的音频输入源，可通过 [wx.getAvailableAudioSources()](https://developers.weixin.qq.com/minigame/dev/api/media/audio/wx.getAvailableAudioSources.html) 获取当前可用的音频源
@@ -6823,7 +6887,7 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         httpDNSServiceId?: string
         /** 需要基础库： `3.8.9`
          *
-         * HttpDNS 超时时间。HttpDNS解析时间超过该值时不再走HttpDNS，本次请求将回退到localDNS。默认为 60000 毫秒。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/HTTPDNS.html) */
+         * HttpDNS 超时时间。HttpDNS解析时间超过该值时不再走HttpDNS，本次请求将回退到localDNS。默认为 10000 毫秒。 HttpDNS 用法详见 [移动解析HttpDNS](https://developers.weixin.qq.com/minigame/dev/guide/base-ability/HTTPDNS.html) */
         httpDNSTimeout?: number
         /** HTTP 请求方法
          *
@@ -7398,6 +7462,19 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: SetClipboardDataFailCallback
         /** 接口调用成功的回调函数 */
         success?: SetClipboardDataSuccessCallback
+    }
+    /** 场景数据上报的参数对象。 */
+    interface SetDataParam {
+        /** 场景 ID（一级维度），标识当前所处的大场景。 */
+        sceneId: number
+        /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+        complete?: SetDataCompleteCallback
+        /** 接口调用失败的回调函数 */
+        fail?: SetDataFailCallback
+        /** 场景附加信息（二级维度），用于在同一场景内做更细粒度的筛选。会与 `commonInfo` 合并后一起上报，字段同名时覆盖 `commonInfo`。 */
+        sceneData?: IAnyObject
+        /** 接口调用成功的回调函数 */
+        success?: SetDataSuccessCallback
     }
     interface SetDeviceOrientationOption {
         /** 表示切换为横屏还是竖屏
@@ -8837,7 +8914,7 @@ session.run({
     interface UpdateShareMenuOption {
         /** 需要基础库： `2.4.0`
          *
-         * 动态消息的 activityId。通过 [updatableMessage.createActivityId](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.createActivityId.html) 接口获取 */
+         * 动态消息的 activityId。通过 [updatableMessage.createActivityId](#) 接口获取 */
         activityId?: string
         /** 需要基础库： `3.7.8`
          *
@@ -8865,7 +8942,7 @@ session.run({
         templateInfo?: UpdatableMessageFrontEndTemplateInfo
         /** 需要基础库： `2.11.0`
          *
-         * 群待办消息的id，通过toDoActivityId可以把多个群待办消息聚合为同一个。通过 [updatableMessage.createActivityId](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.createActivityId.html) 接口获取。详见[群待办消息](#) */
+         * 群待办消息的id，通过toDoActivityId可以把多个群待办消息聚合为同一个。通过 [updatableMessage.createActivityId](#) 接口获取。详见[群待办消息](#) */
         toDoActivityId?: string
         /** 需要基础库： `3.7.8`
          *
@@ -10620,6 +10697,112 @@ setTimeout(() => {
         data: string | ArrayBuffer
         /** 错误信息 */
         errMsg: string
+    }
+    interface AdSkipCard {
+        /** [AdSkipCard.offClose(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.offClose.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 取消监听购买弹窗关闭事件。 */
+        offClose(
+            /** 事件监听函数 */
+            callback: AdSkipCardCloseCallback
+        ): void
+        /** [AdSkipCard.offError(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.offError.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 取消监听错误事件。 */
+        offError(
+            /** 事件监听函数 */
+            callback: AdSkipCardErrorCallback
+        ): void
+        /** [AdSkipCard.offLoad(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.offLoad.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 取消监听畅玩卡数据加载事件。 */
+        offLoad(
+            /** 事件监听函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [AdSkipCard.offShow(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.offShow.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 取消监听购买弹窗展示事件。 */
+        offShow(
+            /** 事件监听函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [AdSkipCard.offUse(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.offUse.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 取消监听畅玩权益消耗事件。 */
+        offUse(
+            /** 事件监听函数 */
+            callback: AdSkipCardUseCallback
+        ): void
+        /** [AdSkipCard.onClose(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.onClose.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 监听购买弹窗关闭事件。弹窗关闭时触发（弹窗内点蒙层、购买成功后关闭）。 */
+        onClose(
+            /** 事件监听函数 */
+            callback: AdSkipCardCloseCallback
+        ): void
+        /** [AdSkipCard.onError(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.onError.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 监听错误事件。load/show 失败等场景触发。前端错误码：-1001 预加载失败 / -1002 打开弹窗失败，服务端错误码原样透传。 */
+        onError(
+            /** 事件监听函数 */
+            callback: AdSkipCardErrorCallback
+        ): void
+        /** [AdSkipCard.onLoad(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.onLoad.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 监听畅玩卡数据加载事件。加载成功（product_list 非空）时触发。 */
+        onLoad(
+            /** 事件监听函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [AdSkipCard.onShow(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.onShow.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 监听购买弹窗展示事件。show 打开成功时触发。 */
+        onShow(
+            /** 事件监听函数 */
+            callback: (...args: any[]) => any
+        ): void
+        /** [AdSkipCard.onUse(function callback)](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.onUse.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 监听畅玩权益消耗事件。当内部广告流程消耗畅玩权益成功后触发。 */
+        onUse(
+            /** 事件监听函数 */
+            callback: AdSkipCardUseCallback
+        ): void
+        /** [Promise AdSkipCard.load()](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.load.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 预加载畅玩卡数据。加载成功时触发 load 事件，失败时触发 error 事件。
+         *   若上次 load 仍在进行中，重复调用返回同一个 Promise，不会重复请求。 */
+        load(): Promise<any>
+        /** [Promise AdSkipCard.show()](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.show.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 打开畅玩卡购买弹窗。打开成功时触发 show 事件，失败时触发 error 事件。
+         *   若上次 show 仍在进行中，重复调用返回同一个 Promise，不会重复打开。 */
+        show(): Promise<any>
     }
     interface BLEPeripheralServer {
         /** [BLEPeripheralServer.addService(Object object)](https://developers.weixin.qq.com/minigame/dev/api/device/bluetooth-peripheral/BLEPeripheralServer.addService.html)
@@ -13253,7 +13436,7 @@ InterstitialAd.offClose(listener) // 需传入与监听时同一个的函数对�
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffCloseCallback
+            listener?: UDPSocketOffCloseCallback
         ): void
         /** [InterstitialAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.offError.html)
 *
@@ -13285,14 +13468,14 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
 ``` */
         offLoad(
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffLoadCallback
+            listener?: OffLoadCallback
         ): void
         /** [InterstitialAd.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.onClose.html)
          *
          * 监听插屏广告关闭事件。 */
         onClose(
             /** 插屏广告关闭事件的监听函数 */
-            listener: CustomAdOnCloseCallback
+            listener: UDPSocketOnCloseCallback
         ): void
         /** [InterstitialAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.onError.html)
          *
@@ -13322,7 +13505,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听插屏广告加载事件。 */
         onLoad(
             /** 插屏广告加载事件的监听函数 */
-            listener: CustomAdOnLoadCallback
+            listener: OnLoadCallback
         ): void
         /** [Promise InterstitialAd.load()](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.load.html)
          *
@@ -14097,7 +14280,7 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
 ``` */
         offLoad(
             /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: RewardedVideoAdOffLoadCallback
+            listener?: OffLoadCallback
         ): void
         /** [RewardedVideoAd.onClose(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.onClose.html)
          *
@@ -14134,7 +14317,81 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听激励视频广告加载事件。 */
         onLoad(
             /** 激励视频广告加载事件的监听函数 */
-            listener: RewardedVideoAdOnLoadCallback
+            listener: OnLoadCallback
+        ): void
+    }
+    interface ScenePerformanceManager {
+        /** [Object ScenePerformanceManager.getCommonInfo()](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/ScenePerformanceManager.getCommonInfo.html)
+*
+* 需要基础库： `3.11.0`
+*
+* 获取通用信息（由setCommonInfo数据得到）
+*
+* **示例代码**
+*
+* ```js
+const scenePerformanceManager = wx.getScenePerformanceManager({ debug: true, commonInfo: { role: 1 } });
+
+scenePerformanceManager.setCommonInfo({ role: 1 })
+scenePerformanceManager.getCommonInfo()  // { role: 1 }
+``` */
+        getCommonInfo(): IAnyObject
+        /** [ScenePerformanceManager.setCommonInfo(Object params)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/ScenePerformanceManager.setCommonInfo.html)
+*
+* 需要基础库： `3.11.0`
+*
+* 设置通用信息（全局维度），用于描述贯穿所有上报的固定属性（如机型档位、用户角色等）。每次执行 `setData` 时都会自动带上这些信息。多次调用 `setCommonInfo` 会整体覆盖之前设置的参数。
+*
+* **示例代码**
+*
+* ```js
+const scenePerformanceManager = wx.getScenePerformanceManager({ commonInfo: { role: 1 } });
+
+scenePerformanceManager.setCommonInfo({
+    role: 2, // 用户角色
+});
+``` */
+        setCommonInfo(
+            /** 通用信息设置的参数对象，每次执行 setData 时都会带上这些信息。数据类型为 object，且能够通过 JSON.stringify 序列化。 */
+            params: IAnyObject
+        ): void
+        /** [ScenePerformanceManager.setData(Object param)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/ScenePerformanceManager.setData.html)
+*
+* 需要基础库： `3.11.0`
+*
+* 上报当前所处的场景及其附加信息，用于对运行性能数据做多维度的筛选分析。
+*
+* 上报的数据分为两级维度：
+* - `sceneId`（一级维度）：标识当前所处的「大场景」，例如战斗、大厅、加载等。查看运行性能数据时，可先按 `sceneId` 筛选出某个场景的整体表现。
+* - `sceneData`（二级维度）：在同一场景内进一步细分的标签，用于在场景内部做更细粒度的下钻筛选。例如同为「战斗」场景，还可以按战斗类型、关卡、组队人数等区分，从而定位「Boss 战是否卡顿」「多人组队是否掉帧」等具体问题。
+*
+* `sceneData` 会与初始化时通过 `commonInfo` 设置的通用信息合并后一起上报，若字段同名则以 `sceneData` 覆盖 `commonInfo`。
+*
+* **示例代码**
+*
+* 以一款 RPG 游戏的战斗场景为例：`sceneId` 标记「战斗场景」，`sceneData` 携带战斗类型、关卡、组队人数等信息，便于在查看性能数据时逐层下钻筛选。
+* ```js
+const scenePerformanceManager = wx.getScenePerformanceManager({
+  commonInfo: {
+    deviceLevel: 'high', // 机型档位（全局通用信息，每次上报都会携带）
+  }
+});
+
+// 进入战斗场景时上报
+scenePerformanceManager.setData({
+  sceneId: 1001,          // 一级维度：1001 代表「战斗场景」
+  sceneData: {            // 二级维度：战斗场景内的细分标签
+    battleType: 'boss',   // 战斗类型：Boss 战
+    level: 15,            // 当前关卡
+    playerCount: 4,       // 组队人数
+  },
+});
+// 上报后可在运行性能数据中先按 sceneId=1001 查看战斗场景整体表现，
+// 再叠加 battleType=boss 等标签，进一步分析 Boss 战场景是否存在性能问题。
+``` */
+        setData(
+            /** 场景数据上报的参数对象。 */
+            param: SetDataParam
         ): void
     }
     interface SocketTask {
@@ -14289,7 +14546,7 @@ TCPSocket.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffCloseCallback
+            listener?: UDPSocketOffCloseCallback
         ): void
         /** [TCPSocket.offConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offConnect.html)
 *
@@ -14353,7 +14610,7 @@ TCPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
          * 监听一旦 socket 完全关闭就发出该事件 */
         onClose(
             /** 一旦 socket 完全关闭就发出该事件的监听函数 */
-            listener: CustomAdOnCloseCallback
+            listener: UDPSocketOnCloseCallback
         ): void
         /** [TCPSocket.onConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onConnect.html)
          *
@@ -14409,7 +14666,7 @@ UDPSocket.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: CustomAdOffCloseCallback
+            listener?: UDPSocketOffCloseCallback
         ): void
         /** [UDPSocket.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.offError.html)
 *
@@ -14464,7 +14721,7 @@ UDPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
          * 监听关闭事件 */
         onClose(
             /** 关闭事件的监听函数 */
-            listener: CustomAdOnCloseCallback
+            listener: UDPSocketOnCloseCallback
         ): void
         /** [UDPSocket.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.onError.html)
          *
@@ -14787,6 +15044,10 @@ console.log(gamepads);
             /** 需要传递给接力设备的参数，格式 为querystring */
             query: string
         ): boolean
+        /** [GPU|undefined wx.getGPU()](https://developers.weixin.qq.com/minigame/dev/api/render/gpu/wx.getGPU.html)
+         *
+         * 获取 WebGPU 的 GPU 对象，等价于 Web 端的 navigator.gpu。仅 Android 平台支持。 */
+        getGPU(): GPU | undefined
         /** [Object wx.getAccountInfoSync()](https://developers.weixin.qq.com/minigame/dev/api/open-api/account-info/wx.getAccountInfoSync.html)
 *
 * 需要基础库： `2.11.2`
@@ -15124,6 +15385,26 @@ console.log(windowInfo.safeArea)
 console.log(windowInfo.screenTop)
 ``` */
         getWindowInfo(): WindowInfo
+        /** [[AdSkipCard](https://developers.weixin.qq.com/minigame/dev/api/ad/AdSkipCard.html) wx.createAdSkipCard()](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createAdSkipCard.html)
+         *
+         * 需要基础库： `3.16.2`
+         *
+         * 创建并返回广告跳过卡（畅玩卡）管理器 AdSkipCard 实例（单例）。
+         *
+         * 通过该实例可调用以下方法：
+         * - load()：预加载畅玩卡数据。返回 Promise。加载成功触发 onLoad；失败触发 onError。
+         * - show()：打开购买弹窗（coverview）。返回 Promise。打开成功触发 onShow；失败触发 onError。
+         * - onLoad / offLoad：注册/取消加载完成事件监听
+         * - onShow / offShow：注册/取消弹窗展示事件监听
+         * - onClose / offClose：注册/取消弹窗关闭事件监听，回调参数 { result }：
+         *     - 'close'       未点击购买直接关闭
+         *     - 'pay_cancel'  点了购买按钮但未支付成功
+         *     - 'pay_success' 支付成功
+         * - onError / offError：注册/取消错误事件监听，回调参数 { errCode, errMsg }
+         *     前端错误码：-1001 预加载失败 / -1002 打开弹窗失败
+         *     服务端错误码原样透传
+         * - onUse / offUse：注册/取消畅玩权益消耗事件监听，回调参数 { usedCount }（今日已使用次数） */
+        createAdSkipCard(): AdSkipCard
         /** [[BannerAd](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) wx.createBannerAd(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/wx.createBannerAd.html)
          *
          * 需要基础库： `2.0.4`
@@ -15878,6 +16159,47 @@ wx.request({
         createRewardedVideoAd(
             option: CreateRewardedVideoAdOption
         ): RewardedVideoAd
+        /** [[ScenePerformanceManager](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/ScenePerformanceManager.html) wx.getScenePerformanceManager(Object param)](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/wx.getScenePerformanceManager.html)
+*
+* 需要基础库： `3.11.0`
+*
+* 该接口专门用于协助开发者分析场景化的运行性能数据。通过上报场景 ID，在查看运行性能数据时，可以筛选场景的性能。
+* 初始化并返回一个ScenePerformanceManager实例，用于记录和管理小游戏性能数据上报。使用前请注意阅读[《运行性能场景上报分析》](https://developers.weixin.qq.com/minigame/dev/guide/performance/perf-action-runtime-reportPerformanceScene.html)。
+*
+* **示例代码**
+*
+* ```js
+let scenePerformanceManager = null;
+if (wx.getScenePerformanceManager) {
+  scenePerformanceManager = wx.getScenePerformanceManager({
+    commonInfo: {
+      role: 2, // 用户角色
+    }
+  });
+}
+
+scenePerformanceManager.setCommonInfo({
+    role: 1, // 用户角色
+});
+
+scenePerformanceManager.setData({
+    sceneId: 1011,
+    sceneData: { level: 1 },
+    success(res) {
+      console.log('success', res)
+    },
+    fail(res) {
+      console.log('fail', res)
+   },
+    complete(res) {
+      console.log('complete', res)
+    }
+  });
+``` */
+        getScenePerformanceManager(
+            /** 初始化参数对象，可选。 */
+            param?: GetScenePerformanceManagerParam
+        ): ScenePerformanceManager
         /** [[SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) wx.connectSocket(Object object)](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/wx.connectSocket.html)
 *
 * @warning **推荐使用 [SocketTask](https://developers.weixin.qq.com/minigame/dev/api/network/websocket/SocketTask.html) 的方式去管理 webSocket 链接，每一条链路的生命周期都更加可控，同时存在多个 webSocket 的链接的情况下使用 wx 前缀的方法可能会带来一些和预期不一致的情况。**
@@ -18059,6 +18381,12 @@ wx.offAccelerometerChange(listener) // 需传入与监听时同一个的函数�
          *
          * 移除用户点击菜单「收藏」按钮时触发的事件的全部监听函数 */
         offAddToFavorites(): void
+        /** [wx.offAddToSchedule()](https://developers.weixin.qq.com/minigame/dev/api/share/wx.offAddToSchedule.html)
+         *
+         * 需要基础库： `3.17.6`
+         *
+         * 移除用户点击菜单「添加提醒」按钮时触发的事件的全部监听函数 */
+        offAddToSchedule(): void
         /** [wx.offAudioInterruptionBegin(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.offAudioInterruptionBegin.html)
 *
 * 需要基础库： `1.8.0`
@@ -18900,6 +19228,15 @@ wx.onAccelerometerChange(callback)
         onAddToFavorites(
             /** 用户点击菜单「收藏」按钮时触发的事件的监听函数 */
             listener: OnAddToFavoritesCallback
+        ): void
+        /** [wx.onAddToSchedule(function listener)](https://developers.weixin.qq.com/minigame/dev/api/share/wx.onAddToSchedule.html)
+         *
+         * 需要基础库： `3.17.6`
+         *
+         * 监听用户点击菜单「添加提醒」按钮时触发的事件 */
+        onAddToSchedule(
+            /** 用户点击菜单「添加提醒」按钮时触发的事件的监听函数 */
+            listener: OnAddToScheduleCallback
         ): void
         /** [wx.onAudioInterruptionBegin(function listener)](https://developers.weixin.qq.com/minigame/dev/api/base/app/app-event/wx.onAudioInterruptionBegin.html)
          *
@@ -19866,6 +20203,30 @@ wx.openCustomerServiceChat({
         >(
             option: T
         ): PromisifySuccessResult<T, OpenCustomerServiceConversationOption>
+        /** [wx.openPhotoTopicView(Object object)](https://developers.weixin.qq.com/minigame/dev/api/navigate/wx.openPhotoTopicView.html)
+*
+* 需要基础库： `3.17.0`
+*
+* 打开微信官方贴图话题发布页。
+*
+* **示例代码**
+*
+* ```js
+wx.openPhotoTopicView({
+  queryString: 'topic=xxx', // 话题名称
+  extraData: {
+    // 由目标业务约定的字段
+    halfscreen: true,
+  },
+  success(res) {
+    console.log(res)
+  },
+  fail(err) {
+    console.error(err)
+  },
+})
+``` */
+        openPhotoTopicView(option: OpenPhotoTopicViewOption): void
         /** [wx.openPrivacyContract(Object object)](https://developers.weixin.qq.com/minigame/dev/api/open-api/privacy/wx.openPrivacyContract.html)
 *
 * 需要基础库： `2.32.3`
@@ -21547,6 +21908,12 @@ wx.writeBLECharacteristicValue({
     type AccessFailCallback = (res: FileError) => void
     /** 接口调用成功的回调函数 */
     type AccessSuccessCallback = (res: FileError) => void
+    /** 事件监听函数 */
+    type AdSkipCardCloseCallback = (result: OnCloseCallbackResult) => void
+    /** 事件监听函数 */
+    type AdSkipCardErrorCallback = (result: OnErrorCallbackResult) => void
+    /** 事件监听函数 */
+    type AdSkipCardUseCallback = (result: OnUseCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type AddCardCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -21762,20 +22129,14 @@ wx.writeBLECharacteristicValue({
     type CreateRoomSuccessCallback = (
         result: CreateRoomSuccessCallbackResult
     ) => void
-    /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type CustomAdOffCloseCallback = (res: GeneralCallbackResult) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type CustomAdOffErrorCallback = (
         result: CustomAdOnErrorListenerResult
     ) => void
-    /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type CustomAdOffLoadCallback = (res: GeneralCallbackResult) => void
-    type CustomAdOnCloseCallback = (res: GeneralCallbackResult) => void
     /** 原生模板广告错误事件的监听函数 */
     type CustomAdOnErrorCallback = (
         result: CustomAdOnErrorListenerResult
     ) => void
-    type CustomAdOnLoadCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type DownloadFileCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
@@ -22306,6 +22667,18 @@ wx.writeBLECharacteristicValue({
         result: GetSavedFileListSuccessCallbackResult
     ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type GetScenePerformanceManagerCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type GetScenePerformanceManagerFailCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type GetScenePerformanceManagerSuccessCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type GetScoreCompleteCallback = (res: GeneralCallbackResult) => void
     /** 接口调用失败的回调函数 */
     type GetScoreFailCallback = (res: GeneralCallbackResult) => void
@@ -22742,6 +23115,8 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** onListening 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffListeningCallback = (res: GeneralCallbackResult) => void
+    /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type OffLoadCallback = (res: GeneralCallbackResult) => void
     /** onLockStepError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type OffLockStepErrorCallback = (
         result: OnLockStepErrorListenerResult
@@ -22861,6 +23236,10 @@ wx.writeBLECharacteristicValue({
     /** 用户点击菜单「收藏」按钮时触发的事件的监听函数 */
     type OnAddToFavoritesCallback = (
         result: OnAddToFavoritesListenerResult
+    ) => void
+    /** 用户点击菜单「添加提醒」按钮时触发的事件的监听函数 */
+    type OnAddToScheduleCallback = (
+        result: OnAddToScheduleListenerResult
     ) => void
     /** 音频因为受到系统占用而被中断开始事件的监听函数 */
     type OnAudioInterruptionBeginCallback = (res: GeneralCallbackResult) => void
@@ -23008,6 +23387,7 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 开始监听数据包消息的事件的监听函数 */
     type OnListeningCallback = (res: GeneralCallbackResult) => void
+    type OnLoadCallback = (res: GeneralCallbackResult) => void
     /** 的监听函数 */
     type OnLockStepErrorCallback = (
         result: OnLockStepErrorListenerResult
@@ -23240,6 +23620,18 @@ wx.writeBLECharacteristicValue({
     ) => void
     /** 接口调用失败的回调函数 */
     type OpenFailCallback = (res: FileError) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type OpenPhotoTopicViewCompleteCallback = (
+        res: GeneralCallbackResult
+    ) => void
+    /** 接口调用失败的回调函数 */
+    type OpenPhotoTopicViewFailCallback = (
+        err: CheckIsSupportMidasPaymentFailCallbackErr
+    ) => void
+    /** 接口调用成功的回调函数 */
+    type OpenPhotoTopicViewSuccessCallback = (
+        result: OpenPhotoTopicViewSuccessCallbackResult
+    ) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type OpenPrivacyContractCompleteCallback = (
         res: GeneralCallbackResult
@@ -23544,14 +23936,10 @@ wx.writeBLECharacteristicValue({
     type RewardedVideoAdOffCloseCallback = (
         result: RewardedVideoAdOnCloseListenerResult
     ) => void
-    /** onLoad 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type RewardedVideoAdOffLoadCallback = (result: OnLoadListenerResult) => void
     /** 用户点击 `关闭广告` 按钮的事件的监听函数 */
     type RewardedVideoAdOnCloseCallback = (
         result: RewardedVideoAdOnCloseListenerResult
     ) => void
-    /** 激励视频广告加载事件的监听函数 */
-    type RewardedVideoAdOnLoadCallback = (result: OnLoadListenerResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type RmdirCompleteCallback = (res: FileError) => void
     /** 接口调用失败的回调函数 */
@@ -23648,6 +24036,12 @@ wx.writeBLECharacteristicValue({
     type SetClipboardDataFailCallback = (res: GeneralCallbackResult) => void
     /** 接口调用成功的回调函数 */
     type SetClipboardDataSuccessCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    type SetDataCompleteCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用失败的回调函数 */
+    type SetDataFailCallback = (res: GeneralCallbackResult) => void
+    /** 接口调用成功的回调函数 */
+    type SetDataSuccessCallback = (res: GeneralCallbackResult) => void
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     type SetDeviceOrientationCompleteCallback = (
         res: GeneralCallbackResult
@@ -24034,12 +24428,15 @@ wx.writeBLECharacteristicValue({
     type TruncateFailCallback = (res: FileError) => void
     /** 接口调用成功的回调函数 */
     type TruncateSuccessCallback = (res: FileError) => void
+    /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type UDPSocketOffCloseCallback = (res: GeneralCallbackResult) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type UDPSocketOffErrorCallback = (result: GeneralCallbackResult) => void
     /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
     type UDPSocketOffMessageCallback = (
         result: UDPSocketOnMessageListenerResult
     ) => void
+    type UDPSocketOnCloseCallback = (res: GeneralCallbackResult) => void
     type UDPSocketOnErrorCallback = (result: GeneralCallbackResult) => void
     /** 收到消息的事件的监听函数 */
     type UDPSocketOnMessageCallback = (
