@@ -1568,7 +1568,7 @@ CustomAd.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
+            listener?: CustomAdOffCloseCallback
         ): void
         /** [CustomAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.offError.html)
 *
@@ -1641,7 +1641,7 @@ CustomAd.offResize(listener) // 需传入与监听时同一个的函数对象
          * 监听原生模板广告关闭事件（仅部分可被用户关闭的模板支持）。 */
         onClose(
             /** 原生模板广告关闭事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
+            listener: CustomAdOnCloseCallback
         ): void
         /** [CustomAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/CustomAd.onError.html)
          *
@@ -4113,6 +4113,20 @@ GridAd.offResize(listener) // 需传入与监听时同一个的函数对象
         path: string
         /** 本地临时文件大小，单位 B */
         size: number
+    }
+    interface Info {
+        /** 当前用户所使用 5-15 关整体难度轨迹 */
+        curveIdStr?: string
+        /** 本关实际游戏时间 */
+        durationMs?: number
+        /** 本关内失误次数 */
+        failCount?: number
+        /** 本关消耗提示数 */
+        hintUsed?: number
+        /** 当前所处的关卡 ID */
+        levelId?: number
+        /** 本关重试次数 */
+        retryCount?: number
     }
     interface InitFaceDetectOption {
         /** 接口调用结束的回调函数（调用成功、失败都会执行） */
@@ -7553,6 +7567,17 @@ OpenSettingButton.offTap(listener) // 需传入与监听时同一个的函数对
         fail?: SetScreenBrightnessFailCallback
         /** 接口调用成功的回调函数 */
         success?: SetScreenBrightnessSuccessCallback
+    }
+    /** 自定义校验字段 */
+    interface SetServerSideVerificationDataOption {
+        /** 自定义数据 */
+        customData?: string
+        /** 奖励个数 */
+        rewardAmount?: number
+        /** 奖励品类 */
+        rewardItem?: string
+        /** 用户 id */
+        userId?: string
     }
     interface SetStateOption {
         /** 该玩家的自定义状态信息，长度限制为 256 个字符 */
@@ -13436,7 +13461,7 @@ InterstitialAd.offClose(listener) // 需传入与监听时同一个的函数对�
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
+            listener?: CustomAdOffCloseCallback
         ): void
         /** [InterstitialAd.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.offError.html)
 *
@@ -13475,7 +13500,7 @@ InterstitialAd.offLoad(listener) // 需传入与监听时同一个的函数对�
          * 监听插屏广告关闭事件。 */
         onClose(
             /** 插屏广告关闭事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
+            listener: CustomAdOnCloseCallback
         ): void
         /** [InterstitialAd.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.onError.html)
          *
@@ -14319,6 +14344,36 @@ RewardedVideoAd.offLoad(listener) // 需传入与监听时同一个的函数对�
             /** 激励视频广告加载事件的监听函数 */
             listener: OnLoadCallback
         ): void
+        /** [RewardedVideoAd.setMiniGameAutoIntelligenceInfo(Object info)](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.setMiniGameAutoIntelligenceInfo.html)
+         *
+         * 设置小游戏智能托管关卡信息。须在 load() 前调用，下次广告请求会带上。 */
+        setMiniGameAutoIntelligenceInfo(info: Info): void
+        /** [RewardedVideoAd.setServerSideVerificationData(Object object)](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.setServerSideVerificationData.html)
+*
+* 需要基础库： `3.10.3`
+*
+* 设置激励广告服务端校验的自定义透传字段。需在 RewardedVideoAd.show() 之前调用。详细参考[激励广告服务端验证接入指引](https://developers.weixin.qq.com/minigame/dev/guide/security/antiadcheat.html)。
+*
+* **示例代码**
+*
+* ```js
+const videoAd = wx.createRewardedVideoAd({
+  adUnitId: 'XXX'
+})
+if (videoAd.setServerSideVerificationData) {
+  videoAd.setServerSideVerificationData({
+    userId: 'XXX',
+    rewardItem: '金币',
+    rewardAmount: 10,
+    customData: 'XXX'
+  })
+}
+videoAd.show()
+``` */
+        setServerSideVerificationData(
+            /** 自定义校验字段 */
+            option: SetServerSideVerificationDataOption
+        ): void
     }
     interface ScenePerformanceManager {
         /** [Object ScenePerformanceManager.getCommonInfo()](https://developers.weixin.qq.com/minigame/dev/api/data-analysis/ScenePerformanceManager.getCommonInfo.html)
@@ -14546,7 +14601,7 @@ TCPSocket.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
+            listener?: CustomAdOffCloseCallback
         ): void
         /** [TCPSocket.offConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.offConnect.html)
 *
@@ -14610,7 +14665,7 @@ TCPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
          * 监听一旦 socket 完全关闭就发出该事件 */
         onClose(
             /** 一旦 socket 完全关闭就发出该事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
+            listener: CustomAdOnCloseCallback
         ): void
         /** [TCPSocket.onConnect(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/tcp/TCPSocket.onConnect.html)
          *
@@ -14666,7 +14721,7 @@ UDPSocket.offClose(listener) // 需传入与监听时同一个的函数对象
 ``` */
         offClose(
             /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-            listener?: UDPSocketOffCloseCallback
+            listener?: CustomAdOffCloseCallback
         ): void
         /** [UDPSocket.offError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.offError.html)
 *
@@ -14721,7 +14776,7 @@ UDPSocket.offMessage(listener) // 需传入与监听时同一个的函数对象
          * 监听关闭事件 */
         onClose(
             /** 关闭事件的监听函数 */
-            listener: UDPSocketOnCloseCallback
+            listener: CustomAdOnCloseCallback
         ): void
         /** [UDPSocket.onError(function listener)](https://developers.weixin.qq.com/minigame/dev/api/network/udp/UDPSocket.onError.html)
          *
@@ -22129,10 +22184,13 @@ wx.writeBLECharacteristicValue({
     type CreateRoomSuccessCallback = (
         result: CreateRoomSuccessCallbackResult
     ) => void
+    /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
+    type CustomAdOffCloseCallback = (res: GeneralCallbackResult) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type CustomAdOffErrorCallback = (
         result: CustomAdOnErrorListenerResult
     ) => void
+    type CustomAdOnCloseCallback = (res: GeneralCallbackResult) => void
     /** 原生模板广告错误事件的监听函数 */
     type CustomAdOnErrorCallback = (
         result: CustomAdOnErrorListenerResult
@@ -24428,15 +24486,12 @@ wx.writeBLECharacteristicValue({
     type TruncateFailCallback = (res: FileError) => void
     /** 接口调用成功的回调函数 */
     type TruncateSuccessCallback = (res: FileError) => void
-    /** onClose 传入的监听函数。不传此参数则移除所有监听函数。 */
-    type UDPSocketOffCloseCallback = (res: GeneralCallbackResult) => void
     /** onError 传入的监听函数。不传此参数则移除所有监听函数。 */
     type UDPSocketOffErrorCallback = (result: GeneralCallbackResult) => void
     /** onMessage 传入的监听函数。不传此参数则移除所有监听函数。 */
     type UDPSocketOffMessageCallback = (
         result: UDPSocketOnMessageListenerResult
     ) => void
-    type UDPSocketOnCloseCallback = (res: GeneralCallbackResult) => void
     type UDPSocketOnErrorCallback = (result: GeneralCallbackResult) => void
     /** 收到消息的事件的监听函数 */
     type UDPSocketOnMessageCallback = (
